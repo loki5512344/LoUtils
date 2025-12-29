@@ -50,26 +50,38 @@ commands:
 
 permissions:
   loutils.whitelist:
-    default: op
+    description: Access to /lw command
+    default: false
   loutils.autorestart:
-    default: op
+    description: Access to /lar command
+    default: false
   loutils.lock:
-    default: op
+    description: Access to /ll command
+    default: false
   loutils.lock.bypass:
-    default: op
+    description: Bypass dimension lock
+    default: false
   loutils.vanish:
-    default: op
+    description: Access to /lv command
+    default: false
   loutils.vanish.see:
-    default: op
+    description: See vanished players
+    default: false
   loutils.stats:
-    default: true
+    description: Access to /lstats command
+    default: false
   loutils.stats.others:
-    default: op
+    description: View other players stats
+    default: false
   loutils.spawnmob:
-    default: op
+    description: Access to /lspawnmob command
+    default: false
   loutils.invsee:
-    default: op
+    description: Access to /linvsee command
+    default: false
   loutils.party:
-    default: true
+    description: Access to /lparty command
+    default: false
   loutils.admin:
-    default: op
+    description: Access to /loutils command
+    default: false
