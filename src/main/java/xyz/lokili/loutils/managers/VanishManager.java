@@ -1,6 +1,7 @@
 package xyz.lokili.loutils.managers;
 
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -56,6 +57,25 @@ public class VanishManager {
         }
     }
     
+    /**
+     * Вызывается при включении плагина или /reload
+     * Применяет ваниш ко всем онлайн игрокам
+     */
+    public void applyVanishToAllOnline() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (isVanished(player)) {
+                // Применяем эффекты и скрываем от других
+                applyEffects(player);
+                updateVisibilityForAll(player);
+            }
+        }
+        
+        // Обновляем видимость для всех игроков
+        for (Player viewer : Bukkit.getOnlinePlayers()) {
+            updateVanishedPlayersVisibility(viewer);
+        }
+    }
+    
     public boolean isVanished(Player player) {
         return vanishedPlayers.contains(player.getUniqueId());
     }
@@ -67,11 +87,11 @@ public class VanishManager {
     public void setVanished(Player player, boolean vanished) {
         if (vanished) {
             vanishedPlayers.add(player.getUniqueId());
-            hidePlayer(player);
+            updateVisibilityForAll(player);
             applyEffects(player);
         } else {
             vanishedPlayers.remove(player.getUniqueId());
-            showPlayer(player);
+            showPlayerToAll(player);
             removeEffects(player);
         }
         
@@ -84,17 +104,45 @@ public class VanishManager {
         setVanished(player, !isVanished(player));
     }
     
-    private void hidePlayer(Player player) {
-        for (Player online : Bukkit.getOnlinePlayers()) {
-            if (!online.hasPermission("loutils.vanish.see")) {
-                online.hidePlayer(plugin, player);
+    /**
+     * Обновляет видимость ванишнутого игрока для всех онлайн
+     */
+    private void updateVisibilityForAll(Player vanishedPlayer) {
+        for (Player viewer : Bukkit.getOnlinePlayers()) {
+            if (viewer.equals(vanishedPlayer)) continue;
+            
+            if (viewer.hasPermission("loutils.vanish.see")) {
+                viewer.showPlayer(plugin, vanishedPlayer);
+            } else {
+                viewer.hidePlayer(plugin, vanishedPlayer);
             }
         }
     }
     
-    private void showPlayer(Player player) {
-        for (Player online : Bukkit.getOnlinePlayers()) {
-            online.showPlayer(plugin, player);
+    /**
+     * Показывает игрока всем
+     */
+    private void showPlayerToAll(Player player) {
+        for (Player viewer : Bukkit.getOnlinePlayers()) {
+            viewer.showPlayer(plugin, player);
+        }
+    }
+    
+    /**
+     * Обновляет видимость всех ванишнутых для конкретного игрока
+     */
+    public void updateVanishedPlayersVisibility(Player viewer) {
+        boolean canSee = viewer.hasPermission("loutils.vanish.see");
+        
+        for (UUID uuid : vanishedPlayers) {
+            Player vanished = Bukkit.getPlayer(uuid);
+            if (vanished != null && vanished.isOnline() && !vanished.equals(viewer)) {
+                if (canSee) {
+                    viewer.showPlayer(plugin, vanished);
+                } else {
+                    viewer.hidePlayer(plugin, vanished);
+                }
+            }
         }
     }
     
@@ -108,22 +156,23 @@ public class VanishManager {
         player.removePotionEffect(PotionEffectType.NIGHT_VISION);
     }
     
+    /**
+     * Обработка входа игрока
+     */
     public void handleJoin(Player player) {
-        // Restore vanish state
+        // Если игрок был в ванише - восстанавливаем
         if (isVanished(player)) {
-            hidePlayer(player);
             applyEffects(player);
+            // Скрываем от тех, кто не может видеть
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                updateVisibilityForAll(player);
+            }, 5L);
         }
         
-        // Hide vanished players from this player
-        if (!player.hasPermission("loutils.vanish.see")) {
-            for (UUID uuid : vanishedPlayers) {
-                Player vanished = Bukkit.getPlayer(uuid);
-                if (vanished != null && vanished.isOnline()) {
-                    player.hidePlayer(plugin, vanished);
-                }
-            }
-        }
+        // Обновляем видимость ванишнутых для этого игрока
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            updateVanishedPlayersVisibility(player);
+        }, 5L);
     }
     
     public int getOnlineCountWithoutVanished() {
@@ -138,5 +187,9 @@ public class VanishManager {
     
     public Set<UUID> getVanishedPlayers() {
         return new HashSet<>(vanishedPlayers);
+    }
+    
+    public FileConfiguration getConfig() {
+        return plugin.getConfigManager().getVanishConfig();
     }
 }

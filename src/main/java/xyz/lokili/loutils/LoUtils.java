@@ -41,6 +41,9 @@ public class LoUtils extends JavaPlugin {
             autoRestartManager.start();
         }
         
+        // Apply vanish to all online players (for /reload support)
+        vanishManager.applyVanishToAllOnline();
+        
         // Register PlaceholderAPI expansion
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new LoUtilsExpansion(this).register();
