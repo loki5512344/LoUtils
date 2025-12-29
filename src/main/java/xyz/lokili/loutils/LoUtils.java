@@ -16,6 +16,7 @@ public class LoUtils extends JavaPlugin {
     private VanishManager vanishManager;
     private StatsManager statsManager;
     private PartyManager partyManager;
+    private NickManager nickManager;
     
     @Override
     public void onEnable() {
@@ -29,6 +30,7 @@ public class LoUtils extends JavaPlugin {
         vanishManager = new VanishManager(this);
         statsManager = new StatsManager(this);
         partyManager = new PartyManager(this);
+        nickManager = new NickManager(this);
         
         // Register commands
         registerCommands();
@@ -48,7 +50,7 @@ public class LoUtils extends JavaPlugin {
         }
         
         getLogger().info("LoUtils enabled!");
-        getLogger().info("Modules: Whitelist, AutoRestart, DimensionLock, Vanish, Stats, Party, DeathMessages");
+        getLogger().info("Modules: Whitelist, AutoRestart, DimensionLock, Vanish, Stats, Party, Nick, Enchant, DeathMessages");
     }
     
     @Override
@@ -58,6 +60,7 @@ public class LoUtils extends JavaPlugin {
         if (autoRestartManager != null) autoRestartManager.stop();
         if (statsManager != null) statsManager.shutdown();
         if (vanishManager != null) vanishManager.saveData();
+        if (nickManager != null) nickManager.saveData();
         if (whitelistManager != null) whitelistManager.saveWhitelist();
         
         getLogger().info("LoUtils disabled!");
@@ -104,6 +107,16 @@ public class LoUtils extends JavaPlugin {
         getCommand("lparty").setExecutor(partyCommand);
         getCommand("lparty").setTabCompleter(partyCommand);
         
+        // Nick
+        NickCommand nickCommand = new NickCommand(this);
+        getCommand("lnick").setExecutor(nickCommand);
+        getCommand("lnick").setTabCompleter(nickCommand);
+        
+        // Enchant
+        EnchantCommand enchantCommand = new EnchantCommand(this);
+        getCommand("lenchant").setExecutor(enchantCommand);
+        getCommand("lenchant").setTabCompleter(enchantCommand);
+        
         // Main command
         LoUtilsCommand loUtilsCommand = new LoUtilsCommand(this);
         getCommand("loutils").setExecutor(loUtilsCommand);
@@ -116,6 +129,7 @@ public class LoUtils extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new VanishListener(this), this);
         getServer().getPluginManager().registerEvents(new StatsListener(this), this);
         getServer().getPluginManager().registerEvents(new DeathMessageListener(this), this);
+        getServer().getPluginManager().registerEvents(new NickListener(this), this);
     }
     
     public void reload() {
@@ -132,4 +146,5 @@ public class LoUtils extends JavaPlugin {
     public VanishManager getVanishManager() { return vanishManager; }
     public StatsManager getStatsManager() { return statsManager; }
     public PartyManager getPartyManager() { return partyManager; }
+    public NickManager getNickManager() { return nickManager; }
 }

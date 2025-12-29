@@ -42,6 +42,14 @@ commands:
     description: Party management
     usage: /lparty <create|invite|kick|leave|list|accept|deny|color|disband>
     permission: loutils.party
+  lnick:
+    description: Change display name
+    usage: /lnick <nickname|reset>
+    permission: loutils.nick
+  lenchant:
+    description: Enchant items
+    usage: /lenchant <enchantment> <level>
+    permission: loutils.enchant
   loutils:
     description: Main plugin command
     usage: /loutils reload
@@ -81,6 +89,15 @@ permissions:
     default: false
   loutils.party:
     description: Access to /lparty command
+    default: false
+  loutils.nick:
+    description: Access to /lnick command
+    default: false
+  loutils.nick.others:
+    description: Change other players nick
+    default: false
+  loutils.enchant:
+    description: Access to /lenchant command
     default: false
   loutils.admin:
     description: Access to /loutils command

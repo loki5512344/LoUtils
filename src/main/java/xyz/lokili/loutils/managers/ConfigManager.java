@@ -48,6 +48,8 @@ public class ConfigManager {
         loadConfig("conf/stats.yml");
         loadConfig("conf/deathmessages.yml");
         loadConfig("conf/party.yml");
+        loadConfig("conf/nick.yml");
+        loadConfig("conf/enchant.yml");
     }
     
     private FileConfiguration loadConfig(String path) {

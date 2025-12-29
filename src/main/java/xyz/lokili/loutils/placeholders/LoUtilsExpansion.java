@@ -103,6 +103,15 @@ public class LoUtilsExpansion extends PlaceholderExpansion {
             if (params.equalsIgnoreCase("in_party")) {
                 return plugin.getPartyManager().isInParty(player) ? "true" : "false";
             }
+            
+            // Nick
+            if (params.equalsIgnoreCase("nick")) {
+                return plugin.getNickManager().getDisplayName(player);
+            }
+            
+            if (params.equalsIgnoreCase("has_nick")) {
+                return plugin.getNickManager().hasNick(player) ? "true" : "false";
+            }
         }
         
         return null;
