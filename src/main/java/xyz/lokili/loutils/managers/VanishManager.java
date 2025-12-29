@@ -164,15 +164,15 @@ public class VanishManager {
         if (isVanished(player)) {
             applyEffects(player);
             // Скрываем от тех, кто не может видеть
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            player.getScheduler().runDelayed(plugin, (t) -> {
                 updateVisibilityForAll(player);
-            }, 5L);
+            }, () -> {}, 5L);
         }
         
         // Обновляем видимость ванишнутых для этого игрока
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+        player.getScheduler().runDelayed(plugin, (t) -> {
             updateVanishedPlayersVisibility(player);
-        }, 5L);
+        }, () -> {}, 5L);
     }
     
     public int getOnlineCountWithoutVanished() {
