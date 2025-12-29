@@ -1,4 +1,5 @@
 # LoUtils - Vanish Configuration
+# Поддержка цветов: &#RRGGBB (hex) и &c (legacy)
 
 # Сохранять состояние vanish между сессиями
 save_state: true
@@ -11,6 +12,9 @@ block_advancements: true
 
 # Тихий вход/выход (без сообщений)
 silent_join_quit: true
+
+# Блокировать подбор предметов в ванише
+block_pickup: false
 
 # Эффекты при включении vanish
 effects:
