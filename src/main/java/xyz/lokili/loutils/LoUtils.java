@@ -16,6 +16,7 @@ public class LoUtils extends JavaPlugin {
     private VanishManager vanishManager;
     private StatsManager statsManager;
     private PartyManager partyManager;
+    private TPSBarManager tpsBarManager;
     
     @Override
     public void onEnable() {
@@ -29,6 +30,7 @@ public class LoUtils extends JavaPlugin {
         vanishManager = new VanishManager(this);
         statsManager = new StatsManager(this);
         partyManager = new PartyManager(this);
+        tpsBarManager = new TPSBarManager(this);
         
         // Register commands
         registerCommands();
@@ -51,11 +53,12 @@ public class LoUtils extends JavaPlugin {
         }
         
         getLogger().info("LoUtils enabled!");
-        getLogger().info("Modules: Whitelist, AutoRestart, DimensionLock, Vanish, Stats, Party, Enchant, DeathMessages");
+        getLogger().info("Modules: Whitelist, AutoRestart, DimensionLock, Vanish, Stats, Party, Enchant, DeathMessages, TPSBar");
     }
     
     @Override
     public void onDisable() {
+        if (tpsBarManager != null) tpsBarManager.shutdown();
         if (partyManager != null) partyManager.shutdown();
         if (dimensionLockManager != null) dimensionLockManager.shutdown();
         if (autoRestartManager != null) autoRestartManager.stop();
@@ -116,6 +119,11 @@ public class LoUtils extends JavaPlugin {
         LoUtilsCommand loUtilsCommand = new LoUtilsCommand(this);
         getCommand("loutils").setExecutor(loUtilsCommand);
         getCommand("loutils").setTabCompleter(loUtilsCommand);
+        
+        // TPSBar
+        TPSBarCommand tpsBarCommand = new TPSBarCommand(this);
+        getCommand("ltpsbar").setExecutor(tpsBarCommand);
+        getCommand("ltpsbar").setTabCompleter(tpsBarCommand);
     }
     
     private void registerListeners() {
@@ -140,4 +148,5 @@ public class LoUtils extends JavaPlugin {
     public VanishManager getVanishManager() { return vanishManager; }
     public StatsManager getStatsManager() { return statsManager; }
     public PartyManager getPartyManager() { return partyManager; }
+    public TPSBarManager getTPSBarManager() { return tpsBarManager; }
 }

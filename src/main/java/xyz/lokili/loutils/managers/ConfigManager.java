@@ -49,6 +49,7 @@ public class ConfigManager {
         loadConfig("conf/deathmessages.yml");
         loadConfig("conf/party.yml");
         loadConfig("conf/enchant.yml");
+        loadConfig("conf/tpsbar.yml");
     }
     
     private FileConfiguration loadConfig(String path) {

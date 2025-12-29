@@ -51,44 +51,51 @@ commands:
     usage: /loutils reload
     permission: loutils.admin
     aliases: [lu]
+  ltpsbar:
+    description: Toggle TPS bar
+    usage: /ltpsbar [on|off]
+    permission: loutils.tpsbar
 
 permissions:
   loutils.whitelist:
     description: Access to /lw command
-    default: false
+    default: op
   loutils.autorestart:
     description: Access to /lar command
-    default: false
+    default: op
   loutils.lock:
     description: Access to /ll command
-    default: false
+    default: op
   loutils.lock.bypass:
     description: Bypass dimension lock
-    default: false
+    default: op
   loutils.vanish:
     description: Access to /lv command
-    default: false
+    default: op
   loutils.vanish.see:
     description: See vanished players
-    default: false
+    default: op
   loutils.stats:
     description: Access to /lstats command
-    default: false
+    default: op
   loutils.stats.others:
     description: View other players stats
-    default: false
+    default: op
   loutils.spawnmob:
     description: Access to /lspawnmob command
-    default: false
+    default: op
   loutils.invsee:
     description: Access to /linvsee command
-    default: false
+    default: op
   loutils.party:
     description: Access to /lparty command
-    default: false
+    default: op
   loutils.enchant:
     description: Access to /lenchant command
-    default: false
+    default: op
   loutils.admin:
     description: Access to /loutils command
-    default: false
+    default: op
+  loutils.tpsbar:
+    description: Access to /ltpsbar command
+    default: op

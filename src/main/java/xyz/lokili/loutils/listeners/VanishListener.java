@@ -41,6 +41,9 @@ public class VanishListener implements Listener {
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         
+        // Cleanup TPSBar
+        plugin.getTPSBarManager().handleQuit(player);
+        
         // Silent quit for vanished players
         if (plugin.getVanishManager().isVanished(player)) {
             if (plugin.getVanishManager().getConfig().getBoolean("silent_join_quit", true)) {

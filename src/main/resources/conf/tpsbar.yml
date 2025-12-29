@@ -1,0 +1,20 @@
+# LoUtils TPSBar Configuration
+# Supports colors: &#RRGGBB (hex) and &c (legacy)
+
+# Enable/disable module
+enabled: true
+
+# BossBar format
+# Placeholders: {region_tps}, {global_tps}, {mspt}, {world}, {x}, {z}
+format: "&7Region: {region_tps} &8| &7Global: {global_tps} &8| &7MSPT: {mspt}"
+
+# Update interval in ticks (20 ticks = 1 second)
+update-interval: 20
+
+# Messages
+messages:
+  enabled: "&#55FF55TPSBar включён!"
+  disabled: "&#FF5555TPSBar выключен!"
+  already-enabled: "&#FFAA00TPSBar уже включён!"
+  already-disabled: "&#FFAA00TPSBar уже выключен!"
+  usage: "&#FFFFFFИспользование: /ltpsbar [on|off]"
