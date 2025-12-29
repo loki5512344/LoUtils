@@ -1,0 +1,93 @@
+# LoUtils Configuration
+# Автор: loki
+# Поддержка цветов: &#RRGGBB (hex) и &c (legacy)
+
+# ==================== WHITELIST ====================
+whitelist:
+  enabled: true
+
+# ==================== AUTORESTART ====================
+autorestart:
+  enabled: true
+  # Интервал рестарта в минутах (0 = использовать daily_restart_time)
+  interval_minutes: 360
+  # Ежедневный рестарт в определённое время (формат HH:mm, пусто = использовать interval)
+  daily_time: ""
+  # Предупреждения за N минут до рестарта
+  warnings:
+    - 30
+    - 15
+    - 10
+    - 5
+    - 3
+    - 1
+  # Сохранять миры перед рестартом
+  save_before_restart: true
+
+# ==================== DIMENSION LOCK ====================
+dimensionlock:
+  enabled: true
+  # Время блокировки по умолчанию (минуты)
+  default_lock_time: 10
+  # Голограмма над порталом
+  hologram:
+    enabled: true
+    text: "&#FF6B6B⚠ {dimension} откроется через {time}"
+    offset: 3.0
+
+# ==================== СООБЩЕНИЯ ====================
+messages:
+  prefix: "&#3BA8FF[LoUtils] &7"
+  
+  # === Whitelist ===
+  player-added: "&#3BA8FFИгрок &f%player% &#3BA8FFдобавлен в whitelist"
+  player-removed: "&#3BA8FFИгрок &f%player% &#3BA8FFудалён из whitelist"
+  player-already-in-list: "&cИгрок &f%player% &cуже в whitelist"
+  player-not-in-list: "&cИгрок &f%player% &cне найден в whitelist"
+  
+  list-header: "&#3BA8FF=== Whitelist (%count% игроков) ==="
+  list-empty: "&7Whitelist пуст"
+  list-player: "&7- &f%player%"
+  
+  whitelist-enabled: "&#3BA8FFWhitelist &aвключён"
+  whitelist-disabled: "&#3BA8FFWhitelist &cотключён"
+  whitelist-already-enabled: "&cWhitelist уже включён"
+  whitelist-already-disabled: "&cWhitelist уже отключён"
+  
+  kick-message: |
+    &#3BA8FF&lLoUtils Whitelist
+    
+    &7Вы не в белом списке сервера.
+    &7Обратитесь к администрации.
+  
+  # === AutoRestart ===
+  restart-warning: "&#FF6B6B⚠ &fСервер перезапустится через &#FF6B6B%time% &fминут!"
+  restart-warning-seconds: "&#FF6B6B⚠ &fСервер перезапустится через &#FF6B6B%time% &fсекунд!"
+  restart-now: "&#FF6B6B&l⚠ Сервер перезапускается!"
+  restart-cancelled: "&#3BA8FFРестарт отменён"
+  
+  timer-started: "&#3BA8FFТаймер авто-рестарта &aзапущен"
+  timer-stopped: "&#3BA8FFТаймер авто-рестарта &cостановлен"
+  timer-already-running: "&cТаймер уже запущен"
+  timer-not-running: "&cТаймер не запущен"
+  timer-status: "&#3BA8FFДо рестарта: &f%hours%ч %minutes%м %seconds%с"
+  timer-status-disabled: "&7Авто-рестарт отключён"
+  
+  # === Dimension Lock ===
+  dimension-locked: "&#FF6B6B{dimension} &fзаблокирован на &#FF6B6B{time} &fминут"
+  dimension-unlocked: "&#3BA8FF{dimension} &aразблокирован!"
+  dimension-not-locked: "&c{dimension} не заблокирован"
+  dimension-status-locked: "&#FF6B6B{dimension}&7: &cзакрыт &7(осталось {time})"
+  dimension-status-open: "&#3BA8FF{dimension}&7: &aоткрыт"
+  dimension-locked-actionbar: "&#FF6B6B⚠ &fДоступ к {dimension} закрыт! Осталось: {time}"
+  dimension-required: "&cУкажите измерение (nether/end)"
+  invalid-dimension: "&cНеверное измерение. Используйте: nether, end"
+  invalid-time: "&cНеверное время. Укажите число минут"
+  
+  # === Общие ===
+  config-reloaded: "&#3BA8FFКонфигурация перезагружена"
+  no-permission: "&cУ вас нет прав для этой команды"
+  usage-whitelist: "&cИспользование: /lw <add|remove|list|enable|disable|reload> [player]"
+  usage-autorestart: "&cИспользование: /lar <start|stop|status|reload>"
+  usage-dimensionlock: "&cИспользование: /ll <lock|unlock|status|reload> [dimension] [time]"
+  player-required: "&cУкажите имя игрока"

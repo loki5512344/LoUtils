@@ -1,0 +1,32 @@
+name: LoUtils
+version: ${version}
+main: xyz.lokili.loutils.LoUtils
+api-version: "1.21"
+folia-supported: true
+author: loki
+description: Whitelist, AutoRestart and Dimension Lock plugin
+
+commands:
+  lw:
+    description: Whitelist management command
+    usage: /lw <add|remove|list|enable|disable|reload> [player]
+    permission: loutils.whitelist.command
+  lar:
+    description: AutoRestart management command
+    usage: /lar <start|stop|status|reload>
+    permission: loutils.autorestart.command
+  ll:
+    description: Dimension lock management command
+    usage: /ll <lock|unlock|status|reload> [dimension] [time]
+    permission: loutils.lock.command
+
+permissions:
+  loutils.whitelist.command:
+    description: Access to whitelist commands
+    default: op
+  loutils.autorestart.command:
+    description: Access to autorestart commands
+    default: op
+  loutils.lock.command:
+    description: Access to dimension lock commands
+    default: op
