@@ -67,7 +67,7 @@ public class SpawnMobCommand implements CommandExecutor, TabCompleter {
         int amount;
         try {
             amount = Integer.parseInt(args[1]);
-            if (amount < 1 || amount > 100) {
+            if (amount < 1 || amount > 10000) {
                 sendMessage(sender, "spawnmob.invalid-amount");
                 return true;
             }
@@ -113,7 +113,7 @@ public class SpawnMobCommand implements CommandExecutor, TabCompleter {
         }
         
         if (args.length == 2) {
-            return Arrays.asList("1", "5", "10", "20", "50");
+            return Arrays.asList("1", "10", "100", "1000", "10000");
         }
         
         return new ArrayList<>();
