@@ -26,9 +26,10 @@ public class WhitelistManager {
     }
     
     public void loadWhitelist() {
-        whitelistFile = new File(plugin.getDataFolder(), "whitelist.yml");
+        whitelistFile = new File(plugin.getDataFolder(), "data/whitelist.yml");
         
         if (!whitelistFile.exists()) {
+            whitelistFile.getParentFile().mkdirs();
             try {
                 whitelistFile.createNewFile();
             } catch (IOException e) {
@@ -42,7 +43,7 @@ public class WhitelistManager {
         List<String> players = whitelistConfig.getStringList("players");
         whitelistedPlayers.addAll(players.stream().map(String::toLowerCase).toList());
         
-        enabled = plugin.getConfig().getBoolean("whitelist.enabled", true);
+        enabled = plugin.getConfigManager().getWhitelistConfig().getBoolean("enabled", true);
     }
     
     public void saveWhitelist() {
@@ -92,12 +93,13 @@ public class WhitelistManager {
     
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
-        plugin.getConfig().set("whitelist.enabled", enabled);
-        plugin.saveConfig();
+        // Save to whitelist config
+        FileConfiguration config = plugin.getConfigManager().getWhitelistConfig();
+        config.set("enabled", enabled);
+        plugin.getConfigManager().saveConfig("conf/whitelist.yml");
     }
     
     public void reload() {
-        plugin.reloadConfig();
         loadWhitelist();
     }
 }

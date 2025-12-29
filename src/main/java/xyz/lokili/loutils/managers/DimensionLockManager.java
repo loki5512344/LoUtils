@@ -80,7 +80,7 @@ public class DimensionLockManager {
         lockedDimensions.put(dimension, unlockTime);
         
         // Создаём голограмму
-        if (plugin.getConfig().getBoolean("dimensionlock.hologram.enabled", true)) {
+        if (plugin.getConfigManager().getDimensionLockConfig().getBoolean("hologram.enabled", true)) {
             createHologram(dimension);
         }
         
@@ -186,7 +186,7 @@ public class DimensionLockManager {
     }
     
     private void updateHologramText(ArmorStand hologram, String dimension) {
-        String template = plugin.getConfig().getString("dimensionlock.hologram.text", 
+        String template = plugin.getConfigManager().getDimensionLockConfig().getString("hologram.text", 
                 "&c{dimension} откроется через {time}");
         String text = template
                 .replace("{dimension}", getDimensionDisplayName(dimension))
@@ -216,14 +216,14 @@ public class DimensionLockManager {
     
     private Location getHologramLocation(String dimension, World world) {
         // Спавн точка измерения + offset
-        double offset = plugin.getConfig().getDouble("dimensionlock.hologram.offset", 3.0);
+        double offset = plugin.getConfigManager().getDimensionLockConfig().getDouble("hologram.offset", 3.0);
         Location spawn = world.getSpawnLocation();
         return spawn.clone().add(0, offset, 0);
     }
     
     private void broadcastUnlock(String dimension) {
-        String message = plugin.getConfig().getString("messages.prefix", "") +
-                plugin.getConfig().getString("messages.dimension-unlocked", "{dimension} открыт!")
+        String message = plugin.getConfigManager().getPrefix() +
+                plugin.getConfigManager().getMessage("dimensionlock.unlocked")
                         .replace("{dimension}", getDimensionDisplayName(dimension));
         
         Bukkit.broadcast(ColorUtil.colorize(message));
@@ -238,8 +238,7 @@ public class DimensionLockManager {
     }
     
     public Component getLockedActionBar(String dimension) {
-        String template = plugin.getConfig().getString("messages.dimension-locked-actionbar",
-                "&cДоступ к {dimension} закрыт! Осталось: {time}");
+        String template = plugin.getConfigManager().getMessage("dimensionlock.actionbar");
         String text = template
                 .replace("{dimension}", getDimensionDisplayName(dimension))
                 .replace("{time}", getTimeRemainingFormatted(dimension));

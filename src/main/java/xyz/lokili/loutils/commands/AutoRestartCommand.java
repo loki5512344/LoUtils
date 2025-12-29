@@ -26,13 +26,13 @@ public class AutoRestartCommand implements CommandExecutor, TabCompleter {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
                             @NotNull String label, @NotNull String[] args) {
         
-        if (!sender.hasPermission("loutils.autorestart.command")) {
+        if (!sender.hasPermission("loutils.autorestart")) {
             sendMessage(sender, "no-permission");
             return true;
         }
         
         if (args.length == 0) {
-            sendMessage(sender, "usage-autorestart");
+            sendMessage(sender, "autorestart.usage");
             return true;
         }
         
@@ -43,7 +43,7 @@ public class AutoRestartCommand implements CommandExecutor, TabCompleter {
             case "stop" -> handleStop(sender);
             case "status" -> handleStatus(sender);
             case "reload" -> handleReload(sender);
-            default -> sendMessage(sender, "usage-autorestart");
+            default -> sendMessage(sender, "autorestart.usage");
         }
         
         return true;
@@ -51,63 +51,58 @@ public class AutoRestartCommand implements CommandExecutor, TabCompleter {
     
     private void handleStart(CommandSender sender) {
         if (plugin.getAutoRestartManager().isRunning()) {
-            sendMessage(sender, "timer-already-running");
+            sendMessage(sender, "autorestart.timer-already-running");
             return;
         }
         
-        plugin.getConfig().set("autorestart.enabled", true);
-        plugin.saveConfig();
+        plugin.getConfigManager().getAutoRestartConfig().set("enabled", true);
+        plugin.getConfigManager().saveConfig("conf/autorestart.yml");
         plugin.getAutoRestartManager().start();
-        sendMessage(sender, "timer-started");
+        sendMessage(sender, "autorestart.timer-started");
     }
     
     private void handleStop(CommandSender sender) {
         if (!plugin.getAutoRestartManager().isRunning()) {
-            sendMessage(sender, "timer-not-running");
+            sendMessage(sender, "autorestart.timer-not-running");
             return;
         }
         
         plugin.getAutoRestartManager().stop();
-        sendMessage(sender, "timer-stopped");
+        sendMessage(sender, "autorestart.timer-stopped");
     }
     
     private void handleStatus(CommandSender sender) {
         if (!plugin.getAutoRestartManager().isRunning()) {
-            sendMessage(sender, "timer-status-disabled");
+            sendMessage(sender, "autorestart.timer-disabled");
             return;
         }
         
         long[] parts = plugin.getAutoRestartManager().getTimeRemainingParts();
-        String message = getMessage("timer-status")
-                .replace("%hours%", String.valueOf(parts[0]))
-                .replace("%minutes%", String.valueOf(parts[1]))
-                .replace("%seconds%", String.valueOf(parts[2]));
+        String message = plugin.getConfigManager().getMessage("autorestart.timer-status")
+                .replace("{hours}", String.valueOf(parts[0]))
+                .replace("{minutes}", String.valueOf(parts[1]))
+                .replace("{seconds}", String.valueOf(parts[2]));
         
-        String prefix = plugin.getConfig().getString("messages.prefix", "");
-        sender.sendMessage(ColorUtil.colorize(prefix + message));
+        sender.sendMessage(ColorUtil.colorize(plugin.getConfigManager().getPrefix() + message));
     }
     
     private void handleReload(CommandSender sender) {
-        plugin.reloadConfig();
+        plugin.getConfigManager().reloadAll();
         plugin.getAutoRestartManager().reload();
         sendMessage(sender, "config-reloaded");
     }
     
     private void sendMessage(CommandSender sender, String key) {
-        String prefix = plugin.getConfig().getString("messages.prefix", "");
-        String message = getMessage(key);
+        String prefix = plugin.getConfigManager().getPrefix();
+        String message = plugin.getConfigManager().getMessage(key);
         sender.sendMessage(ColorUtil.colorize(prefix + message));
-    }
-    
-    private String getMessage(String key) {
-        return plugin.getConfig().getString("messages." + key, "&cMessage not found: " + key);
     }
     
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command,
                                                  @NotNull String alias, @NotNull String[] args) {
         
-        if (!sender.hasPermission("loutils.autorestart.command")) {
+        if (!sender.hasPermission("loutils.autorestart")) {
             return new ArrayList<>();
         }
         

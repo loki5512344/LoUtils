@@ -24,7 +24,7 @@ public class PlayerJoinListener implements Listener {
         String playerName = event.getName();
         
         if (!plugin.getWhitelistManager().isWhitelisted(playerName)) {
-            String kickMessage = plugin.getConfig().getString("messages.kick-message", 
+            String kickMessage = plugin.getConfigManager().getWhitelistConfig().getString("kick-message", 
                 "&cВы не в белом списке сервера.");
             event.disallow(
                 AsyncPlayerPreLoginEvent.Result.KICK_WHITELIST,

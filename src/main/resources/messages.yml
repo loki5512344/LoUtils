@@ -1,0 +1,105 @@
+# LoUtils - Messages Configuration
+# Поддержка цветов: &#RRGGBB (hex) и &c (legacy)
+
+# === Общие ===
+no-permission: "&cУ вас нет прав для этой команды"
+player-not-found: "&cИгрок не найден"
+player-required: "&cУкажите имя игрока"
+config-reloaded: "&#3BA8FFКонфигурация перезагружена"
+invalid-number: "&cНеверное число"
+
+# === Whitelist ===
+whitelist:
+  player-added: "&#3BA8FFИгрок &f{player} &#3BA8FFдобавлен в whitelist"
+  player-removed: "&#3BA8FFИгрок &f{player} &#3BA8FFудалён из whitelist"
+  player-already-in-list: "&cИгрок &f{player} &cуже в whitelist"
+  player-not-in-list: "&cИгрок &f{player} &cне найден в whitelist"
+  list-header: "&#3BA8FF=== Whitelist ({count} игроков) ==="
+  list-empty: "&7Whitelist пуст"
+  list-player: "&7- &f{player}"
+  enabled: "&#3BA8FFWhitelist &aвключён"
+  disabled: "&#3BA8FFWhitelist &cотключён"
+  already-enabled: "&cWhitelist уже включён"
+  already-disabled: "&cWhitelist уже отключён"
+  usage: "&cИспользование: /lw <add|remove|list|enable|disable|reload> [player]"
+
+# === AutoRestart ===
+autorestart:
+  warning: "&#FF6B6B⚠ &fСервер перезапустится через &#FF6B6B{time} &fминут!"
+  warning-seconds: "&#FF6B6B⚠ &fСервер перезапустится через &#FF6B6B{time} &fсекунд!"
+  now: "&#FF6B6B&l⚠ Сервер перезапускается!"
+  timer-started: "&#3BA8FFТаймер авто-рестарта &aзапущен"
+  timer-stopped: "&#3BA8FFТаймер авто-рестарта &cостановлен"
+  timer-already-running: "&cТаймер уже запущен"
+  timer-not-running: "&cТаймер не запущен"
+  timer-status: "&#3BA8FFДо рестарта: &f{hours}ч {minutes}м {seconds}с"
+  timer-disabled: "&7Авто-рестарт отключён"
+  usage: "&cИспользование: /lar <start|stop|status|reload>"
+
+# === Dimension Lock ===
+dimensionlock:
+  locked: "&#FF6B6B{dimension} &fзаблокирован на &#FF6B6B{time} &fминут"
+  unlocked: "&#3BA8FF{dimension} &aразблокирован!"
+  not-locked: "&c{dimension} не заблокирован"
+  status-locked: "&#FF6B6B{dimension}&7: &cзакрыт &7(осталось {time})"
+  status-open: "&#3BA8FF{dimension}&7: &aоткрыт"
+  actionbar: "&#FF6B6B⚠ &fДоступ к {dimension} закрыт! Осталось: {time}"
+  dimension-required: "&cУкажите измерение (nether/end)"
+  invalid-dimension: "&cНеверное измерение. Используйте: nether, end"
+  usage: "&cИспользование: /ll <lock|unlock|status|reload> [dimension] [time]"
+
+# === Vanish ===
+vanish:
+  enabled: "&#3BA8FFВы теперь &aневидимы"
+  disabled: "&#3BA8FFВы теперь &cвидимы"
+  enabled-other: "&#3BA8FF{player} теперь &aневидим"
+  disabled-other: "&#3BA8FF{player} теперь &cвидим"
+  usage: "&cИспользование: /lv [player]"
+
+# === Stats ===
+stats:
+  header: "&#3BA8FF=== Статистика {player} ==="
+  playtime: "&7Время на сервере: &f{time}"
+  kills: "&7Убийств: &f{kills}"
+  deaths: "&7Смертей: &f{deaths}"
+  kdr: "&7K/D: &f{kdr}"
+  balance: "&7Баланс: &f{balance}"
+  usage: "&cИспользование: /lstats [player]"
+
+# === SpawnMob ===
+spawnmob:
+  spawned: "&#3BA8FFЗаспавнено &f{amount} &7мобов типа &f{mob}"
+  invalid-mob: "&cНеверный тип моба"
+  invalid-amount: "&cНеверное количество (1-100)"
+  usage: "&cИспользование: /lspawnmob <mob> <amount>"
+
+# === InvSee ===
+invsee:
+  opened: "&#3BA8FFОткрыт инвентарь игрока &f{player}"
+  title: "&#3BA8FFИнвентарь {player}"
+  effects-title: "&7Эффекты:"
+  no-effects: "&7Нет эффектов"
+  usage: "&cИспользование: /linvsee <player>"
+
+# === Party ===
+party:
+  created: "&#3BA8FFВы создали пати"
+  disbanded: "&#3BA8FFПати распущено"
+  invited: "&#3BA8FFВы пригласили &f{player} &7в пати"
+  invite-received: "&#3BA8FF{player} &7приглашает вас в пати. &a/lparty accept &7или &c/lparty deny"
+  joined: "&#3BA8FF{player} &7присоединился к пати"
+  left: "&#3BA8FF{player} &7покинул пати"
+  kicked: "&#3BA8FF{player} &7был исключён из пати"
+  you-kicked: "&cВы были исключены из пати"
+  not-in-party: "&cВы не в пати"
+  already-in-party: "&cВы уже в пати"
+  player-not-in-party: "&cЭтот игрок не в вашем пати"
+  not-leader: "&cТолько лидер может это делать"
+  party-full: "&cПати заполнено"
+  no-invite: "&cУ вас нет приглашений"
+  invite-expired: "&cПриглашение истекло"
+  color-changed: "&#3BA8FFЦвет пати изменён"
+  list-header: "&#3BA8FF=== Пати ({count}/{max}) ==="
+  list-leader: "&6♛ &f{player}"
+  list-member: "&7• &f{player}"
+  usage: "&cИспользование: /lparty <create|invite|kick|leave|list|accept|deny|color|disband>"

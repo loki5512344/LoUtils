@@ -1,0 +1,24 @@
+# LoUtils - Vanish Configuration
+
+# Сохранять состояние vanish между сессиями
+save_state: true
+
+# Скрывать из TAB листа
+hide_from_tab: true
+
+# Блокировать сообщения о достижениях
+block_advancements: true
+
+# Тихий вход/выход (без сообщений)
+silent_join_quit: true
+
+# Эффекты при включении vanish
+effects:
+  night_vision: true
+  
+# Сообщения
+messages:
+  enabled: "&#3BA8FFВы теперь &aневидимы"
+  disabled: "&#3BA8FFВы теперь &cвидимы"
+  enabled-other: "&#3BA8FF{player} теперь &aневидим"
+  disabled-other: "&#3BA8FF{player} теперь &cвидим"

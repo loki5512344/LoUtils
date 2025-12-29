@@ -4,29 +4,72 @@ main: xyz.lokili.loutils.LoUtils
 api-version: "1.21"
 folia-supported: true
 author: loki
-description: Whitelist, AutoRestart and Dimension Lock plugin
+description: All-in-one utility plugin for Folia
+softdepend:
+  - PlaceholderAPI
+  - LuckPerms
 
 commands:
   lw:
-    description: Whitelist management command
+    description: Whitelist management
     usage: /lw <add|remove|list|enable|disable|reload> [player]
-    permission: loutils.whitelist.command
+    permission: loutils.whitelist
   lar:
-    description: AutoRestart management command
+    description: AutoRestart management
     usage: /lar <start|stop|status|reload>
-    permission: loutils.autorestart.command
+    permission: loutils.autorestart
   ll:
-    description: Dimension lock management command
+    description: Dimension lock management
     usage: /ll <lock|unlock|status|reload> [dimension] [time]
-    permission: loutils.lock.command
+    permission: loutils.lock
+  lv:
+    description: Vanish toggle
+    usage: /lv [player]
+    permission: loutils.vanish
+  lstats:
+    description: Player statistics
+    usage: /lstats [player]
+    permission: loutils.stats
+  lspawnmob:
+    description: Spawn mobs
+    usage: /lspawnmob <mob> <amount>
+    permission: loutils.spawnmob
+  linvsee:
+    description: View player inventory
+    usage: /linvsee <player>
+    permission: loutils.invsee
+  lparty:
+    description: Party management
+    usage: /lparty <create|invite|kick|leave|list|accept|deny|color|disband>
+    permission: loutils.party
+  loutils:
+    description: Main plugin command
+    usage: /loutils reload
+    permission: loutils.admin
+    aliases: [lu]
 
 permissions:
-  loutils.whitelist.command:
-    description: Access to whitelist commands
+  loutils.whitelist:
     default: op
-  loutils.autorestart.command:
-    description: Access to autorestart commands
+  loutils.autorestart:
     default: op
-  loutils.lock.command:
-    description: Access to dimension lock commands
+  loutils.lock:
+    default: op
+  loutils.lock.bypass:
+    default: op
+  loutils.vanish:
+    default: op
+  loutils.vanish.see:
+    default: op
+  loutils.stats:
+    default: true
+  loutils.stats.others:
+    default: op
+  loutils.spawnmob:
+    default: op
+  loutils.invsee:
+    default: op
+  loutils.party:
+    default: true
+  loutils.admin:
     default: op

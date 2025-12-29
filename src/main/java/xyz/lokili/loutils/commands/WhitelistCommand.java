@@ -27,13 +27,13 @@ public class WhitelistCommand implements CommandExecutor, TabCompleter {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, 
                             @NotNull String label, @NotNull String[] args) {
         
-        if (!sender.hasPermission("loutils.whitelist.command")) {
+        if (!sender.hasPermission("loutils.whitelist")) {
             sendMessage(sender, "no-permission");
             return true;
         }
         
         if (args.length == 0) {
-            sendMessage(sender, "usage-whitelist");
+            sendMessage(sender, "whitelist.usage");
             return true;
         }
         
@@ -46,7 +46,7 @@ public class WhitelistCommand implements CommandExecutor, TabCompleter {
             case "enable" -> handleEnable(sender);
             case "disable" -> handleDisable(sender);
             case "reload" -> handleReload(sender);
-            default -> sendMessage(sender, "usage-whitelist");
+            default -> sendMessage(sender, "whitelist.usage");
         }
         
         return true;
@@ -61,9 +61,9 @@ public class WhitelistCommand implements CommandExecutor, TabCompleter {
         String playerName = args[1];
         
         if (plugin.getWhitelistManager().addPlayer(playerName)) {
-            sendMessage(sender, "player-added", "%player%", playerName);
+            sendMessage(sender, "whitelist.player-added", "{player}", playerName);
         } else {
-            sendMessage(sender, "player-already-in-list", "%player%", playerName);
+            sendMessage(sender, "whitelist.player-already-in-list", "{player}", playerName);
         }
     }
     
@@ -76,9 +76,9 @@ public class WhitelistCommand implements CommandExecutor, TabCompleter {
         String playerName = args[1];
         
         if (plugin.getWhitelistManager().removePlayer(playerName)) {
-            sendMessage(sender, "player-removed", "%player%", playerName);
+            sendMessage(sender, "whitelist.player-removed", "{player}", playerName);
         } else {
-            sendMessage(sender, "player-not-in-list", "%player%", playerName);
+            sendMessage(sender, "whitelist.player-not-in-list", "{player}", playerName);
         }
     }
     
@@ -86,14 +86,16 @@ public class WhitelistCommand implements CommandExecutor, TabCompleter {
         Set<String> players = plugin.getWhitelistManager().getWhitelistedPlayers();
         int count = players.size();
         
-        String header = getMessage("list-header").replace("%count%", String.valueOf(count));
-        sender.sendMessage(ColorUtil.colorize(header));
+        String header = plugin.getConfigManager().getMessage("whitelist.list-header")
+                .replace("{count}", String.valueOf(count));
+        sender.sendMessage(ColorUtil.colorize(plugin.getConfigManager().getPrefix() + header));
         
         if (players.isEmpty()) {
-            sendMessage(sender, "list-empty");
+            sendMessage(sender, "whitelist.list-empty");
         } else {
             for (String player : players) {
-                String line = getMessage("list-player").replace("%player%", player);
+                String line = plugin.getConfigManager().getMessage("whitelist.list-player")
+                        .replace("{player}", player);
                 sender.sendMessage(ColorUtil.colorize(line));
             }
         }
@@ -101,22 +103,22 @@ public class WhitelistCommand implements CommandExecutor, TabCompleter {
     
     private void handleEnable(CommandSender sender) {
         if (plugin.getWhitelistManager().isEnabled()) {
-            sendMessage(sender, "whitelist-already-enabled");
+            sendMessage(sender, "whitelist.already-enabled");
             return;
         }
         
         plugin.getWhitelistManager().setEnabled(true);
-        sendMessage(sender, "whitelist-enabled");
+        sendMessage(sender, "whitelist.enabled");
     }
     
     private void handleDisable(CommandSender sender) {
         if (!plugin.getWhitelistManager().isEnabled()) {
-            sendMessage(sender, "whitelist-already-disabled");
+            sendMessage(sender, "whitelist.already-disabled");
             return;
         }
         
         plugin.getWhitelistManager().setEnabled(false);
-        sendMessage(sender, "whitelist-disabled");
+        sendMessage(sender, "whitelist.disabled");
     }
     
     private void handleReload(CommandSender sender) {
@@ -129,8 +131,8 @@ public class WhitelistCommand implements CommandExecutor, TabCompleter {
     }
     
     private void sendMessage(CommandSender sender, String key, String placeholder, String value) {
-        String prefix = plugin.getConfig().getString("messages.prefix", "");
-        String message = getMessage(key);
+        String prefix = plugin.getConfigManager().getPrefix();
+        String message = plugin.getConfigManager().getMessage(key);
         
         if (placeholder != null && value != null) {
             message = message.replace(placeholder, value);
@@ -139,15 +141,11 @@ public class WhitelistCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(ColorUtil.colorize(prefix + message));
     }
     
-    private String getMessage(String key) {
-        return plugin.getConfig().getString("messages." + key, "&cMessage not found: " + key);
-    }
-    
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command,
                                                  @NotNull String alias, @NotNull String[] args) {
         
-        if (!sender.hasPermission("loutils.whitelist.command")) {
+        if (!sender.hasPermission("loutils.whitelist")) {
             return new ArrayList<>();
         }
         

@@ -28,7 +28,7 @@ public class AutoRestartManager {
     public void start() {
         if (running) return;
         
-        if (!plugin.getConfig().getBoolean("autorestart.enabled", false)) {
+        if (!plugin.getConfigManager().getAutoRestartConfig().getBoolean("enabled", false)) {
             return;
         }
         
@@ -51,13 +51,13 @@ public class AutoRestartManager {
     
     public void reload() {
         stop();
-        if (plugin.getConfig().getBoolean("autorestart.enabled", false)) {
+        if (plugin.getConfigManager().getAutoRestartConfig().getBoolean("enabled", false)) {
             start();
         }
     }
     
     private void calculateRestartTime() {
-        String dailyTime = plugin.getConfig().getString("autorestart.daily_time", "");
+        String dailyTime = plugin.getConfigManager().getAutoRestartConfig().getString("daily_time", "");
         
         if (dailyTime != null && !dailyTime.isEmpty()) {
             // Ежедневный рестарт в определённое время
@@ -82,7 +82,7 @@ public class AutoRestartManager {
     }
     
     private void useIntervalTime() {
-        int intervalMinutes = plugin.getConfig().getInt("autorestart.interval_minutes", 360);
+        int intervalMinutes = plugin.getConfigManager().getAutoRestartConfig().getInt("interval_minutes", 360);
         restartTimeMillis = System.currentTimeMillis() + (intervalMinutes * 60 * 1000L);
     }
     
@@ -105,7 +105,7 @@ public class AutoRestartManager {
         long remainingSeconds = (remaining / 1000) % 60;
         
         // Проверяем предупреждения
-        List<Integer> warnings = plugin.getConfig().getIntegerList("autorestart.warnings");
+        List<Integer> warnings = plugin.getConfigManager().getAutoRestartConfig().getIntegerList("warnings");
         
         for (int warningMinute : warnings) {
             // Предупреждение в начале минуты
@@ -122,9 +122,9 @@ public class AutoRestartManager {
     }
     
     private void broadcastWarning(int minutes) {
-        String message = plugin.getConfig().getString("messages.prefix", "") +
-                plugin.getConfig().getString("messages.restart-warning", "Рестарт через %time% минут!")
-                        .replace("%time%", String.valueOf(minutes));
+        String message = plugin.getConfigManager().getPrefix() +
+                plugin.getConfigManager().getMessage("autorestart.warning")
+                        .replace("{time}", String.valueOf(minutes));
         
         // Используем GlobalRegionScheduler для broadcast
         Bukkit.getGlobalRegionScheduler().execute(plugin, () -> {
@@ -133,9 +133,9 @@ public class AutoRestartManager {
     }
     
     private void broadcastSecondsWarning(int seconds) {
-        String message = plugin.getConfig().getString("messages.prefix", "") +
-                plugin.getConfig().getString("messages.restart-warning-seconds", "Рестарт через %time% секунд!")
-                        .replace("%time%", String.valueOf(seconds));
+        String message = plugin.getConfigManager().getPrefix() +
+                plugin.getConfigManager().getMessage("autorestart.warning-seconds")
+                        .replace("{time}", String.valueOf(seconds));
         
         Bukkit.getGlobalRegionScheduler().execute(plugin, () -> {
             Bukkit.broadcast(ColorUtil.colorize(message));
@@ -147,12 +147,12 @@ public class AutoRestartManager {
         
         Bukkit.getGlobalRegionScheduler().execute(plugin, () -> {
             // Финальное сообщение
-            String message = plugin.getConfig().getString("messages.prefix", "") +
-                    plugin.getConfig().getString("messages.restart-now", "Сервер перезапускается!");
+            String message = plugin.getConfigManager().getPrefix() +
+                    plugin.getConfigManager().getMessage("autorestart.now");
             Bukkit.broadcast(ColorUtil.colorize(message));
             
             // Сохранение миров
-            if (plugin.getConfig().getBoolean("autorestart.save_before_restart", true)) {
+            if (plugin.getConfigManager().getAutoRestartConfig().getBoolean("save_before_restart", true)) {
                 for (World world : Bukkit.getWorlds()) {
                     world.save();
                 }

@@ -1,0 +1,10 @@
+# LoUtils - Whitelist Configuration
+
+enabled: true
+
+# Kick сообщение для игроков не в whitelist
+kick-message: |
+  &#3BA8FF&lLoUtils Whitelist
+  
+  &7Вы не в белом списке сервера.
+  &7Обратитесь к администрации.

@@ -27,13 +27,13 @@ public class DimensionLockCommand implements CommandExecutor, TabCompleter {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
                             @NotNull String label, @NotNull String[] args) {
         
-        if (!sender.hasPermission("loutils.lock.command")) {
+        if (!sender.hasPermission("loutils.lock")) {
             sendMessage(sender, "no-permission");
             return true;
         }
         
         if (args.length == 0) {
-            sendMessage(sender, "usage-dimensionlock");
+            sendMessage(sender, "dimensionlock.usage");
             return true;
         }
         
@@ -44,7 +44,7 @@ public class DimensionLockCommand implements CommandExecutor, TabCompleter {
             case "unlock" -> handleUnlock(sender, args);
             case "status" -> handleStatus(sender, args);
             case "reload" -> handleReload(sender);
-            default -> sendMessage(sender, "usage-dimensionlock");
+            default -> sendMessage(sender, "dimensionlock.usage");
         }
         
         return true;
@@ -52,52 +52,51 @@ public class DimensionLockCommand implements CommandExecutor, TabCompleter {
     
     private void handleLock(CommandSender sender, String[] args) {
         if (args.length < 2) {
-            sendMessage(sender, "dimension-required");
+            sendMessage(sender, "dimensionlock.dimension-required");
             return;
         }
         
         String dimension = args[1].toLowerCase();
-        int time = plugin.getConfig().getInt("dimensionlock.default_lock_time", 10);
+        int time = plugin.getConfigManager().getDimensionLockConfig().getInt("default_lock_time", 10);
         
         if (args.length >= 3) {
             try {
                 time = Integer.parseInt(args[2]);
             } catch (NumberFormatException e) {
-                sendMessage(sender, "invalid-time");
+                sendMessage(sender, "invalid-number");
                 return;
             }
         }
         
         if (plugin.getDimensionLockManager().lockDimension(dimension, time)) {
-            String message = getMessage("dimension-locked")
+            String message = plugin.getConfigManager().getMessage("dimensionlock.locked")
                     .replace("{dimension}", plugin.getDimensionLockManager().getDimensionDisplayName(dimension))
                     .replace("{time}", String.valueOf(time));
-            sendRawMessage(sender, message);
+            sender.sendMessage(ColorUtil.colorize(plugin.getConfigManager().getPrefix() + message));
         } else {
-            sendMessage(sender, "invalid-dimension");
+            sendMessage(sender, "dimensionlock.invalid-dimension");
         }
     }
     
     private void handleUnlock(CommandSender sender, String[] args) {
         if (args.length < 2) {
-            sendMessage(sender, "dimension-required");
+            sendMessage(sender, "dimensionlock.dimension-required");
             return;
         }
         
         String dimension = args[1].toLowerCase();
         
         if (plugin.getDimensionLockManager().unlockDimension(dimension)) {
-            String message = getMessage("dimension-unlocked")
+            String message = plugin.getConfigManager().getMessage("dimensionlock.unlocked")
                     .replace("{dimension}", plugin.getDimensionLockManager().getDimensionDisplayName(dimension));
-            sendRawMessage(sender, message);
+            sender.sendMessage(ColorUtil.colorize(plugin.getConfigManager().getPrefix() + message));
         } else {
-            sendMessage(sender, "dimension-not-locked");
+            sendMessage(sender, "dimensionlock.not-locked");
         }
     }
     
     private void handleStatus(CommandSender sender, String[] args) {
         if (args.length < 2) {
-            // Показать статус всех измерений
             sendStatusAll(sender);
             return;
         }
@@ -105,20 +104,19 @@ public class DimensionLockCommand implements CommandExecutor, TabCompleter {
         String dimension = args[1].toLowerCase();
         
         if (plugin.getDimensionLockManager().isLocked(dimension)) {
-            String message = getMessage("dimension-status-locked")
+            String message = plugin.getConfigManager().getMessage("dimensionlock.status-locked")
                     .replace("{dimension}", plugin.getDimensionLockManager().getDimensionDisplayName(dimension))
                     .replace("{time}", plugin.getDimensionLockManager().getTimeRemainingFormatted(dimension));
-            sendRawMessage(sender, message);
+            sender.sendMessage(ColorUtil.colorize(plugin.getConfigManager().getPrefix() + message));
         } else {
-            String message = getMessage("dimension-status-open")
+            String message = plugin.getConfigManager().getMessage("dimensionlock.status-open")
                     .replace("{dimension}", plugin.getDimensionLockManager().getDimensionDisplayName(dimension));
-            sendRawMessage(sender, message);
+            sender.sendMessage(ColorUtil.colorize(plugin.getConfigManager().getPrefix() + message));
         }
     }
     
     private void sendStatusAll(CommandSender sender) {
-        String prefix = plugin.getConfig().getString("messages.prefix", "");
-        sender.sendMessage(ColorUtil.colorize(prefix + "&#3BA8FF=== Статус измерений ==="));
+        sender.sendMessage(ColorUtil.colorize(plugin.getConfigManager().getPrefix() + "&#3BA8FF=== Статус измерений ==="));
         
         for (String dim : dimensions) {
             if (plugin.getDimensionLockManager().isLocked(dim)) {
@@ -133,30 +131,21 @@ public class DimensionLockCommand implements CommandExecutor, TabCompleter {
     }
     
     private void handleReload(CommandSender sender) {
-        plugin.reloadConfig();
+        plugin.getConfigManager().reloadAll();
         sendMessage(sender, "config-reloaded");
     }
     
     private void sendMessage(CommandSender sender, String key) {
-        String prefix = plugin.getConfig().getString("messages.prefix", "");
-        String message = getMessage(key);
+        String prefix = plugin.getConfigManager().getPrefix();
+        String message = plugin.getConfigManager().getMessage(key);
         sender.sendMessage(ColorUtil.colorize(prefix + message));
-    }
-    
-    private void sendRawMessage(CommandSender sender, String message) {
-        String prefix = plugin.getConfig().getString("messages.prefix", "");
-        sender.sendMessage(ColorUtil.colorize(prefix + message));
-    }
-    
-    private String getMessage(String key) {
-        return plugin.getConfig().getString("messages." + key, "&cMessage not found: " + key);
     }
     
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command,
                                                  @NotNull String alias, @NotNull String[] args) {
         
-        if (!sender.hasPermission("loutils.lock.command")) {
+        if (!sender.hasPermission("loutils.lock")) {
             return new ArrayList<>();
         }
         
