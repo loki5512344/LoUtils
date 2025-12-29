@@ -2,7 +2,8 @@
 
 Многофункциональный плагин для Folia 1.21.8
 
-**Автор:** loki
+**Автор:** loki  
+**Версия:** 1.0.0
 
 ## Установка
 
@@ -20,17 +21,21 @@
 
 | Команда | Описание | Право |
 |---------|----------|-------|
-| `/lw <add\|remove\|list\|enable\|disable\|reload> [player]` | Управление whitelist | `loutils.whitelist` |
-| `/lar <start\|stop\|status\|reload>` | Управление авто-рестартом | `loutils.autorestart` |
+| `/lw <add\|remove\|list\|enable\|disable\|reload>` | Whitelist | `loutils.whitelist` |
+| `/lar <start\|stop\|status\|reload>` | Авто-рестарт | `loutils.autorestart` |
 | `/ll <lock\|unlock\|status\|reload> [dimension] [time]` | Блокировка измерений | `loutils.lock` |
-| `/lv [player]` | Включить/выключить vanish | `loutils.vanish` |
-| `/lstats [player]` | Статистика игрока | `loutils.stats` |
+| `/lv [player]` | Vanish | `loutils.vanish` |
+| `/lstats [player]` | Статистика | `loutils.stats` |
 | `/lspawnmob <mob> <amount>` | Спавн мобов | `loutils.spawnmob` |
 | `/linvsee <player>` | Просмотр инвентаря | `loutils.invsee` |
-| `/lparty <create\|invite\|kick\|leave\|list\|accept\|deny\|color\|disband>` | Управление пати | `loutils.party` |
-| `/loutils reload` | Перезагрузка конфигов | `loutils.admin` |
+| `/lparty <create\|invite\|kick\|leave\|...>` | Пати система | `loutils.party` |
+| `/lenchant <enchant> <level>` | Зачарование | `loutils.enchant` |
+| `/ltpsbar [on\|off]` | TPS BossBar | `loutils.tpsbar` |
+| `/loutils reload` | Перезагрузка | `loutils.admin` |
 
 ## Права
+
+Все права по умолчанию доступны только **OP**.
 
 | Право | Описание |
 |-------|----------|
@@ -41,92 +46,50 @@
 | `loutils.vanish` | Доступ к /lv |
 | `loutils.vanish.see` | Видеть игроков в vanish |
 | `loutils.stats` | Доступ к /lstats |
-| `loutils.stats.others` | Смотреть статистику других |
+| `loutils.stats.others` | Статистика других игроков |
 | `loutils.spawnmob` | Доступ к /lspawnmob |
 | `loutils.invsee` | Доступ к /linvsee |
 | `loutils.party` | Доступ к /lparty |
+| `loutils.enchant` | Доступ к /lenchant |
+| `loutils.tpsbar` | Доступ к /ltpsbar |
 | `loutils.admin` | Доступ к /loutils |
-
-> ⚠️ Все права по умолчанию **отключены**. Выдайте нужные права через LuckPerms или другой плагин.
 
 ## PlaceholderAPI
 
 | Плейсхолдер | Описание |
 |-------------|----------|
-| `%loutils_online%` | Онлайн без vanish игроков |
+| `%loutils_online%` | Онлайн без vanish |
 | `%loutils_online_total%` | Полный онлайн |
-| `%loutils_vanished_count%` | Количество в vanish |
-| `%loutils_vanished%` | В vanish ли игрок (true/false) |
-| `%loutils_kills%` | Убийств игрока |
-| `%loutils_deaths%` | Смертей игрока |
+| `%loutils_vanished%` | В vanish (true/false) |
+| `%loutils_vanished_count%` | Кол-во в vanish |
+| `%loutils_kills%` | Убийства |
+| `%loutils_deaths%` | Смерти |
 | `%loutils_kdr%` | K/D ratio |
 | `%loutils_playtime%` | Время на сервере |
-| `%loutils_playtime_hours%` | Время в часах |
-| `%loutils_playtime_minutes%` | Время в минутах |
 | `%loutils_party_suffix%` | Суффикс пати |
-| `%loutils_party_size%` | Размер пати |
-| `%loutils_in_party%` | В пати ли игрок (true/false) |
-
-## Конфигурация
-
-```
-plugins/LoUtils/
-├── config.yml          # Главные настройки
-├── messages.yml        # Все сообщения
-├── conf/
-│   ├── whitelist.yml   # Настройки whitelist
-│   ├── autorestart.yml # Настройки авто-рестарта
-│   ├── dimensionlock.yml # Настройки блокировки измерений
-│   ├── vanish.yml      # Настройки vanish
-│   ├── stats.yml       # Настройки статистики
-│   ├── party.yml       # Настройки пати
-│   └── deathmessages.yml # Кастомные сообщения смерти
-└── data/
-    ├── whitelist.yml   # Список игроков whitelist
-    ├── vanish.yml      # Сохранённые vanish состояния
-    └── stats.yml       # Статистика игроков
-```
-
-## Цвета
-
-Поддерживаются все форматы цветов:
-- HEX: `&#3BA8FF`
-- Legacy: `&c`, `&a`, `&l` и т.д.
 
 ## Модули
 
-### Whitelist
-Независимый от vanilla whitelist. Хранит игроков по никнеймам.
+- **Whitelist** — независимый от vanilla, хранит по никнеймам
+- **AutoRestart** — рестарт по таймеру/времени с предупреждениями
+- **Dimension Lock** — блокировка Nether/End с голограммой
+- **Vanish** — полная невидимость, тихие контейнеры, сохранение
+- **Stats** — playtime, kills, deaths, KDR
+- **Party** — группы с цветными суффиксами
+- **Death Messages** — кастомные сообщения смерти
+- **Enchant** — зачарование на любой уровень
+- **TPSBar** — BossBar с TPS региона (Folia)
+- **InvSee** — просмотр инвентаря с бронёй и эффектами
+- **SpawnMob** — спавн мобов
 
-### AutoRestart
-Автоматический рестарт сервера по таймеру или в определённое время с предупреждениями.
+## Цвета
 
-### Dimension Lock
-Блокировка Nether/End с голограммой-таймером и ActionBar уведомлениями.
-
-### Vanish
-Полная невидимость: скрытие из TAB, тихий вход/выход, блокировка достижений, сохранение состояния.
-
-### Stats
-Отслеживание времени на сервере, убийств, смертей, K/D.
-
-### Party
-Система групп с цветными суффиксами в чате.
-
-### Death Messages
-Кастомные сообщения смерти для PvP, мобов, окружения. Особые сообщения при убийстве невидимым игроком.
-
-### InvSee
-Просмотр инвентаря игрока с бронёй, эффектами и статусом.
+Поддержка: `&#3BA8FF` (hex) и `&c` (legacy)
 
 ## Сборка
 
 ```bash
-./gradlew build
+gradle build
 ```
 
-JAR файл будет в `build/libs/LoUtils-1.0.0.jar`
-
-## Лицензия
-
-MIT
+JAR: `build/libs/LoUtils-1.0.0.jar`

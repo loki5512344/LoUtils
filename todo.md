@@ -1,53 +1,69 @@
 # LoUtils - TODO
 
-## Информация о проекте
+## Информация
 - **Название:** LoUtils
 - **Автор:** loki
 - **Платформа:** Folia 1.21.8
-- **Система сборки:** Gradle
+- **Версия:** 1.0.0
 
 ## Модули
 
 ### Whitelist (/lw) ✅
-- [x] Хранение игроков по никнеймам в YAML
-- [x] `/lw add/remove/list/enable/disable/reload`
-- [x] Право: `loutils.whitelist.command`
+- [x] Хранение по никнеймам в YAML
+- [x] add/remove/list/enable/disable/reload
 
 ### AutoRestart (/lar) ✅
 - [x] Таймер с интервалом или точным временем
-- [x] Предупреждения (30, 15, 10, 5, 3, 1 мин + 10 сек)
-- [x] `/lar start/stop/status/reload`
-- [x] Право: `loutils.autorestart.command`
+- [x] Предупреждения перед рестартом
 
 ### Dimension Lock (/ll) ✅
 - [x] Блокировка nether/end на время
 - [x] Голограмма с таймером (ArmorStand)
-- [x] ActionBar при попытке входа
-- [x] Блокировка порталов и телепортации
-- [x] `/ll lock/unlock/status/reload`
-- [x] Право: `loutils.lock.command`
-- [x] Bypass: `loutils.lock.bypass`
+- [x] ActionBar уведомления
+
+### Vanish (/lv) ✅
+- [x] Полная невидимость
+- [x] Скрытие из TAB
+- [x] Тихий вход/выход
+- [x] Блокировка достижений
+- [x] Тихие контейнеры (без анимации/звука)
+- [x] Сохранение состояния
+- [x] PvP конфиг опции
+
+### Stats (/lstats) ✅
+- [x] Playtime, kills, deaths, KDR
+
+### Party (/lparty) ✅
+- [x] Создание групп
+- [x] Цветные суффиксы
+
+### Death Messages ✅
+- [x] Кастомные сообщения для PvP/мобов/окружения
+- [x] Особые сообщения при убийстве невидимым
+
+### Enchant (/lenchant) ✅
+- [x] Зачарование на любой уровень
+- [x] Unsafe enchants
+
+### TPSBar (/ltpsbar) ✅
+- [x] BossBar с Region TPS (Folia)
+- [x] Global TPS и MSPT
+- [x] Цветовая индикация
+
+### InvSee (/linvsee) ✅
+- [x] Просмотр инвентаря
+- [x] Броня, эффекты, статус
+
+### SpawnMob (/lspawnmob) ✅
+- [x] Спавн мобов с количеством
 
 ### Общее ✅
-- [x] Полная кастомизация сообщений
-- [x] Поддержка цветов: `&#RRGGBB` и `&`
-- [x] Folia-совместимые schedulers
+- [x] PlaceholderAPI интеграция
+- [x] Все права default: op
+- [x] Поддержка цветов &#RRGGBB и &
+- [x] Folia schedulers
 
-## Структура
-```
-src/main/java/xyz/lokili/loutils/
-├── LoUtils.java
-├── commands/
-│   ├── WhitelistCommand.java
-│   ├── AutoRestartCommand.java
-│   └── DimensionLockCommand.java
-├── managers/
-│   ├── WhitelistManager.java
-│   ├── AutoRestartManager.java
-│   └── DimensionLockManager.java
-├── listeners/
-│   ├── PlayerJoinListener.java
-│   └── PortalListener.java
-└── utils/
-    └── ColorUtil.java
-```
+## Релиз 1.0.0 ✅
+- [x] Все модули реализованы
+- [x] Билд успешен
+- [x] Git push
