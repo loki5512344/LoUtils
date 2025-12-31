@@ -14,8 +14,6 @@ public class LoUtils extends JavaPlugin {
     private AutoRestartManager autoRestartManager;
     private DimensionLockManager dimensionLockManager;
     private VanishManager vanishManager;
-    private StatsManager statsManager;
-    private PartyManager partyManager;
     private TPSBarManager tpsBarManager;
     
     @Override
@@ -28,8 +26,6 @@ public class LoUtils extends JavaPlugin {
         autoRestartManager = new AutoRestartManager(this);
         dimensionLockManager = new DimensionLockManager(this);
         vanishManager = new VanishManager(this);
-        statsManager = new StatsManager(this);
-        partyManager = new PartyManager(this);
         tpsBarManager = new TPSBarManager(this);
         
         // Register commands
@@ -43,9 +39,6 @@ public class LoUtils extends JavaPlugin {
             autoRestartManager.start();
         }
         
-        // Apply vanish to all online players (for /reload support)
-        vanishManager.applyVanishToAllOnline();
-        
         // Register PlaceholderAPI expansion
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new LoUtilsExpansion(this).register();
@@ -53,16 +46,14 @@ public class LoUtils extends JavaPlugin {
         }
         
         getLogger().info("LoUtils enabled!");
-        getLogger().info("Modules: Whitelist, AutoRestart, DimensionLock, Vanish, Stats, Party, Enchant, DeathMessages, TPSBar");
+        getLogger().info("Modules: Whitelist, AutoRestart, DimensionLock, Vanish, Enchant, DeathMessages, TPSBar, InvSee, SpawnMob");
     }
     
     @Override
     public void onDisable() {
         if (tpsBarManager != null) tpsBarManager.shutdown();
-        if (partyManager != null) partyManager.shutdown();
         if (dimensionLockManager != null) dimensionLockManager.shutdown();
         if (autoRestartManager != null) autoRestartManager.stop();
-        if (statsManager != null) statsManager.shutdown();
         if (vanishManager != null) vanishManager.saveData();
         if (whitelistManager != null) whitelistManager.saveWhitelist();
         
@@ -90,11 +81,6 @@ public class LoUtils extends JavaPlugin {
         getCommand("lv").setExecutor(vanishCommand);
         getCommand("lv").setTabCompleter(vanishCommand);
         
-        // Stats
-        StatsCommand statsCommand = new StatsCommand(this);
-        getCommand("lstats").setExecutor(statsCommand);
-        getCommand("lstats").setTabCompleter(statsCommand);
-        
         // SpawnMob
         SpawnMobCommand spawnMobCommand = new SpawnMobCommand(this);
         getCommand("lspawnmob").setExecutor(spawnMobCommand);
@@ -104,11 +90,6 @@ public class LoUtils extends JavaPlugin {
         InvSeeCommand invSeeCommand = new InvSeeCommand(this);
         getCommand("linvsee").setExecutor(invSeeCommand);
         getCommand("linvsee").setTabCompleter(invSeeCommand);
-        
-        // Party
-        PartyCommand partyCommand = new PartyCommand(this);
-        getCommand("lparty").setExecutor(partyCommand);
-        getCommand("lparty").setTabCompleter(partyCommand);
         
         // Enchant
         EnchantCommand enchantCommand = new EnchantCommand(this);
@@ -130,7 +111,6 @@ public class LoUtils extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
         getServer().getPluginManager().registerEvents(new PortalListener(this), this);
         getServer().getPluginManager().registerEvents(new VanishListener(this), this);
-        getServer().getPluginManager().registerEvents(new StatsListener(this), this);
         getServer().getPluginManager().registerEvents(new DeathMessageListener(this), this);
     }
     
@@ -146,7 +126,5 @@ public class LoUtils extends JavaPlugin {
     public AutoRestartManager getAutoRestartManager() { return autoRestartManager; }
     public DimensionLockManager getDimensionLockManager() { return dimensionLockManager; }
     public VanishManager getVanishManager() { return vanishManager; }
-    public StatsManager getStatsManager() { return statsManager; }
-    public PartyManager getPartyManager() { return partyManager; }
     public TPSBarManager getTPSBarManager() { return tpsBarManager; }
 }

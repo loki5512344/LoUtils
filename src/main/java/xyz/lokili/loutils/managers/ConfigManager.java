@@ -45,9 +45,7 @@ public class ConfigManager {
         loadConfig("conf/autorestart.yml");
         loadConfig("conf/dimensionlock.yml");
         loadConfig("conf/vanish.yml");
-        loadConfig("conf/stats.yml");
         loadConfig("conf/deathmessages.yml");
-        loadConfig("conf/party.yml");
         loadConfig("conf/enchant.yml");
         loadConfig("conf/tpsbar.yml");
     }

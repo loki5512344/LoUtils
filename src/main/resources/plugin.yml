@@ -30,14 +30,6 @@ commands:
     description: Player statistics
     usage: /lstats [player]
     permission: loutils.stats
-  lspawnmob:
-    description: Spawn mobs
-    usage: /lspawnmob <mob> <amount>
-    permission: loutils.spawnmob
-  linvsee:
-    description: View player inventory
-    usage: /linvsee <player>
-    permission: loutils.invsee
   lparty:
     description: Party management
     usage: /lparty <create|invite|kick|leave|list|accept|deny|color|disband>
@@ -75,20 +67,11 @@ permissions:
   loutils.vanish.see:
     description: See vanished players
     default: op
-  loutils.stats:
-    description: Access to /lstats command
-    default: op
-  loutils.stats.others:
-    description: View other players stats
-    default: op
   loutils.spawnmob:
     description: Access to /lspawnmob command
     default: op
   loutils.invsee:
     description: Access to /linvsee command
-    default: op
-  loutils.party:
-    description: Access to /lparty command
     default: op
   loutils.enchant:
     description: Access to /lenchant command
