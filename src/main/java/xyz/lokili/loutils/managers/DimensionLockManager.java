@@ -24,6 +24,7 @@ public class DimensionLockManager {
     private final LoUtils plugin;
     private final Map<String, Long> lockedDimensions; // dimension -> unlock time millis
     private final Map<String, ArmorStand> holograms;
+    private static final String HOLOGRAM_TAG = "loutils_dimensionlock_hologram";
     private ScheduledTask timerTask;
     private File dataFile;
     private FileConfiguration dataConfig;
@@ -32,8 +33,13 @@ public class DimensionLockManager {
         this.plugin = plugin;
         this.lockedDimensions = new ConcurrentHashMap<>();
         this.holograms = new HashMap<>();
+        cleanupOldHolograms();
         loadData();
         startTimer();
+    }
+
+    private boolean hologramsEnabled() {
+        return false;
     }
     
     private void loadData() {
@@ -54,13 +60,6 @@ public class DimensionLockManager {
             if (unlockTime > System.currentTimeMillis()) {
                 lockedDimensions.put(key, unlockTime);
                 plugin.getLogger().info("Restored dimension lock: " + key + " until " + new java.util.Date(unlockTime));
-                
-                // Восстанавливаем голограмму
-                if (plugin.getConfigManager().getDimensionLockConfig().getBoolean("hologram.enabled", true)) {
-                    Bukkit.getGlobalRegionScheduler().execute(plugin, () -> {
-                        createHologram(key);
-                    });
-                }
             }
         }
     }
@@ -105,6 +104,18 @@ public class DimensionLockManager {
             holograms.clear();
         });
     }
+
+    private void cleanupOldHolograms() {
+        Bukkit.getGlobalRegionScheduler().execute(plugin, () -> {
+            for (World world : Bukkit.getWorlds()) {
+                for (ArmorStand armorStand : world.getEntitiesByClass(ArmorStand.class)) {
+                    if (armorStand.getScoreboardTags().contains(HOLOGRAM_TAG)) {
+                        armorStand.remove();
+                    }
+                }
+            }
+        });
+    }
     
     private void checkUnlocks() {
         long now = System.currentTimeMillis();
@@ -120,11 +131,12 @@ public class DimensionLockManager {
                     saveData(); // Сохраняем после разблокировки
                 });
             } else {
-                // Обновляем голограмму
-                String dimension = entry.getKey();
-                Bukkit.getGlobalRegionScheduler().execute(plugin, () -> {
-                    updateHologram(dimension);
-                });
+                if (hologramsEnabled()) {
+                    String dimension = entry.getKey();
+                    Bukkit.getGlobalRegionScheduler().execute(plugin, () -> {
+                        updateHologram(dimension);
+                    });
+                }
             }
         }
     }
@@ -138,9 +150,7 @@ public class DimensionLockManager {
         
         // Сохраняем состояние
         saveData();
-        
-        // Создаём голограмму
-        if (plugin.getConfigManager().getDimensionLockConfig().getBoolean("hologram.enabled", true)) {
+        if (hologramsEnabled()) {
             createHologram(dimension);
         }
         
@@ -210,6 +220,10 @@ public class DimensionLockManager {
     }
     
     private void createHologram(String dimension) {
+        if (!hologramsEnabled()) {
+            removeHologram(dimension);
+            return;
+        }
         World world = getWorldForDimension(dimension);
         if (world == null) return;
         
@@ -228,6 +242,7 @@ public class DimensionLockManager {
             hologram.setCustomNameVisible(true);
             hologram.setInvulnerable(true);
             hologram.setPersistent(false);
+            hologram.addScoreboardTag(HOLOGRAM_TAG);
             
             updateHologramText(hologram, dimension);
             holograms.put(dimension, hologram);
@@ -235,6 +250,10 @@ public class DimensionLockManager {
     }
     
     private void updateHologram(String dimension) {
+        if (!hologramsEnabled()) {
+            removeHologram(dimension);
+            return;
+        }
         ArmorStand hologram = holograms.get(dimension);
         if (hologram == null || hologram.isDead()) {
             if (lockedDimensions.containsKey(dimension)) {

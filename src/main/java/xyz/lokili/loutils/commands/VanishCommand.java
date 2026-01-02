@@ -34,6 +34,19 @@ public class VanishCommand implements CommandExecutor, TabCompleter {
         Player target;
         
         if (args.length > 0) {
+            // Проверка статуса
+            if (args[0].equalsIgnoreCase("status") || args[0].equalsIgnoreCase("check")) {
+                if (!(sender instanceof Player)) {
+                    sender.sendMessage("Only players can check vanish status");
+                    return true;
+                }
+                Player player = (Player) sender;
+                boolean vanished = plugin.getVanishManager().isVanished(player);
+                sender.sendMessage("§7Vanish status: " + (vanished ? "§aEnabled" : "§cDisabled"));
+                sender.sendMessage("§7Vanish.see permission: " + (player.hasPermission("loutils.vanish.see") ? "§aYes" : "§cNo"));
+                return true;
+            }
+            
             target = Bukkit.getPlayer(args[0]);
             if (target == null) {
                 sendMessage(sender, "player-not-found");
@@ -52,23 +65,30 @@ public class VanishCommand implements CommandExecutor, TabCompleter {
         boolean vanished = plugin.getVanishManager().isVanished(target);
         
         if (target.equals(sender)) {
-            String key = vanished ? "vanish.enabled" : "vanish.disabled";
-            sendMessage(sender, key);
+            String key = vanished ? "enabled" : "disabled";
+            sendVanishMessage(sender, key);
         } else {
-            String key = vanished ? "vanish.enabled-other" : "vanish.disabled-other";
-            sendMessage(sender, key, "{player}", target.getName());
+            String key = vanished ? "enabled-other" : "disabled-other";
+            sendVanishMessage(sender, key, "{player}", target.getName());
         }
         
         return true;
     }
     
     private void sendMessage(CommandSender sender, String key) {
-        sendMessage(sender, key, null, null);
-    }
-    
-    private void sendMessage(CommandSender sender, String key, String placeholder, String value) {
         String prefix = plugin.getConfigManager().getPrefix();
         String message = plugin.getConfigManager().getMessage(key);
+        sender.sendMessage(ColorUtil.colorize(prefix + message));
+    }
+    
+    private void sendVanishMessage(CommandSender sender, String key) {
+        sendVanishMessage(sender, key, null, null);
+    }
+    
+    private void sendVanishMessage(CommandSender sender, String key, String placeholder, String value) {
+        String prefix = plugin.getConfigManager().getPrefix();
+        String message = plugin.getConfigManager().getVanishConfig().getString("messages." + key, 
+                "Message not found: " + key);
         
         if (placeholder != null && value != null) {
             message = message.replace(placeholder, value);

@@ -63,12 +63,21 @@ public class VanishManager {
     }
     
     public void setVanished(Player player, boolean vanished) {
+        plugin.getLogger().info("Setting vanish for " + player.getName() + " to " + vanished);
+        
         if (vanished) {
             vanishedPlayers.add(player.getUniqueId());
-            hidePlayerFromAll(player);
+            
+            // Задержка для Folia
+            player.getScheduler().runDelayed(plugin, (t) -> {
+                hidePlayerFromAll(player);
+            }, () -> {}, 2L);
+            
+            plugin.getLogger().info("Added " + player.getName() + " to vanish list");
         } else {
             vanishedPlayers.remove(player.getUniqueId());
             showPlayerToAll(player);
+            plugin.getLogger().info("Shown " + player.getName() + " to all players");
         }
         saveData();
     }
@@ -86,6 +95,9 @@ public class VanishManager {
             
             if (!viewer.hasPermission("loutils.vanish.see")) {
                 viewer.hidePlayer(plugin, vanishedPlayer);
+                plugin.getLogger().info("Hidden " + vanishedPlayer.getName() + " from " + viewer.getName());
+            } else {
+                plugin.getLogger().info("Player " + viewer.getName() + " has vanish.see permission, not hiding " + vanishedPlayer.getName());
             }
         }
     }
