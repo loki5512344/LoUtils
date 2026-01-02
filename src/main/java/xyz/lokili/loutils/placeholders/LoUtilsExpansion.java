@@ -58,6 +58,29 @@ public class LoUtilsExpansion extends PlaceholderExpansion {
             return plugin.getVanishManager().isVanished(offlinePlayer.getUniqueId()) ? "true" : "false";
         }
         
+        // Dimension lock timers
+        if (params.equalsIgnoreCase("nether_timer")) {
+            if (plugin.getDimensionLockManager().isLocked("nether")) {
+                return plugin.getDimensionLockManager().getTimeRemainingFormatted("nether");
+            }
+            return "открыт";
+        }
+        
+        if (params.equalsIgnoreCase("end_timer")) {
+            if (plugin.getDimensionLockManager().isLocked("end")) {
+                return plugin.getDimensionLockManager().getTimeRemainingFormatted("end");
+            }
+            return "открыт";
+        }
+        
+        if (params.equalsIgnoreCase("nether_locked")) {
+            return plugin.getDimensionLockManager().isLocked("nether") ? "true" : "false";
+        }
+        
+        if (params.equalsIgnoreCase("end_locked")) {
+            return plugin.getDimensionLockManager().isLocked("end") ? "true" : "false";
+        }
+        
         return null;
     }
 }

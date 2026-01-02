@@ -69,7 +69,7 @@ permissions:
     default: op
   loutils.lock.bypass:
     description: Bypass dimension lock
-    default: op
+    default: false
   loutils.vanish:
     description: Access to /lv command
     default: op
