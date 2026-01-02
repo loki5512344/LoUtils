@@ -22,11 +22,16 @@ public class PortalListener implements Listener {
         if (event.getTo() == null || event.getTo().getWorld() == null) return;
         
         World.Environment targetEnv = event.getTo().getWorld().getEnvironment();
+        Player player = event.getPlayer();
+        
+        // Пропускаем игроков с правами
+        if (player.hasPermission("loutils.lock.bypass")) {
+            return;
+        }
         
         if (plugin.getDimensionLockManager().isLocked(targetEnv)) {
             event.setCancelled(true);
             
-            Player player = event.getPlayer();
             String dimension = environmentToDimension(targetEnv);
             
             // Отправляем ActionBar

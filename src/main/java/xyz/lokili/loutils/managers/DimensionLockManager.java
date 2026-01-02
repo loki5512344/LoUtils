@@ -5,11 +5,15 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
 import xyz.lokili.loutils.LoUtils;
 import xyz.lokili.loutils.utils.ColorUtil;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,12 +25,63 @@ public class DimensionLockManager {
     private final Map<String, Long> lockedDimensions; // dimension -> unlock time millis
     private final Map<String, ArmorStand> holograms;
     private ScheduledTask timerTask;
+    private File dataFile;
+    private FileConfiguration dataConfig;
     
     public DimensionLockManager(LoUtils plugin) {
         this.plugin = plugin;
         this.lockedDimensions = new ConcurrentHashMap<>();
         this.holograms = new HashMap<>();
+        loadData();
         startTimer();
+    }
+    
+    private void loadData() {
+        dataFile = new File(plugin.getDataFolder(), "data/dimensionlock.yml");
+        if (!dataFile.exists()) {
+            dataFile.getParentFile().mkdirs();
+            try {
+                dataFile.createNewFile();
+            } catch (IOException e) {
+                plugin.getLogger().severe("Could not create dimensionlock.yml: " + e.getMessage());
+            }
+        }
+        dataConfig = YamlConfiguration.loadConfiguration(dataFile);
+        
+        // Load saved locks
+        for (String key : dataConfig.getKeys(false)) {
+            long unlockTime = dataConfig.getLong(key);
+            if (unlockTime > System.currentTimeMillis()) {
+                lockedDimensions.put(key, unlockTime);
+                plugin.getLogger().info("Restored dimension lock: " + key + " until " + new java.util.Date(unlockTime));
+                
+                // Восстанавливаем голограмму
+                if (plugin.getConfigManager().getDimensionLockConfig().getBoolean("hologram.enabled", true)) {
+                    Bukkit.getGlobalRegionScheduler().execute(plugin, () -> {
+                        createHologram(key);
+                    });
+                }
+            }
+        }
+    }
+    
+    private void saveData() {
+        for (Map.Entry<String, Long> entry : lockedDimensions.entrySet()) {
+            dataConfig.set(entry.getKey(), entry.getValue());
+        }
+        
+        // Remove expired locks from config
+        for (String key : dataConfig.getKeys(false)) {
+            if (!lockedDimensions.containsKey(key)) {
+                dataConfig.set(key, null);
+            }
+        }
+        
+        try {
+            dataConfig.save(dataFile);
+        } catch (IOException e) {
+            plugin.getLogger().severe("Could not save dimensionlock.yml: " + e.getMessage());
+        }
     }
     
     private void startTimer() {
@@ -36,6 +91,7 @@ public class DimensionLockManager {
     }
     
     public void shutdown() {
+        saveData();
         if (timerTask != null) {
             timerTask.cancel();
         }
@@ -61,6 +117,7 @@ public class DimensionLockManager {
                 Bukkit.getGlobalRegionScheduler().execute(plugin, () -> {
                     removeHologram(dimension);
                     broadcastUnlock(dimension);
+                    saveData(); // Сохраняем после разблокировки
                 });
             } else {
                 // Обновляем голограмму
@@ -78,6 +135,9 @@ public class DimensionLockManager {
         
         long unlockTime = System.currentTimeMillis() + (minutes * 60 * 1000L);
         lockedDimensions.put(dimension, unlockTime);
+        
+        // Сохраняем состояние
+        saveData();
         
         // Создаём голограмму
         if (plugin.getConfigManager().getDimensionLockConfig().getBoolean("hologram.enabled", true)) {
@@ -97,6 +157,7 @@ public class DimensionLockManager {
         
         lockedDimensions.remove(dimension);
         removeHologram(dimension);
+        saveData(); // Сохраняем после разблокировки
         return true;
     }
     
