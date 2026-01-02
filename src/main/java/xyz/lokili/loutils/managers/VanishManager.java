@@ -67,12 +67,7 @@ public class VanishManager {
         
         if (vanished) {
             vanishedPlayers.add(player.getUniqueId());
-            
-            // Задержка для Folia
-            player.getScheduler().runDelayed(plugin, (t) -> {
-                hidePlayerFromAll(player);
-            }, () -> {}, 2L);
-            
+            hidePlayerFromAll(player);
             plugin.getLogger().info("Added " + player.getName() + " to vanish list");
         } else {
             vanishedPlayers.remove(player.getUniqueId());
@@ -90,25 +85,30 @@ public class VanishManager {
      * Скрывает игрока от всех, кто не может видеть ванишнутых
      */
     private void hidePlayerFromAll(Player vanishedPlayer) {
-        for (Player viewer : Bukkit.getOnlinePlayers()) {
-            if (viewer.equals(vanishedPlayer)) continue;
-            
-            if (!viewer.hasPermission("loutils.vanish.see")) {
-                viewer.hidePlayer(plugin, vanishedPlayer);
-                plugin.getLogger().info("Hidden " + vanishedPlayer.getName() + " from " + viewer.getName());
-            } else {
-                plugin.getLogger().info("Player " + viewer.getName() + " has vanish.see permission, not hiding " + vanishedPlayer.getName());
+        // Используем Bukkit.getScheduler для основного потока
+        Bukkit.getGlobalRegionScheduler().execute(plugin, () -> {
+            for (Player viewer : Bukkit.getOnlinePlayers()) {
+                if (viewer.equals(vanishedPlayer)) continue;
+                
+                if (!viewer.hasPermission("loutils.vanish.see")) {
+                    viewer.hidePlayer(plugin, vanishedPlayer);
+                    plugin.getLogger().info("Hidden " + vanishedPlayer.getName() + " from " + viewer.getName());
+                } else {
+                    plugin.getLogger().info("Player " + viewer.getName() + " has vanish.see permission, not hiding " + vanishedPlayer.getName());
+                }
             }
-        }
+        });
     }
     
     /**
      * Показывает игрока всем
      */
     private void showPlayerToAll(Player player) {
-        for (Player viewer : Bukkit.getOnlinePlayers()) {
-            viewer.showPlayer(plugin, player);
-        }
+        Bukkit.getGlobalRegionScheduler().execute(plugin, () -> {
+            for (Player viewer : Bukkit.getOnlinePlayers()) {
+                viewer.showPlayer(plugin, player);
+            }
+        });
     }
     
     /**
@@ -138,8 +138,10 @@ public class VanishManager {
             hidePlayerFromAll(player);
         }
         
-        // Обновляем видимость ванишнутых для этого игрока
-        updateVanishedPlayersVisibility(player);
+        // Обновляем видимость ванишнутых для этого игрока с задержкой
+        Bukkit.getAsyncScheduler().runDelayed(plugin, (task) -> {
+            updateVanishedPlayersVisibility(player);
+        }, 500, java.util.concurrent.TimeUnit.MILLISECONDS);
     }
     
     public int getOnlineCountWithoutVanished() {

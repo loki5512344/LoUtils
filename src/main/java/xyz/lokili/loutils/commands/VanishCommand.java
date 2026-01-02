@@ -47,6 +47,18 @@ public class VanishCommand implements CommandExecutor, TabCompleter {
                 return true;
             }
             
+            // Обновление видимости
+            if (args[0].equalsIgnoreCase("refresh") || args[0].equalsIgnoreCase("update")) {
+                if (!(sender instanceof Player)) {
+                    sender.sendMessage("Only players can refresh vanish");
+                    return true;
+                }
+                Player player = (Player) sender;
+                plugin.getVanishManager().updateVanishedPlayersVisibility(player);
+                sender.sendMessage("§aVanish visibility refreshed!");
+                return true;
+            }
+            
             target = Bukkit.getPlayer(args[0]);
             if (target == null) {
                 sendMessage(sender, "player-not-found");
