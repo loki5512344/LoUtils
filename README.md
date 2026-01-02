@@ -3,11 +3,11 @@
 Многофункциональный плагин для Folia 1.21.8
 
 **Автор:** loki  
-**Версия:** 1.0.0
+**Версия:** 1.6.1
 
 ## Установка
 
-1. Скачайте `LoUtils-1.0.0.jar`
+1. Скачайте `LoUtils-1.6.1.jar`
 2. Поместите в папку `plugins/`
 3. Перезапустите сервер
 
@@ -25,12 +25,13 @@
 | `/lar <start\|stop\|status\|reload>` | Авто-рестарт | `loutils.autorestart` |
 | `/ll <lock\|unlock\|status\|reload> [dimension] [time]` | Блокировка измерений | `loutils.lock` |
 | `/lv [player]` | Vanish | `loutils.vanish` |
-| `/lstats [player]` | Статистика | `loutils.stats` |
 | `/lspawnmob <mob> <amount>` | Спавн мобов | `loutils.spawnmob` |
 | `/linvsee <player>` | Просмотр инвентаря | `loutils.invsee` |
-| `/lparty <create\|invite\|kick\|leave\|...>` | Пати система | `loutils.party` |
 | `/lenchant <enchant> <level>` | Зачарование | `loutils.enchant` |
+| `/lfly [player]` | Fly toggle | `loutils.fly` |
+| `/lflyspeed <0-10> [player]` | Fly speed | `loutils.flyspeed` |
 | `/ltpsbar [on\|off]` | TPS BossBar | `loutils.tpsbar` |
+| `/ltps` | Алиас для TPS BossBar | `loutils.tpsbar` |
 | `/loutils reload` | Перезагрузка | `loutils.admin` |
 
 ## Права
@@ -45,12 +46,11 @@
 | `loutils.lock.bypass` | Обход блокировки измерений |
 | `loutils.vanish` | Доступ к /lv |
 | `loutils.vanish.see` | Видеть игроков в vanish |
-| `loutils.stats` | Доступ к /lstats |
-| `loutils.stats.others` | Статистика других игроков |
 | `loutils.spawnmob` | Доступ к /lspawnmob |
 | `loutils.invsee` | Доступ к /linvsee |
-| `loutils.party` | Доступ к /lparty |
 | `loutils.enchant` | Доступ к /lenchant |
+| `loutils.fly` | Доступ к /lfly |
+| `loutils.flyspeed` | Доступ к /lflyspeed |
 | `loutils.tpsbar` | Доступ к /ltpsbar |
 | `loutils.admin` | Доступ к /loutils |
 
@@ -74,8 +74,6 @@
 - **AutoRestart** — рестарт по таймеру/времени с предупреждениями
 - **Dimension Lock** — блокировка Nether/End с голограммой
 - **Vanish** — полная невидимость, тихие контейнеры, сохранение
-- **Stats** — playtime, kills, deaths, KDR
-- **Party** — группы с цветными суффиксами
 - **Death Messages** — кастомные сообщения смерти
 - **Enchant** — зачарование на любой уровень
 - **TPSBar** — BossBar с TPS региона (Folia)
@@ -92,4 +90,4 @@
 gradle build
 ```
 
-JAR: `build/libs/LoUtils-1.0.0.jar`
+JAR: `build/libs/LoUtils-1.6.1.jar`

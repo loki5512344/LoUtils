@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.lokili.loutils.LoUtils;
 import xyz.lokili.loutils.utils.ColorUtil;
+import xyz.lokili.loutils.utils.TimeUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,10 +61,9 @@ public class DimensionLockCommand implements CommandExecutor, TabCompleter {
         int time = plugin.getConfigManager().getDimensionLockConfig().getInt("default_lock_time", 10);
         
         if (args.length >= 3) {
-            try {
-                time = Integer.parseInt(args[2]);
-            } catch (NumberFormatException e) {
-                sendMessage(sender, "invalid-number");
+            time = TimeUtil.parseTimeToMinutes(args[2]);
+            if (time <= 0) {
+                sendMessage(sender, "dimensionlock.invalid-time");
                 return;
             }
         }
@@ -71,7 +71,7 @@ public class DimensionLockCommand implements CommandExecutor, TabCompleter {
         if (plugin.getDimensionLockManager().lockDimension(dimension, time)) {
             String message = plugin.getConfigManager().getMessage("dimensionlock.locked")
                     .replace("{dimension}", plugin.getDimensionLockManager().getDimensionDisplayName(dimension))
-                    .replace("{time}", String.valueOf(time));
+                    .replace("{time}", TimeUtil.formatMinutes(time));
             sender.sendMessage(ColorUtil.colorize(plugin.getConfigManager().getPrefix() + message));
         } else {
             sendMessage(sender, "dimensionlock.invalid-dimension");
@@ -160,6 +160,10 @@ public class DimensionLockCommand implements CommandExecutor, TabCompleter {
             return dimensions.stream()
                     .filter(s -> s.startsWith(args[1].toLowerCase()))
                     .toList();
+        }
+        
+        if (args.length == 3 && args[0].equalsIgnoreCase("lock")) {
+            return Arrays.asList("10m", "30m", "1h", "2h", "1d");
         }
         
         return new ArrayList<>();

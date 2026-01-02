@@ -46,6 +46,7 @@ dimensionlock:
   actionbar: "&#FF6B6B⚠ &fДоступ к {dimension} закрыт! Осталось: {time}"
   dimension-required: "&cУкажите измерение (nether/end)"
   invalid-dimension: "&cНеверное измерение. Используйте: nether, end"
+  invalid-time: "&cНеверный формат времени. Примеры: 10m, 2h, 1d"
   usage: "&cИспользование: /ll <lock|unlock|status|reload> [dimension] [time]"
 
 # === Vanish ===

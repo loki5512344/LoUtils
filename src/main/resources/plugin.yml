@@ -26,18 +26,26 @@ commands:
     description: Vanish toggle
     usage: /lv [player]
     permission: loutils.vanish
-  lstats:
-    description: Player statistics
-    usage: /lstats [player]
-    permission: loutils.stats
-  lparty:
-    description: Party management
-    usage: /lparty <create|invite|kick|leave|list|accept|deny|color|disband>
-    permission: loutils.party
+  lspawnmob:
+    description: Spawn mobs
+    usage: /lspawnmob <mob> <amount>
+    permission: loutils.spawnmob
+  linvsee:
+    description: View player inventory
+    usage: /linvsee <player>
+    permission: loutils.invsee
   lenchant:
     description: Enchant items
     usage: /lenchant <enchantment> <level>
     permission: loutils.enchant
+  lfly:
+    description: Toggle fly mode
+    usage: /lfly [player]
+    permission: loutils.fly
+  lflyspeed:
+    description: Set fly speed
+    usage: /lflyspeed <0-10> [player]
+    permission: loutils.flyspeed
   loutils:
     description: Main plugin command
     usage: /loutils reload
@@ -47,6 +55,7 @@ commands:
     description: Toggle TPS bar
     usage: /ltpsbar [on|off]
     permission: loutils.tpsbar
+    aliases: [ltps]
 
 permissions:
   loutils.whitelist:
@@ -75,6 +84,12 @@ permissions:
     default: op
   loutils.enchant:
     description: Access to /lenchant command
+    default: op
+  loutils.fly:
+    description: Access to /lfly command
+    default: op
+  loutils.flyspeed:
+    description: Access to /lflyspeed command
     default: op
   loutils.admin:
     description: Access to /loutils command

@@ -85,7 +85,7 @@ public class TPSBarManager {
         // Получаем TPS региона игрока
         double regionTPS = getRegionTPS(player);
         double globalTPS = getGlobalTPS();
-        long mspt = getMSPT(player);
+        double mspt = getMSPT(player);
         
         // Форматируем текст
         String format = plugin.getConfigManager().getConfig("conf/tpsbar.yml")
@@ -151,12 +151,12 @@ public class TPSBarManager {
         }
     }
     
-    private long getMSPT(Player player) {
+    private double getMSPT(Player player) {
         try {
             // Paper API
-            return (long) Bukkit.getAverageTickTime();
+            return Bukkit.getAverageTickTime();
         } catch (Exception e) {
-            return 50;
+            return 50.0;
         }
     }
     
@@ -174,18 +174,18 @@ public class TPSBarManager {
         return color + String.format("%.1f", Math.min(20.0, tps));
     }
     
-    private String formatMSPT(long mspt) {
+    private String formatMSPT(double mspt) {
         String color;
-        if (mspt <= 40) {
+        if (mspt <= 40.0) {
             color = "&#55FF55";
-        } else if (mspt <= 50) {
+        } else if (mspt <= 50.0) {
             color = "&#FFFF55";
-        } else if (mspt <= 60) {
+        } else if (mspt <= 60.0) {
             color = "&#FFAA00";
         } else {
             color = "&#FF5555";
         }
-        return color + mspt + "ms";
+        return color + String.format("%.1f", mspt) + "ms";
     }
     
     private BossBar.Color getColorForTPS(double tps) {

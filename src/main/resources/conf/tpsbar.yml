@@ -6,7 +6,7 @@ enabled: true
 
 # BossBar format
 # Placeholders: {region_tps}, {global_tps}, {mspt}, {world}, {x}, {z}
-format: "&7Region: {region_tps} &8| &7Global: {global_tps} &8| &7MSPT: {mspt}"
+format: "&#3BA8FFTPS&8: &7R {region_tps} &8| &7G {global_tps} &8| &#3BA8FFMSPT&8: &7{mspt}"
 
 # Update interval in ticks (20 ticks = 1 second)
 update-interval: 20

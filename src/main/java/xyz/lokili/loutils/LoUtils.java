@@ -1,6 +1,7 @@
 package xyz.lokili.loutils;
 
 import org.bukkit.Bukkit;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 import xyz.lokili.loutils.commands.*;
 import xyz.lokili.loutils.listeners.*;
@@ -63,48 +64,58 @@ public class LoUtils extends JavaPlugin {
     private void registerCommands() {
         // Whitelist
         WhitelistCommand whitelistCommand = new WhitelistCommand(this);
-        getCommand("lw").setExecutor(whitelistCommand);
-        getCommand("lw").setTabCompleter(whitelistCommand);
+        registerCommand("lw", whitelistCommand, whitelistCommand);
         
         // AutoRestart
         AutoRestartCommand autoRestartCommand = new AutoRestartCommand(this);
-        getCommand("lar").setExecutor(autoRestartCommand);
-        getCommand("lar").setTabCompleter(autoRestartCommand);
+        registerCommand("lar", autoRestartCommand, autoRestartCommand);
         
         // Dimension Lock
         DimensionLockCommand dimensionLockCommand = new DimensionLockCommand(this);
-        getCommand("ll").setExecutor(dimensionLockCommand);
-        getCommand("ll").setTabCompleter(dimensionLockCommand);
+        registerCommand("ll", dimensionLockCommand, dimensionLockCommand);
         
         // Vanish
         VanishCommand vanishCommand = new VanishCommand(this);
-        getCommand("lv").setExecutor(vanishCommand);
-        getCommand("lv").setTabCompleter(vanishCommand);
+        registerCommand("lv", vanishCommand, vanishCommand);
         
         // SpawnMob
         SpawnMobCommand spawnMobCommand = new SpawnMobCommand(this);
-        getCommand("lspawnmob").setExecutor(spawnMobCommand);
-        getCommand("lspawnmob").setTabCompleter(spawnMobCommand);
+        registerCommand("lspawnmob", spawnMobCommand, spawnMobCommand);
         
         // InvSee
         InvSeeCommand invSeeCommand = new InvSeeCommand(this);
-        getCommand("linvsee").setExecutor(invSeeCommand);
-        getCommand("linvsee").setTabCompleter(invSeeCommand);
+        registerCommand("linvsee", invSeeCommand, invSeeCommand);
         
         // Enchant
         EnchantCommand enchantCommand = new EnchantCommand(this);
-        getCommand("lenchant").setExecutor(enchantCommand);
-        getCommand("lenchant").setTabCompleter(enchantCommand);
+        registerCommand("lenchant", enchantCommand, enchantCommand);
+
+        // Fly
+        FlyCommand flyCommand = new FlyCommand(this);
+        registerCommand("lfly", flyCommand, flyCommand);
+
+        // FlySpeed
+        FlySpeedCommand flySpeedCommand = new FlySpeedCommand(this);
+        registerCommand("lflyspeed", flySpeedCommand, flySpeedCommand);
         
         // Main command
         LoUtilsCommand loUtilsCommand = new LoUtilsCommand(this);
-        getCommand("loutils").setExecutor(loUtilsCommand);
-        getCommand("loutils").setTabCompleter(loUtilsCommand);
+        registerCommand("loutils", loUtilsCommand, loUtilsCommand);
         
         // TPSBar
         TPSBarCommand tpsBarCommand = new TPSBarCommand(this);
-        getCommand("ltpsbar").setExecutor(tpsBarCommand);
-        getCommand("ltpsbar").setTabCompleter(tpsBarCommand);
+        registerCommand("ltpsbar", tpsBarCommand, tpsBarCommand);
+    }
+
+    private void registerCommand(String name, org.bukkit.command.CommandExecutor executor,
+                                 org.bukkit.command.TabCompleter tabCompleter) {
+        PluginCommand command = getCommand(name);
+        if (command == null) {
+            getLogger().severe("Command '" + name + "' is not defined in plugin.yml");
+            return;
+        }
+        command.setExecutor(executor);
+        command.setTabCompleter(tabCompleter);
     }
     
     private void registerListeners() {

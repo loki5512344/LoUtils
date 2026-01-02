@@ -182,7 +182,12 @@ public class DimensionLockManager {
             return;
         }
         
-        updateHologramText(hologram, dimension);
+        // Обновляем в региональном scheduler'е
+        Bukkit.getRegionScheduler().execute(plugin, hologram.getLocation(), () -> {
+            if (!hologram.isDead()) {
+                updateHologramText(hologram, dimension);
+            }
+        });
     }
     
     private void updateHologramText(ArmorStand hologram, String dimension) {
