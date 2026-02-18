@@ -32,6 +32,31 @@ public class ColorUtil {
         return MiniMessage.miniMessage().deserialize(message);
     }
     
+    /**
+     * Colorize and convert to plain string (for legacy support)
+     */
+    public static String colorizeToString(String message) {
+        if (message == null || message.isEmpty()) {
+            return "";
+        }
+        
+        // Конвертируем &#RRGGBB в legacy формат
+        Matcher hexMatcher = HEX_PATTERN.matcher(message);
+        StringBuilder sb = new StringBuilder();
+        while (hexMatcher.find()) {
+            String hex = hexMatcher.group(1);
+            hexMatcher.appendReplacement(sb, "§x§" + hex.charAt(0) + "§" + hex.charAt(1) + 
+                    "§" + hex.charAt(2) + "§" + hex.charAt(3) + "§" + hex.charAt(4) + "§" + hex.charAt(5));
+        }
+        hexMatcher.appendTail(sb);
+        message = sb.toString();
+        
+        // Конвертируем & коды в §
+        message = message.replace("&", "§");
+        
+        return message;
+    }
+    
     private static String convertLegacyToMiniMessage(String message) {
         // Маппинг legacy кодов на MiniMessage теги
         message = message.replace("&0", "<black>");

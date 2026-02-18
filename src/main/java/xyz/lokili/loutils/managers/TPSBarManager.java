@@ -6,6 +6,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import xyz.lokili.loutils.LoUtils;
+import xyz.lokili.loutils.api.ITPSBarManager;
 import xyz.lokili.loutils.utils.ColorUtil;
 
 import java.lang.reflect.Method;
@@ -14,7 +15,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-public class TPSBarManager {
+public class TPSBarManager implements ITPSBarManager {
     
     private final LoUtils plugin;
     private final Map<UUID, BossBar> playerBars;
@@ -66,11 +67,7 @@ public class TPSBarManager {
     }
     
     public void toggleTPSBar(Player player) {
-        if (hasTPSBar(player)) {
-            disableTPSBar(player);
-        } else {
-            enableTPSBar(player);
-        }
+        toggleBar(player);
     }
     
     private void updateTPSBar(Player player) {
@@ -195,6 +192,36 @@ public class TPSBarManager {
         return BossBar.Color.RED;
     }
     
+    @Override
+    public void toggleBar(Player player) {
+        if (hasBar(player)) {
+            hideBar(player);
+        } else {
+            showBar(player);
+        }
+    }
+    
+    @Override
+    public void showBar(Player player) {
+        enableTPSBar(player);
+    }
+    
+    @Override
+    public void hideBar(Player player) {
+        disableTPSBar(player);
+    }
+    
+    @Override
+    public boolean hasBar(Player player) {
+        return hasTPSBar(player);
+    }
+    
+    @Override
+    public void handleQuit(Player player) {
+        disableTPSBar(player);
+    }
+    
+    @Override
     public void shutdown() {
         for (UUID uuid : playerBars.keySet()) {
             Player player = Bukkit.getPlayer(uuid);
@@ -204,9 +231,5 @@ public class TPSBarManager {
         }
         playerBars.clear();
         playerTasks.clear();
-    }
-    
-    public void handleQuit(Player player) {
-        disableTPSBar(player);
     }
 }

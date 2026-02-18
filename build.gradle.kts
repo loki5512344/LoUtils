@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "xyz.lokili"
-version = "1.6.1"
+version = "2.0.0"
 
 java {
     toolchain {
@@ -18,7 +18,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("dev.folia:folia-api:1.21.8-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.21.3-R0.1-SNAPSHOT")
     compileOnly("me.clip:placeholderapi:2.11.6")
 }
 
@@ -30,4 +30,9 @@ tasks.processResources {
 
 tasks.jar {
     archiveFileName.set("LoUtils-${version}.jar")
+}
+
+tasks.withType<JavaCompile> {
+    options.encoding = "UTF-8"
+    options.release.set(21)
 }

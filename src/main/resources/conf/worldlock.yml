@@ -1,0 +1,17 @@
+# WorldLock Configuration
+
+# Список заблокированных миров
+locked-worlds:
+  - world_nether
+  - world_the_end
+
+# Сообщения
+messages:
+  world-locked: "&cЭтот мир заблокирован!"
+  world-added: "&eМир &f{world} &eдобавлен в список заблокированных."
+  world-removed: "&eМир &f{world} &eудалён из списка заблокированных."
+  world-already-locked: "&cМир &f{world} &cуже заблокирован."
+  world-not-locked: "&cМир &f{world} &cне заблокирован."
+  no-locked-worlds: "&cНет заблокированных миров."
+  locked-worlds-list: "&eЗаблокированные миры:"
+  usage: "&cИспользование: /worldlock <add|remove|list> [world]"

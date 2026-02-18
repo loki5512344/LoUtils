@@ -1,0 +1,39 @@
+# CustomWorldHeight Configuration
+# Настройка высоты миров
+
+# Пример конфигурации для мира
+# world_name:
+#   world: "world_name"           # Точное имя мира (опционально, можно использовать regex)
+#   regex: "world_.*"             # Regex паттерн для имени мира (опционально)
+#   height: 384                   # Высота мира (блоков)
+#   min-y: -64                    # Минимальная Y координата
+#   logical-height: 384           # Логическая высота (для генерации)
+#   cloud-height: "default"       # Высота облаков: "default", "empty", или число
+#   dimension-type: "custom"      # Тип измерения: "custom", "overworld", "nether", "end"
+
+# Пример: увеличенный overworld
+custom_overworld:
+  world: "world"
+  height: 512
+  min-y: -128
+  logical-height: 512
+  cloud-height: "192"
+  dimension-type: "overworld"
+
+# Пример: высокий nether
+custom_nether:
+  world: "world_nether"
+  height: 256
+  min-y: 0
+  logical-height: 256
+  cloud-height: "empty"
+  dimension-type: "nether"
+
+# Пример: regex для всех миров с префиксом "custom_"
+# custom_worlds:
+#   regex: "custom_.*"
+#   height: 512
+#   min-y: -128
+#   logical-height: 512
+#   cloud-height: "default"
+#   dimension-type: "custom"

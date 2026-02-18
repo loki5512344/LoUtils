@@ -139,6 +139,10 @@ public class EnchantCommand implements CommandExecutor, TabCompleter {
         
         if (allowUnsafe) {
             ItemMeta meta = item.getItemMeta();
+            if (meta == null) {
+                sendConfigMessage(sender, "no-item");
+                return true;
+            }
             meta.addEnchant(enchantment, level, true);
             item.setItemMeta(meta);
         } else {

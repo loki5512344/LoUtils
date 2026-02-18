@@ -3,6 +3,7 @@ package xyz.lokili.loutils.managers;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import xyz.lokili.loutils.LoUtils;
+import xyz.lokili.loutils.api.IWhitelistManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,7 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class WhitelistManager {
+public class WhitelistManager implements IWhitelistManager {
     
     private final LoUtils plugin;
     private final Set<String> whitelistedPlayers;
@@ -46,6 +47,7 @@ public class WhitelistManager {
         enabled = plugin.getConfigManager().getWhitelistConfig().getBoolean("enabled", true);
     }
     
+    @Override
     public void saveWhitelist() {
         whitelistConfig.set("players", new ArrayList<>(whitelistedPlayers));
         try {
@@ -55,6 +57,7 @@ public class WhitelistManager {
         }
     }
     
+    @Override
     public boolean addPlayer(String playerName) {
         String lowerName = playerName.toLowerCase();
         if (whitelistedPlayers.contains(lowerName)) {
@@ -65,6 +68,7 @@ public class WhitelistManager {
         return true;
     }
     
+    @Override
     public boolean removePlayer(String playerName) {
         String lowerName = playerName.toLowerCase();
         if (!whitelistedPlayers.contains(lowerName)) {
@@ -75,10 +79,12 @@ public class WhitelistManager {
         return true;
     }
     
+    @Override
     public boolean isWhitelisted(String playerName) {
         return whitelistedPlayers.contains(playerName.toLowerCase());
     }
     
+    @Override
     public Set<String> getWhitelistedPlayers() {
         return new HashSet<>(whitelistedPlayers);
     }
@@ -87,10 +93,12 @@ public class WhitelistManager {
         return whitelistedPlayers.size();
     }
     
+    @Override
     public boolean isEnabled() {
         return enabled;
     }
     
+    @Override
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
         // Save to whitelist config
@@ -99,6 +107,7 @@ public class WhitelistManager {
         plugin.getConfigManager().saveConfig("conf/whitelist.yml");
     }
     
+    @Override
     public void reload() {
         loadWhitelist();
     }

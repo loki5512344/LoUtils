@@ -37,48 +37,13 @@ public class LoUtilsExpansion extends PlaceholderExpansion {
     
     @Override
     public @Nullable String onRequest(OfflinePlayer offlinePlayer, @NotNull String params) {
-        // Online count without vanished
+        // Online count
         if (params.equalsIgnoreCase("online")) {
-            return String.valueOf(plugin.getVanishManager().getOnlineCountWithoutVanished());
+            return String.valueOf(plugin.getServer().getOnlinePlayers().size());
         }
         
         if (params.equalsIgnoreCase("online_total")) {
             return String.valueOf(plugin.getServer().getOnlinePlayers().size());
-        }
-        
-        if (params.equalsIgnoreCase("vanished_count")) {
-            return String.valueOf(plugin.getVanishManager().getVanishedPlayers().size());
-        }
-        
-        // Player-specific placeholders
-        if (offlinePlayer == null) return null;
-        
-        // Vanish status
-        if (params.equalsIgnoreCase("vanished")) {
-            return plugin.getVanishManager().isVanished(offlinePlayer.getUniqueId()) ? "true" : "false";
-        }
-        
-        // Dimension lock timers
-        if (params.equalsIgnoreCase("nether_timer")) {
-            if (plugin.getDimensionLockManager().isLocked("nether")) {
-                return plugin.getDimensionLockManager().getTimeRemainingFormatted("nether");
-            }
-            return "открыт";
-        }
-        
-        if (params.equalsIgnoreCase("end_timer")) {
-            if (plugin.getDimensionLockManager().isLocked("end")) {
-                return plugin.getDimensionLockManager().getTimeRemainingFormatted("end");
-            }
-            return "открыт";
-        }
-        
-        if (params.equalsIgnoreCase("nether_locked")) {
-            return plugin.getDimensionLockManager().isLocked("nether") ? "true" : "false";
-        }
-        
-        if (params.equalsIgnoreCase("end_locked")) {
-            return plugin.getDimensionLockManager().isLocked("end") ? "true" : "false";
         }
         
         return null;

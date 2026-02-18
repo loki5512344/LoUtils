@@ -4,6 +4,7 @@ import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import xyz.lokili.loutils.LoUtils;
+import xyz.lokili.loutils.api.IAutoRestartManager;
 import xyz.lokili.loutils.utils.ColorUtil;
 
 import java.time.LocalDateTime;
@@ -13,7 +14,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class AutoRestartManager {
+public class AutoRestartManager implements IAutoRestartManager {
     
     private final LoUtils plugin;
     private ScheduledTask timerTask;
@@ -25,6 +26,7 @@ public class AutoRestartManager {
         this.running = false;
     }
     
+    @Override
     public void start() {
         if (running) return;
         
@@ -38,6 +40,7 @@ public class AutoRestartManager {
         plugin.getLogger().info("AutoRestart timer started. Restart in " + getTimeRemaining());
     }
     
+    @Override
     public void stop() {
         if (!running) return;
         
@@ -49,6 +52,7 @@ public class AutoRestartManager {
         plugin.getLogger().info("AutoRestart timer stopped.");
     }
     
+    @Override
     public void reload() {
         stop();
         if (plugin.getConfigManager().getAutoRestartConfig().getBoolean("enabled", false)) {
@@ -161,15 +165,17 @@ public class AutoRestartManager {
             
             // Рестарт через 3 секунды
             Bukkit.getGlobalRegionScheduler().runDelayed(plugin, (task) -> {
-                Bukkit.getServer().restart();
+                Bukkit.shutdown();
             }, 60L); // 3 секунды
         });
     }
     
+    @Override
     public boolean isRunning() {
         return running;
     }
     
+    @Override
     public String getTimeRemaining() {
         if (!running) return "N/A";
         
@@ -183,6 +189,7 @@ public class AutoRestartManager {
         return String.format("%dч %dм %dс", hours, minutes, seconds);
     }
     
+    @Override
     public long[] getTimeRemainingParts() {
         if (!running) return new long[]{0, 0, 0};
         

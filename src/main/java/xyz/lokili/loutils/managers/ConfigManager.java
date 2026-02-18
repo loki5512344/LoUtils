@@ -43,11 +43,11 @@ public class ConfigManager {
         // Module configs
         loadConfig("conf/whitelist.yml");
         loadConfig("conf/autorestart.yml");
-        loadConfig("conf/dimensionlock.yml");
-        loadConfig("conf/vanish.yml");
         loadConfig("conf/deathmessages.yml");
         loadConfig("conf/enchant.yml");
         loadConfig("conf/tpsbar.yml");
+        loadConfig("conf/worldlock.yml");
+        loadConfig("conf/customworldheight.yml");
     }
     
     private FileConfiguration loadConfig(String path) {
@@ -91,14 +91,6 @@ public class ConfigManager {
     
     public FileConfiguration getAutoRestartConfig() {
         return configs.get("conf/autorestart.yml");
-    }
-    
-    public FileConfiguration getDimensionLockConfig() {
-        return configs.get("conf/dimensionlock.yml");
-    }
-    
-    public FileConfiguration getVanishConfig() {
-        return configs.get("conf/vanish.yml");
     }
     
     public FileConfiguration getStatsConfig() {

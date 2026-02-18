@@ -49,8 +49,7 @@ public class DeathMessageListener implements Listener {
         // PvP death
         if (killer != null) {
             // Check if killer is invisible
-            if (killer.hasPotionEffect(PotionEffectType.INVISIBILITY) || 
-                plugin.getVanishManager().isVanished(killer)) {
+            if (killer.hasPotionEffect(PotionEffectType.INVISIBILITY)) {
                 return plugin.getConfigManager().getRandomDeathMessage("invisible_killer",
                         "{victim}", victimName);
             }

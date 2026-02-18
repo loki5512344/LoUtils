@@ -4,7 +4,8 @@ main: xyz.lokili.loutils.LoUtils
 api-version: "1.21"
 folia-supported: true
 author: loki
-description: All-in-one utility plugin for Folia
+description: All-in-one utility plugin for Paper/Folia 1.21.5
+website: https://github.com/lokili/loutils
 softdepend:
   - PlaceholderAPI
   - LuckPerms
@@ -18,14 +19,6 @@ commands:
     description: AutoRestart management
     usage: /lar <start|stop|status|reload>
     permission: loutils.autorestart
-  ll:
-    description: Dimension lock management
-    usage: /ll <lock|unlock|status|reload> [dimension] [time]
-    permission: loutils.lock
-  lv:
-    description: Vanish toggle
-    usage: /lv [player]
-    permission: loutils.vanish
   lspawnmob:
     description: Spawn mobs
     usage: /lspawnmob <mob> <amount>
@@ -56,6 +49,11 @@ commands:
     usage: /ltpsbar [on|off]
     permission: loutils.tpsbar
     aliases: [ltps]
+  worldlock:
+    description: Manage world locks
+    usage: /worldlock <add|remove|list|reload> [world]
+    permission: loutils.worldlock
+    aliases: [wl]
 
 permissions:
   loutils.whitelist:
@@ -63,18 +61,6 @@ permissions:
     default: op
   loutils.autorestart:
     description: Access to /lar command
-    default: op
-  loutils.lock:
-    description: Access to /ll command
-    default: op
-  loutils.lock.bypass:
-    description: Bypass dimension lock
-    default: false
-  loutils.vanish:
-    description: Access to /lv command
-    default: op
-  loutils.vanish.see:
-    description: See vanished players
     default: op
   loutils.spawnmob:
     description: Access to /lspawnmob command
@@ -97,3 +83,9 @@ permissions:
   loutils.tpsbar:
     description: Access to /ltpsbar command
     default: op
+  loutils.worldlock:
+    description: Access to /worldlock command
+    default: op
+  loutils.worldlock.bypass.*:
+    description: Bypass world lock for all worlds
+    default: false

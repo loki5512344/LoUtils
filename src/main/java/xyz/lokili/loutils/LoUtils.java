@@ -7,27 +7,33 @@ import xyz.lokili.loutils.commands.*;
 import xyz.lokili.loutils.listeners.*;
 import xyz.lokili.loutils.managers.*;
 import xyz.lokili.loutils.placeholders.LoUtilsExpansion;
+import xyz.lokili.loutils.utils.MessageUtil;
 
 public class LoUtils extends JavaPlugin {
     
     private ConfigManager configManager;
     private WhitelistManager whitelistManager;
     private AutoRestartManager autoRestartManager;
-    private DimensionLockManager dimensionLockManager;
-    private VanishManager vanishManager;
     private TPSBarManager tpsBarManager;
+    private WorldLockManager worldLockManager;
+    private CustomWorldHeightManager customWorldHeightManager;
+    private MessageUtil messageUtil;
+    private InvSeeListener invSeeListener;
     
     @Override
     public void onEnable() {
         // Config manager first
         configManager = new ConfigManager(this);
         
+        // Initialize utilities
+        messageUtil = new MessageUtil(this);
+        
         // Initialize managers
         whitelistManager = new WhitelistManager(this);
         autoRestartManager = new AutoRestartManager(this);
-        dimensionLockManager = new DimensionLockManager(this);
-        vanishManager = new VanishManager(this);
         tpsBarManager = new TPSBarManager(this);
+        worldLockManager = new WorldLockManager(this);
+        customWorldHeightManager = new CustomWorldHeightManager(this);
         
         // Register commands
         registerCommands();
@@ -46,19 +52,18 @@ public class LoUtils extends JavaPlugin {
             getLogger().info("PlaceholderAPI expansion registered!");
         }
         
-        getLogger().info("LoUtils enabled!");
-        getLogger().info("Modules: Whitelist, AutoRestart, DimensionLock, Vanish, Enchant, DeathMessages, TPSBar, InvSee, SpawnMob");
+        getLogger().info("LoUtils v2.0.0 enabled!");
+        getLogger().info("Modules: Whitelist, AutoRestart, Enchant, DeathMessages, TPSBar, InvSee, SpawnMob, Fly, WorldLock, CustomWorldHeight");
     }
     
     @Override
     public void onDisable() {
+        if (invSeeListener != null) invSeeListener.shutdown();
         if (tpsBarManager != null) tpsBarManager.shutdown();
-        if (dimensionLockManager != null) dimensionLockManager.shutdown();
         if (autoRestartManager != null) autoRestartManager.stop();
-        if (vanishManager != null) vanishManager.saveData();
         if (whitelistManager != null) whitelistManager.saveWhitelist();
         
-        getLogger().info("LoUtils disabled!");
+        getLogger().info("LoUtils v2.0.0 disabled!");
     }
     
     private void registerCommands() {
@@ -69,14 +74,6 @@ public class LoUtils extends JavaPlugin {
         // AutoRestart
         AutoRestartCommand autoRestartCommand = new AutoRestartCommand(this);
         registerCommand("lar", autoRestartCommand, autoRestartCommand);
-        
-        // Dimension Lock
-        DimensionLockCommand dimensionLockCommand = new DimensionLockCommand(this);
-        registerCommand("ll", dimensionLockCommand, dimensionLockCommand);
-        
-        // Vanish
-        VanishCommand vanishCommand = new VanishCommand(this);
-        registerCommand("lv", vanishCommand, vanishCommand);
         
         // SpawnMob
         SpawnMobCommand spawnMobCommand = new SpawnMobCommand(this);
@@ -105,6 +102,10 @@ public class LoUtils extends JavaPlugin {
         // TPSBar
         TPSBarCommand tpsBarCommand = new TPSBarCommand(this);
         registerCommand("ltpsbar", tpsBarCommand, tpsBarCommand);
+        
+        // WorldLock
+        WorldLockCommand worldLockCommand = new WorldLockCommand(this);
+        registerCommand("worldlock", worldLockCommand, worldLockCommand);
     }
 
     private void registerCommand(String name, org.bukkit.command.CommandExecutor executor,
@@ -119,10 +120,12 @@ public class LoUtils extends JavaPlugin {
     }
     
     private void registerListeners() {
+        invSeeListener = new InvSeeListener(this);
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
-        getServer().getPluginManager().registerEvents(new PortalListener(this), this);
-        getServer().getPluginManager().registerEvents(new VanishListener(this), this);
         getServer().getPluginManager().registerEvents(new DeathMessageListener(this), this);
+        getServer().getPluginManager().registerEvents(invSeeListener, this);
+        getServer().getPluginManager().registerEvents(new WorldLockListener(this), this);
+        getServer().getPluginManager().registerEvents(new CustomWorldHeightListener(this), this);
     }
     
     public void reload() {
@@ -135,7 +138,9 @@ public class LoUtils extends JavaPlugin {
     public ConfigManager getConfigManager() { return configManager; }
     public WhitelistManager getWhitelistManager() { return whitelistManager; }
     public AutoRestartManager getAutoRestartManager() { return autoRestartManager; }
-    public DimensionLockManager getDimensionLockManager() { return dimensionLockManager; }
-    public VanishManager getVanishManager() { return vanishManager; }
     public TPSBarManager getTPSBarManager() { return tpsBarManager; }
+    public WorldLockManager getWorldLockManager() { return worldLockManager; }
+    public CustomWorldHeightManager getCustomWorldHeightManager() { return customWorldHeightManager; }
+    public MessageUtil getMessageUtil() { return messageUtil; }
+    public InvSeeListener getInvSeeListener() { return invSeeListener; }
 }

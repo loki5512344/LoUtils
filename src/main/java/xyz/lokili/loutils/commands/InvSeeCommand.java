@@ -67,7 +67,9 @@ public class InvSeeCommand implements CommandExecutor, TabCompleter {
         String title = plugin.getConfigManager().getMessage("invsee.title")
                 .replace("{player}", target.getName());
         
-        Inventory inv = Bukkit.createInventory(null, 54, ColorUtil.colorize(title));
+        // Создаём инвентарь с кастомным holder для идентификации
+        InvSeeHolder holder = new InvSeeHolder(target);
+        Inventory inv = Bukkit.createInventory(holder, 54, Component.text(ColorUtil.colorizeToString(title)));
         
         // Main inventory (slots 0-35)
         ItemStack[] contents = target.getInventory().getContents();
@@ -101,13 +103,36 @@ public class InvSeeCommand implements CommandExecutor, TabCompleter {
         inv.setItem(53, createStatusItem(target));
         
         viewer.openInventory(inv);
+        
+        // Запускаем автоматическое обновление
+        plugin.getInvSeeListener().startAutoUpdate(viewer, inv, holder);
+    }
+    
+    // Кастомный InventoryHolder для идентификации InvSee инвентаря
+    private static class InvSeeHolder implements org.bukkit.inventory.InventoryHolder {
+        private final Player target;
+        
+        public InvSeeHolder(Player target) {
+            this.target = target;
+        }
+        
+        public Player getTarget() {
+            return target;
+        }
+        
+        @Override
+        public @NotNull Inventory getInventory() {
+            return target.getInventory();
+        }
     }
     
     private ItemStack createGlassPane(Material material, String name) {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
-        meta.displayName(ColorUtil.colorize(name));
-        item.setItemMeta(meta);
+        if (meta != null) {
+            meta.displayName(Component.text(ColorUtil.colorizeToString(name)));
+            item.setItemMeta(meta);
+        }
         return item;
     }
     
@@ -121,18 +146,20 @@ public class InvSeeCommand implements CommandExecutor, TabCompleter {
     private ItemStack createEffectsItem(Player target) {
         ItemStack item = new ItemStack(Material.POTION);
         ItemMeta meta = item.getItemMeta();
-        meta.displayName(ColorUtil.colorize("&dЭффекты"));
+        if (meta == null) return item;
+        
+        meta.displayName(Component.text(ColorUtil.colorizeToString("&dЭффекты")));
         
         List<Component> lore = new ArrayList<>();
         
         if (target.getActivePotionEffects().isEmpty()) {
-            lore.add(ColorUtil.colorize("&7Нет активных эффектов"));
+            lore.add(Component.text(ColorUtil.colorizeToString("&7Нет активных эффектов")));
         } else {
             for (PotionEffect effect : target.getActivePotionEffects()) {
                 String name = effect.getType().getKey().getKey().replace("_", " ");
                 int level = effect.getAmplifier() + 1;
                 int duration = effect.getDuration() / 20;
-                lore.add(ColorUtil.colorize("&7• &f" + name + " " + level + " &7(" + duration + "с)"));
+                lore.add(Component.text(ColorUtil.colorizeToString("&7• &f" + name + " " + level + " &7(" + duration + "с)")));
             }
         }
         
@@ -144,15 +171,17 @@ public class InvSeeCommand implements CommandExecutor, TabCompleter {
     private ItemStack createStatusItem(Player target) {
         ItemStack item = new ItemStack(Material.PLAYER_HEAD);
         ItemMeta meta = item.getItemMeta();
-        meta.displayName(ColorUtil.colorize("&aСтатус игрока"));
+        if (meta == null) return item;
+        
+        meta.displayName(Component.text(ColorUtil.colorizeToString("&aСтатус игрока")));
         
         List<Component> lore = new ArrayList<>();
-        lore.add(ColorUtil.colorize("&7Здоровье: &c" + String.format("%.1f", target.getHealth()) + "/" + 
-                String.format("%.1f", target.getMaxHealth())));
-        lore.add(ColorUtil.colorize("&7Голод: &6" + target.getFoodLevel() + "/20"));
-        lore.add(ColorUtil.colorize("&7Уровень: &a" + target.getLevel()));
-        lore.add(ColorUtil.colorize("&7Опыт: &e" + String.format("%.0f%%", target.getExp() * 100)));
-        lore.add(ColorUtil.colorize("&7Режим: &f" + target.getGameMode().name()));
+        lore.add(Component.text(ColorUtil.colorizeToString("&7Здоровье: &c" + String.format("%.1f", target.getHealth()) + "/" + 
+                String.format("%.1f", target.getMaxHealth()))));
+        lore.add(Component.text(ColorUtil.colorizeToString("&7Голод: &6" + target.getFoodLevel() + "/20")));
+        lore.add(Component.text(ColorUtil.colorizeToString("&7Уровень: &a" + target.getLevel())));
+        lore.add(Component.text(ColorUtil.colorizeToString("&7Опыт: &e" + String.format("%.0f%%", target.getExp() * 100))));
+        lore.add(Component.text(ColorUtil.colorizeToString("&7Режим: &f" + target.getGameMode().name())));
         
         meta.lore(lore);
         item.setItemMeta(meta);
