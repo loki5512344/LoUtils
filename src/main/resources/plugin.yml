@@ -4,8 +4,8 @@ main: xyz.lokili.loutils.LoUtils
 api-version: "1.21"
 folia-supported: true
 author: loki
-description: All-in-one utility plugin for Paper/Folia 1.21.5
-website: https://github.com/lokili/loutils
+description: All-in-one utility plugin for Paper/Folia 1.21.3-1.21.11
+website: https://codeberg.org/loki5512344/LoUtils
 softdepend:
   - PlaceholderAPI
   - LuckPerms
