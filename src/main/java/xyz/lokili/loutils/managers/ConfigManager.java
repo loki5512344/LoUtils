@@ -3,6 +3,7 @@ package xyz.lokili.loutils.managers;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import xyz.lokili.loutils.LoUtils;
+import xyz.lokili.loutils.api.IConfigManager;
 import xyz.lokili.loutils.utils.ColorUtil;
 
 import java.io.File;
@@ -15,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-public class ConfigManager {
+public class ConfigManager implements IConfigManager {
     
     private final LoUtils plugin;
     private final Map<String, FileConfiguration> configs;

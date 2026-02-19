@@ -5,7 +5,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import xyz.lokili.loutils.LoUtils;
 import xyz.lokili.loutils.api.IAutoRestartManager;
-import xyz.lokili.loutils.utils.ColorUtil;
+import xyz.lokili.loutils.utils.SchedulerUtil;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -130,10 +130,7 @@ public class AutoRestartManager implements IAutoRestartManager {
                 plugin.getConfigManager().getMessage("autorestart.warning")
                         .replace("{time}", String.valueOf(minutes));
         
-        // Используем GlobalRegionScheduler для broadcast
-        Bukkit.getGlobalRegionScheduler().execute(plugin, () -> {
-            Bukkit.broadcast(ColorUtil.colorize(message));
-        });
+        SchedulerUtil.broadcast(plugin, message);
     }
     
     private void broadcastSecondsWarning(int seconds) {
@@ -141,19 +138,17 @@ public class AutoRestartManager implements IAutoRestartManager {
                 plugin.getConfigManager().getMessage("autorestart.warning-seconds")
                         .replace("{time}", String.valueOf(seconds));
         
-        Bukkit.getGlobalRegionScheduler().execute(plugin, () -> {
-            Bukkit.broadcast(ColorUtil.colorize(message));
-        });
+        SchedulerUtil.broadcast(plugin, message);
     }
     
     private void executeRestart() {
         stop();
         
-        Bukkit.getGlobalRegionScheduler().execute(plugin, () -> {
+        SchedulerUtil.runGlobal(plugin, () -> {
             // Финальное сообщение
             String message = plugin.getConfigManager().getPrefix() +
                     plugin.getConfigManager().getMessage("autorestart.now");
-            Bukkit.broadcast(ColorUtil.colorize(message));
+            SchedulerUtil.broadcast(plugin, message);
             
             // Сохранение миров
             if (plugin.getConfigManager().getAutoRestartConfig().getBoolean("save_before_restart", true)) {
@@ -164,7 +159,7 @@ public class AutoRestartManager implements IAutoRestartManager {
             }
             
             // Рестарт через 3 секунды
-            Bukkit.getGlobalRegionScheduler().runDelayed(plugin, (task) -> {
+            SchedulerUtil.runGlobalDelayed(plugin, () -> {
                 Bukkit.shutdown();
             }, 60L); // 3 секунды
         });

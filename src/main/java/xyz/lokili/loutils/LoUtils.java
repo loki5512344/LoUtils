@@ -3,6 +3,7 @@ package xyz.lokili.loutils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
+import xyz.lokili.loutils.api.*;
 import xyz.lokili.loutils.commands.*;
 import xyz.lokili.loutils.listeners.*;
 import xyz.lokili.loutils.managers.*;
@@ -11,12 +12,12 @@ import xyz.lokili.loutils.utils.MessageUtil;
 
 public class LoUtils extends JavaPlugin {
     
-    private ConfigManager configManager;
-    private WhitelistManager whitelistManager;
-    private AutoRestartManager autoRestartManager;
-    private TPSBarManager tpsBarManager;
-    private WorldLockManager worldLockManager;
-    private CustomWorldHeightManager customWorldHeightManager;
+    private IConfigManager configManager;
+    private IWhitelistManager whitelistManager;
+    private IAutoRestartManager autoRestartManager;
+    private ITPSBarManager tpsBarManager;
+    private IWorldLockManager worldLockManager;
+    private ICustomWorldHeightManager customWorldHeightManager;
     private MessageUtil messageUtil;
     private InvSeeListener invSeeListener;
     
@@ -135,12 +136,12 @@ public class LoUtils extends JavaPlugin {
     }
     
     // Getters
-    public ConfigManager getConfigManager() { return configManager; }
-    public WhitelistManager getWhitelistManager() { return whitelistManager; }
-    public AutoRestartManager getAutoRestartManager() { return autoRestartManager; }
-    public TPSBarManager getTPSBarManager() { return tpsBarManager; }
-    public WorldLockManager getWorldLockManager() { return worldLockManager; }
-    public CustomWorldHeightManager getCustomWorldHeightManager() { return customWorldHeightManager; }
+    public IConfigManager getConfigManager() { return configManager; }
+    public IWhitelistManager getWhitelistManager() { return whitelistManager; }
+    public IAutoRestartManager getAutoRestartManager() { return autoRestartManager; }
+    public ITPSBarManager getTPSBarManager() { return tpsBarManager; }
+    public IWorldLockManager getWorldLockManager() { return worldLockManager; }
+    public ICustomWorldHeightManager getCustomWorldHeightManager() { return customWorldHeightManager; }
     public MessageUtil getMessageUtil() { return messageUtil; }
     public InvSeeListener getInvSeeListener() { return invSeeListener; }
 }

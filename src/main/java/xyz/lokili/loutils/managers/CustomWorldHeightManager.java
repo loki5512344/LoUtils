@@ -3,12 +3,13 @@ package xyz.lokili.loutils.managers;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import xyz.lokili.loutils.LoUtils;
+import xyz.lokili.loutils.api.ICustomWorldHeightManager;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-public class CustomWorldHeightManager {
+public class CustomWorldHeightManager implements ICustomWorldHeightManager {
     
     private final LoUtils plugin;
     private final Map<String, WorldHeightConfig> worldConfigs;
