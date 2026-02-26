@@ -10,7 +10,7 @@ softdepend:
   - PlaceholderAPI
   - LuckPerms
 depend:
-  - LoLib
+  - LoAPI
 
 commands:
   lw:

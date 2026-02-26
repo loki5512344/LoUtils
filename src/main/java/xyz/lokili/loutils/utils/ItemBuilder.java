@@ -45,7 +45,7 @@ public class ItemBuilder {
         if (meta != null && lore != null) {
             List<Component> components = lore.stream()
                 .map(ColorUtil::colorizeToString)
-                .map(Component::text)
+                .map(s -> (Component) Component.text(s))
                 .toList();
             meta.lore(components);
         }
