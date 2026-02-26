@@ -256,6 +256,12 @@ conf/
 - EnchantCommand теперь использует CommandBase.sendConfigMessage()
 - Создан InvSeeConstants для magic numbers
 
+**5. Миграция на V2 версии ✅**
+- Заменен AutoRestartManager на компонентную версию
+- Заменен PerformanceProfiler на компонентную версию
+- Удалены старые версии (~300 строк дублирования)
+- Исправлена Folia ошибка (getTPS из GlobalScheduler)
+
 ### В процессе:
 
 **5. Создание DependencyContainer**
@@ -265,15 +271,16 @@ conf/
 - [ ] ListenerRegistry для регистрации слушателей
 
 **6. Добавление тестов**
-- [ ] AutoRestartManagerV2Test
-- [ ] PerformanceProfilerV2Test
+- [ ] AutoRestartManagerTest
+- [ ] PerformanceProfilerTest
 - [ ] ConfigValidatorV2Test
 - [ ] ValidationRulesTest
 
-**7. Миграция на новые версии**
-- [ ] Заменить AutoRestartManager на AutoRestartManagerV2
-- [ ] Заменить PerformanceProfiler на PerformanceProfilerV2
-- [ ] Удалить старые версии
+**7. Миграция на новые версии ✅ ВЫПОЛНЕНО**
+- [x] Заменить AutoRestartManager на V2
+- [x] Заменить PerformanceProfiler на V2
+- [x] Удалить старые версии
+- [x] Исправить Folia getTPS ошибку
 
 ### Результаты:
 - Применены принципы SOLID (особенно SRP)
