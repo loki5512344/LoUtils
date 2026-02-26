@@ -3,29 +3,44 @@ package xyz.lokili.loutils.managers;
 import org.bukkit.configuration.file.FileConfiguration;
 import xyz.lokili.loutils.LoUtils;
 import xyz.lokili.loutils.api.IWorldLockManager;
+import xyz.lokili.loutils.constants.ConfigConstants;
+import xyz.lokili.loutils.managers.base.BaseStorageManager;
 
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
-public class WorldLockManager implements IWorldLockManager {
+/**
+ * Manages world locks using BaseStorageManager (DRY principle)
+ */
+public class WorldLockManager extends BaseStorageManager implements IWorldLockManager {
     
     private final LoUtils plugin;
-    private final Set<String> lockedWorlds;
     
     public WorldLockManager(LoUtils plugin) {
+        super(plugin, ConfigConstants.WORLDLOCK_CONFIG, "locked-worlds", true);
         this.plugin = plugin;
-        this.lockedWorlds = ConcurrentHashMap.newKeySet();
-        loadLockedWorlds();
+        reload();
     }
     
-    private void loadLockedWorlds() {
-        FileConfiguration config = plugin.getConfigManager().getConfig("conf/worldlock.yml");
-        List<String> worlds = config.getStringList("locked-worlds");
-        lockedWorlds.clear();
-        lockedWorlds.addAll(worlds);
-        plugin.getLogger().info("Loaded " + lockedWorlds.size() + " locked worlds");
+    @Override
+    protected FileConfiguration getConfig() {
+        return plugin.getConfigManager().getConfig(ConfigConstants.WORLDLOCK_CONFIG);
+    }
+    
+    @Override
+    protected void saveConfig(FileConfiguration config) {
+        plugin.getConfigManager().saveConfig(ConfigConstants.WORLDLOCK_CONFIG);
+    }
+    
+    @Override
+    protected String processItem(String item) {
+        return item; // World names are case-sensitive
+    }
+    
+    // === IWorldLockManager Implementation ===
+    
+    @Override
+    public void saveConfig() {
+        save(getConfig());
     }
     
     public void saveLockedWorlds() {
@@ -33,44 +48,22 @@ public class WorldLockManager implements IWorldLockManager {
     }
     
     @Override
-    public void saveConfig() {
-        FileConfiguration config = plugin.getConfigManager().getConfig("conf/worldlock.yml");
-        config.set("locked-worlds", List.copyOf(lockedWorlds));
-        plugin.getConfigManager().saveConfig("conf/worldlock.yml");
-    }
-    
-    @Override
     public boolean isLocked(String worldName) {
-        return lockedWorlds.contains(worldName);
+        return contains(worldName);
     }
     
     @Override
     public boolean addWorld(String worldName) {
-        if (lockedWorlds.contains(worldName)) {
-            return false;
-        }
-        lockedWorlds.add(worldName);
-        saveLockedWorlds();
-        return true;
+        return add(worldName);
     }
     
     @Override
     public boolean removeWorld(String worldName) {
-        if (!lockedWorlds.contains(worldName)) {
-            return false;
-        }
-        lockedWorlds.remove(worldName);
-        saveLockedWorlds();
-        return true;
+        return remove(worldName);
     }
     
     @Override
     public Set<String> getLockedWorlds() {
-        return new HashSet<>(lockedWorlds);
-    }
-    
-    @Override
-    public void reload() {
-        loadLockedWorlds();
+        return getAll();
     }
 }

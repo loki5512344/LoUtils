@@ -3,7 +3,6 @@ package xyz.lokili.loutils.api;
 import org.bukkit.configuration.file.FileConfiguration;
 
 public interface IConfigManager {
-    void loadAllConfigs();
     void reloadAll();
     FileConfiguration getConfig(String path);
     void saveConfig(String path);

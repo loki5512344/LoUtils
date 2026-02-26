@@ -1,0 +1,109 @@
+package xyz.lokili.loutils.services;
+
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.Plugin;
+import xyz.lokili.loutils.constants.ConfigConstants;
+import xyz.lokili.loutils.utils.validation.ConfigValidatorV2;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Handles loading and saving of configuration files
+ * Single Responsibility: Config file I/O operations
+ */
+public class ConfigLoader {
+    
+    private final Plugin plugin;
+    private final Map<String, FileConfiguration> configs;
+    private final Map<String, File> configFiles;
+    private final ConfigValidatorV2 validator;
+    
+    public ConfigLoader(Plugin plugin) {
+        this.plugin = plugin;
+        this.configs = new HashMap<>();
+        this.configFiles = new HashMap<>();
+        this.validator = new ConfigValidatorV2(plugin);
+    }
+    
+    public void loadAllConfigs() {
+        // Main config
+        plugin.saveDefaultConfig();
+        plugin.reloadConfig();
+        
+        // Load all module configs
+        loadConfig(ConfigConstants.MESSAGES_CONFIG);
+        loadConfig(ConfigConstants.WHITELIST_CONFIG);
+        loadConfig(ConfigConstants.AUTORESTART_CONFIG);
+        loadConfig(ConfigConstants.DEATH_MESSAGES_CONFIG);
+        loadConfig(ConfigConstants.ENCHANT_CONFIG);
+        loadConfig(ConfigConstants.TPSBAR_CONFIG);
+        loadConfig(ConfigConstants.WORLDLOCK_CONFIG);
+        loadConfig(ConfigConstants.CUSTOMWORLDHEIGHT_CONFIG);
+        loadConfig("conf/performance.yml");
+        loadConfig("conf/sleeppercentage.yml");
+        loadConfig("conf/fastleafdecay.yml");
+        loadConfig("conf/cauldron.yml");
+        loadConfig("conf/villagerleash.yml");
+        
+        // Validate all configs after loading
+        validator.validateAll(configs);
+    }
+    
+    public FileConfiguration loadConfig(String path) {
+        File file = new File(plugin.getDataFolder(), path);
+        
+        if (!file.exists()) {
+            file.getParentFile().mkdirs();
+            plugin.saveResource(path, false);
+        }
+        
+        FileConfiguration config = YamlConfiguration.loadConfiguration(file);
+        
+        // Load defaults from jar
+        InputStream defaultStream = plugin.getResource(path);
+        if (defaultStream != null) {
+            YamlConfiguration defaultConfig = YamlConfiguration.loadConfiguration(
+                    new InputStreamReader(defaultStream, StandardCharsets.UTF_8));
+            config.setDefaults(defaultConfig);
+        }
+        
+        configs.put(path, config);
+        configFiles.put(path, file);
+        
+        return config;
+    }
+    
+    public void reloadAll() {
+        plugin.reloadConfig();
+        configs.clear();
+        configFiles.clear();
+        loadAllConfigs();
+    }
+    
+    public FileConfiguration getConfig(String path) {
+        return configs.get(path);
+    }
+    
+    public void saveConfig(String path) {
+        FileConfiguration config = configs.get(path);
+        File file = configFiles.get(path);
+        if (config != null && file != null) {
+            try {
+                config.save(file);
+            } catch (IOException e) {
+                plugin.getLogger().severe("Could not save " + path + ": " + e.getMessage());
+            }
+        }
+    }
+    
+    public Map<String, FileConfiguration> getAllConfigs() {
+        return new HashMap<>(configs);
+    }
+}

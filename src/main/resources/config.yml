@@ -1,17 +1,25 @@
 # LoUtils - Main Configuration
-# Автор: loki | Folia 1.21.8
+# Автор: loki | Folia 1.21.3+
+# Версия: 2.2.0
 # Поддержка цветов: &#RRGGBB (hex) и &c (legacy)
 
 # Включение/отключение модулей
 modules:
   whitelist: true
   autorestart: true
-  dimensionlock: true
-  vanish: true
-  stats: true
-  spawnmob: true
-  invsee: true
   deathmessages: true
+  enchant: true
+  tpsbar: true
+  invsee: true
+  spawnmob: true
+  fly: true
+  worldlock: true
+  customworldheight: true
+  fastleafdecay: true
+  sleeppercentage: true
+  villagerleash: true
+  cauldron: true
+  performance: true
 
 # Префикс плагина
 prefix: "&#3BA8FF[LoUtils] &7"

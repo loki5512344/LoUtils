@@ -18,12 +18,13 @@ public class LoUtils extends JavaPlugin {
     private ITPSBarManager tpsBarManager;
     private IWorldLockManager worldLockManager;
     private ICustomWorldHeightManager customWorldHeightManager;
+    private PerformanceProfiler performanceProfiler;
     private MessageUtil messageUtil;
     private InvSeeListener invSeeListener;
     
     @Override
     public void onEnable() {
-        // Config manager first
+        // Config manager first (validation happens inside)
         configManager = new ConfigManager(this);
         
         // Initialize utilities
@@ -35,6 +36,7 @@ public class LoUtils extends JavaPlugin {
         tpsBarManager = new TPSBarManager(this);
         worldLockManager = new WorldLockManager(this);
         customWorldHeightManager = new CustomWorldHeightManager(this);
+        performanceProfiler = new PerformanceProfiler(this);
         
         // Register commands
         registerCommands();
@@ -47,14 +49,19 @@ public class LoUtils extends JavaPlugin {
             autoRestartManager.start();
         }
         
+        // Start performance profiler if enabled
+        if (configManager.isModuleEnabled("performance")) {
+            performanceProfiler.start();
+        }
+        
         // Register PlaceholderAPI expansion
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new LoUtilsExpansion(this).register();
             getLogger().info("PlaceholderAPI expansion registered!");
         }
         
-        getLogger().info("LoUtils v2.0.0 enabled!");
-        getLogger().info("Modules: Whitelist, AutoRestart, Enchant, DeathMessages, TPSBar, InvSee, SpawnMob, Fly, WorldLock, CustomWorldHeight");
+        getLogger().info("LoUtils v2.2.0 enabled!");
+        getLogger().info("Modules: Whitelist, AutoRestart, Enchant, DeathMessages, TPSBar, InvSee, SpawnMob, Fly, WorldLock, CustomWorldHeight, FastLeafDecay, SleepPercentage, VillagerLeash, Cauldron, PerformanceProfiler");
     }
     
     @Override
@@ -62,9 +69,10 @@ public class LoUtils extends JavaPlugin {
         if (invSeeListener != null) invSeeListener.shutdown();
         if (tpsBarManager != null) tpsBarManager.shutdown();
         if (autoRestartManager != null) autoRestartManager.stop();
+        if (performanceProfiler != null) performanceProfiler.stop();
         if (whitelistManager != null) whitelistManager.saveWhitelist();
         
-        getLogger().info("LoUtils v2.0.0 disabled!");
+        getLogger().info("LoUtils v2.2.0 disabled!");
     }
     
     private void registerCommands() {
@@ -127,6 +135,10 @@ public class LoUtils extends JavaPlugin {
         getServer().getPluginManager().registerEvents(invSeeListener, this);
         getServer().getPluginManager().registerEvents(new WorldLockListener(this), this);
         getServer().getPluginManager().registerEvents(new CustomWorldHeightListener(this), this);
+        getServer().getPluginManager().registerEvents(new FastLeafDecayListener(this), this);
+        getServer().getPluginManager().registerEvents(new SleepPercentageListener(this), this);
+        getServer().getPluginManager().registerEvents(new VillagerLeashListener(this), this);
+        getServer().getPluginManager().registerEvents(new CauldronListener(this), this);
     }
     
     public void reload() {

@@ -1,0 +1,14 @@
+# VillagerLeash - Поводок для жителей
+
+enabled: true
+
+# Позволить водить жителей на поводке
+leash-enabled: true
+
+# Приманка изумрудом (как морковка для свиней)
+emerald-attraction:
+  enabled: true
+  # Радиус притяжения (в блоках)
+  attraction-radius: 8
+  # Скорость движения к игроку
+  movement-speed: 0.6

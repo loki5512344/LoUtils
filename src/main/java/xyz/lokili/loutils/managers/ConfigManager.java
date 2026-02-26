@@ -1,167 +1,110 @@
 package xyz.lokili.loutils.managers;
 
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import xyz.lokili.loutils.LoUtils;
 import xyz.lokili.loutils.api.IConfigManager;
-import xyz.lokili.loutils.utils.ColorUtil;
+import xyz.lokili.loutils.constants.ConfigConstants;
+import xyz.lokili.loutils.services.ConfigLoader;
+import xyz.lokili.loutils.services.MessageService;
+import xyz.lokili.loutils.services.ModuleRegistry;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
+/**
+ * Facade for configuration management
+ * Delegates to specialized services (SOLID - Single Responsibility)
+ */
 public class ConfigManager implements IConfigManager {
     
     private final LoUtils plugin;
-    private final Map<String, FileConfiguration> configs;
-    private final Map<String, File> configFiles;
-    private final Random random;
-    
-    private FileConfiguration messagesConfig;
+    private final ConfigLoader configLoader;
+    private final MessageService messageService;
+    private final ModuleRegistry moduleRegistry;
     
     public ConfigManager(LoUtils plugin) {
         this.plugin = plugin;
-        this.configs = new HashMap<>();
-        this.configFiles = new HashMap<>();
-        this.random = new Random();
-        loadAllConfigs();
+        this.configLoader = new ConfigLoader(plugin);
+        this.messageService = new MessageService(plugin, configLoader);
+        this.moduleRegistry = new ModuleRegistry(plugin);
+        
+        configLoader.loadAllConfigs();
     }
     
-    public void loadAllConfigs() {
-        // Main config
-        plugin.saveDefaultConfig();
-        plugin.reloadConfig();
-        
-        // Messages
-        messagesConfig = loadConfig("messages.yml");
-        
-        // Module configs
-        loadConfig("conf/whitelist.yml");
-        loadConfig("conf/autorestart.yml");
-        loadConfig("conf/deathmessages.yml");
-        loadConfig("conf/enchant.yml");
-        loadConfig("conf/tpsbar.yml");
-        loadConfig("conf/worldlock.yml");
-        loadConfig("conf/customworldheight.yml");
-    }
-    
-    private FileConfiguration loadConfig(String path) {
-        File file = new File(plugin.getDataFolder(), path);
-        
-        if (!file.exists()) {
-            file.getParentFile().mkdirs();
-            plugin.saveResource(path, false);
-        }
-        
-        FileConfiguration config = YamlConfiguration.loadConfiguration(file);
-        
-        // Load defaults from jar
-        InputStream defaultStream = plugin.getResource(path);
-        if (defaultStream != null) {
-            YamlConfiguration defaultConfig = YamlConfiguration.loadConfiguration(
-                    new InputStreamReader(defaultStream, StandardCharsets.UTF_8));
-            config.setDefaults(defaultConfig);
-        }
-        
-        configs.put(path, config);
-        configFiles.put(path, file);
-        
-        return config;
-    }
+    // === Delegation to ConfigLoader ===
     
     public void reloadAll() {
-        plugin.reloadConfig();
-        configs.clear();
-        configFiles.clear();
-        loadAllConfigs();
+        configLoader.reloadAll();
     }
     
     public FileConfiguration getConfig(String path) {
-        return configs.get(path);
+        return configLoader.getConfig(path);
     }
     
     public FileConfiguration getWhitelistConfig() {
-        return configs.get("conf/whitelist.yml");
+        return configLoader.getConfig(ConfigConstants.WHITELIST_CONFIG);
     }
     
     public FileConfiguration getAutoRestartConfig() {
-        return configs.get("conf/autorestart.yml");
+        return configLoader.getConfig(ConfigConstants.AUTORESTART_CONFIG);
     }
     
     public FileConfiguration getStatsConfig() {
-        return configs.get("conf/stats.yml");
+        return configLoader.getConfig("conf/stats.yml");
     }
     
     public FileConfiguration getDeathMessagesConfig() {
-        return configs.get("conf/deathmessages.yml");
+        return configLoader.getConfig(ConfigConstants.DEATH_MESSAGES_CONFIG);
     }
     
     public FileConfiguration getPartyConfig() {
-        return configs.get("conf/party.yml");
+        return configLoader.getConfig("conf/party.yml");
     }
     
     public FileConfiguration getMessagesConfig() {
-        return messagesConfig;
+        return configLoader.getConfig(ConfigConstants.MESSAGES_CONFIG);
     }
     
     public void saveConfig(String path) {
-        FileConfiguration config = configs.get(path);
-        File file = configFiles.get(path);
-        if (config != null && file != null) {
-            try {
-                config.save(file);
-            } catch (IOException e) {
-                plugin.getLogger().severe("Could not save " + path + ": " + e.getMessage());
-            }
-        }
+        configLoader.saveConfig(path);
     }
     
-    // === Message helpers ===
+    // === Delegation to MessageService ===
     
     public String getPrefix() {
-        return plugin.getConfig().getString("prefix", "&#3BA8FF[LoUtils] &7");
+        return messageService.getPrefix();
     }
     
     public String getMessage(String path) {
-        return messagesConfig.getString(path, "&cMessage not found: " + path);
+        return messageService.getMessage(path);
     }
     
     public String getMessage(String path, String... replacements) {
-        String message = getMessage(path);
-        for (int i = 0; i < replacements.length - 1; i += 2) {
-            message = message.replace(replacements[i], replacements[i + 1]);
-        }
-        return message;
+        return messageService.getMessage(path, replacements);
     }
     
     public String getRandomMessage(String path) {
-        List<String> messages = messagesConfig.getStringList(path);
-        if (messages.isEmpty()) {
-            return getMessage(path);
-        }
-        return messages.get(random.nextInt(messages.size()));
+        return messageService.getRandomMessage(path);
     }
     
     public String getRandomDeathMessage(String path, String... replacements) {
-        FileConfiguration deathConfig = getDeathMessagesConfig();
-        List<String> messages = deathConfig.getStringList(path);
-        if (messages.isEmpty()) {
-            return "&c{victim} погиб";
-        }
-        String message = messages.get(random.nextInt(messages.size()));
-        for (int i = 0; i < replacements.length - 1; i += 2) {
-            message = message.replace(replacements[i], replacements[i + 1]);
-        }
-        return message;
+        return messageService.getRandomDeathMessage(path, replacements);
     }
     
+    // === Delegation to ModuleRegistry ===
+    
     public boolean isModuleEnabled(String module) {
-        return plugin.getConfig().getBoolean("modules." + module, true);
+        return moduleRegistry.isModuleEnabled(module);
+    }
+    
+    // === Service Getters (for direct access if needed) ===
+    
+    public ConfigLoader getConfigLoader() {
+        return configLoader;
+    }
+    
+    public MessageService getMessageService() {
+        return messageService;
+    }
+    
+    public ModuleRegistry getModuleRegistry() {
+        return moduleRegistry;
     }
 }

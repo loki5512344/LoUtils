@@ -15,6 +15,11 @@ public final class ConfigConstants {
     public static final String TPSBAR_CONFIG = "conf/tpsbar.yml";
     public static final String WORLDLOCK_CONFIG = "conf/worldlock.yml";
     public static final String CUSTOMWORLDHEIGHT_CONFIG = "conf/customworldheight.yml";
+    public static final String FASTLEAFDECAY_CONFIG = "conf/fastleafdecay.yml";
+    public static final String SLEEPPERCENTAGE_CONFIG = "conf/sleeppercentage.yml";
+    public static final String VILLAGERLEASH_CONFIG = "conf/villagerleash.yml";
+    public static final String CAULDRON_CONFIG = "conf/cauldron.yml";
+    public static final String PERFORMANCE_CONFIG = "conf/performance.yml";
     
     // Message keys
     public static final class Messages {
@@ -60,6 +65,11 @@ public final class ConfigConstants {
         public static final String FLY = "fly";
         public static final String WORLDLOCK = "worldlock";
         public static final String CUSTOMWORLDHEIGHT = "customworldheight";
+        public static final String FASTLEAFDECAY = "fastleafdecay";
+        public static final String SLEEPPERCENTAGE = "sleeppercentage";
+        public static final String VILLAGERLEASH = "villagerleash";
+        public static final String CAULDRON = "cauldron";
+        public static final String PERFORMANCE = "performance";
         
         private Modules() {}
     }

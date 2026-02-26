@@ -1,39 +1,33 @@
 package xyz.lokili.loutils.commands;
 
-import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.lokili.loutils.LoUtils;
-import xyz.lokili.loutils.utils.ColorUtil;
+import xyz.lokili.loutils.commands.base.CommandBase;
+import xyz.lokili.loutils.constants.ConfigConstants;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class TPSBarCommand implements CommandExecutor, TabCompleter {
-    
-    private final LoUtils plugin;
+public class TPSBarCommand extends CommandBase {
     
     public TPSBarCommand(LoUtils plugin) {
-        this.plugin = plugin;
+        super(plugin);
     }
     
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
                             @NotNull String label, @NotNull String[] args) {
         
-        if (!sender.hasPermission("loutils.tpsbar")) {
-            sendMessage(sender, "no-permission");
+        if (!checkPermission(sender, ConfigConstants.Permissions.TPSBAR)) {
             return true;
         }
         
-        if (!(sender instanceof Player player)) {
-            sender.sendMessage("Only players can use this command");
+        Player player = requirePlayer(sender);
+        if (player == null) {
             return true;
         }
         
@@ -42,9 +36,9 @@ public class TPSBarCommand implements CommandExecutor, TabCompleter {
             plugin.getTPSBarManager().toggleTPSBar(player);
             
             if (plugin.getTPSBarManager().hasTPSBar(player)) {
-                sendConfigMessage(player, "enabled");
+                sendConfigMessage(player, ConfigConstants.TPSBAR_CONFIG, "messages.enabled");
             } else {
-                sendConfigMessage(player, "disabled");
+                sendConfigMessage(player, ConfigConstants.TPSBAR_CONFIG, "messages.disabled");
             }
             return true;
         }
@@ -55,51 +49,36 @@ public class TPSBarCommand implements CommandExecutor, TabCompleter {
             case "on", "enable" -> {
                 if (!plugin.getTPSBarManager().hasTPSBar(player)) {
                     plugin.getTPSBarManager().enableTPSBar(player);
-                    sendConfigMessage(player, "enabled");
+                    sendConfigMessage(player, ConfigConstants.TPSBAR_CONFIG, "messages.enabled");
                 } else {
-                    sendConfigMessage(player, "already-enabled");
+                    sendConfigMessage(player, ConfigConstants.TPSBAR_CONFIG, "messages.already-enabled");
                 }
             }
             case "off", "disable" -> {
                 if (plugin.getTPSBarManager().hasTPSBar(player)) {
                     plugin.getTPSBarManager().disableTPSBar(player);
-                    sendConfigMessage(player, "disabled");
+                    sendConfigMessage(player, ConfigConstants.TPSBAR_CONFIG, "messages.disabled");
                 } else {
-                    sendConfigMessage(player, "already-disabled");
+                    sendConfigMessage(player, ConfigConstants.TPSBAR_CONFIG, "messages.already-disabled");
                 }
             }
-            default -> sendConfigMessage(player, "usage");
+            default -> sendConfigMessage(player, ConfigConstants.TPSBAR_CONFIG, "messages.usage");
         }
         
         return true;
     }
     
-    private void sendMessage(CommandSender sender, String key) {
-        String prefix = plugin.getConfigManager().getPrefix();
-        String message = plugin.getConfigManager().getMessage(key);
-        sender.sendMessage(ColorUtil.colorize(prefix + message));
-    }
-    
-    private void sendConfigMessage(CommandSender sender, String key) {
-        String prefix = plugin.getConfigManager().getPrefix();
-        String message = plugin.getConfigManager().getConfig("conf/tpsbar.yml")
-                .getString("messages." + key, "Message not found: " + key);
-        sender.sendMessage(ColorUtil.colorize(prefix + message));
-    }
-    
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command,
                                                  @NotNull String alias, @NotNull String[] args) {
-        if (!sender.hasPermission("loutils.tpsbar")) {
-            return new ArrayList<>();
+        if (!sender.hasPermission(ConfigConstants.Permissions.TPSBAR)) {
+            return List.of();
         }
         
         if (args.length == 1) {
-            return Arrays.asList("on", "off").stream()
-                    .filter(s -> s.startsWith(args[0].toLowerCase()))
-                    .toList();
+            return filterTabComplete(Arrays.asList("on", "off"), args[0]);
         }
         
-        return new ArrayList<>();
+        return List.of();
     }
 }

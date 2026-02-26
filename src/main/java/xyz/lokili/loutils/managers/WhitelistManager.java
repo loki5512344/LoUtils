@@ -4,29 +4,30 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import xyz.lokili.loutils.LoUtils;
 import xyz.lokili.loutils.api.IWhitelistManager;
+import xyz.lokili.loutils.constants.ConfigConstants;
+import xyz.lokili.loutils.managers.base.BaseStorageManager;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-public class WhitelistManager implements IWhitelistManager {
+/**
+ * Manages whitelist using BaseStorageManager (DRY principle)
+ */
+public class WhitelistManager extends BaseStorageManager implements IWhitelistManager {
     
     private final LoUtils plugin;
-    private final Set<String> whitelistedPlayers;
     private File whitelistFile;
     private FileConfiguration whitelistConfig;
     private boolean enabled;
     
     public WhitelistManager(LoUtils plugin) {
+        super(plugin, "data/whitelist.yml", "players", false);
         this.plugin = plugin;
-        this.whitelistedPlayers = new HashSet<>();
         loadWhitelist();
     }
     
-    public void loadWhitelist() {
+    private void loadWhitelist() {
         whitelistFile = new File(plugin.getDataFolder(), "data/whitelist.yml");
         
         if (!whitelistFile.exists()) {
@@ -39,58 +40,59 @@ public class WhitelistManager implements IWhitelistManager {
         }
         
         whitelistConfig = YamlConfiguration.loadConfiguration(whitelistFile);
-        
-        whitelistedPlayers.clear();
-        List<String> players = whitelistConfig.getStringList("players");
-        whitelistedPlayers.addAll(players.stream().map(String::toLowerCase).toList());
+        load(whitelistConfig);
         
         enabled = plugin.getConfigManager().getWhitelistConfig().getBoolean("enabled", true);
     }
     
     @Override
-    public void saveWhitelist() {
-        whitelistConfig.set("players", new ArrayList<>(whitelistedPlayers));
+    protected FileConfiguration getConfig() {
+        return whitelistConfig;
+    }
+    
+    @Override
+    protected void saveConfig(FileConfiguration config) {
         try {
-            whitelistConfig.save(whitelistFile);
+            config.save(whitelistFile);
         } catch (IOException e) {
             plugin.getLogger().severe("Could not save whitelist.yml: " + e.getMessage());
         }
     }
     
     @Override
+    protected String processItem(String item) {
+        return item.toLowerCase(); // Player names are case-insensitive
+    }
+    
+    // === IWhitelistManager Implementation ===
+    
+    @Override
+    public void saveWhitelist() {
+        save(whitelistConfig);
+    }
+    
+    @Override
     public boolean addPlayer(String playerName) {
-        String lowerName = playerName.toLowerCase();
-        if (whitelistedPlayers.contains(lowerName)) {
-            return false;
-        }
-        whitelistedPlayers.add(lowerName);
-        saveWhitelist();
-        return true;
+        return add(playerName);
     }
     
     @Override
     public boolean removePlayer(String playerName) {
-        String lowerName = playerName.toLowerCase();
-        if (!whitelistedPlayers.contains(lowerName)) {
-            return false;
-        }
-        whitelistedPlayers.remove(lowerName);
-        saveWhitelist();
-        return true;
+        return remove(playerName);
     }
     
     @Override
     public boolean isWhitelisted(String playerName) {
-        return whitelistedPlayers.contains(playerName.toLowerCase());
+        return contains(playerName);
     }
     
     @Override
     public Set<String> getWhitelistedPlayers() {
-        return new HashSet<>(whitelistedPlayers);
+        return getAll();
     }
     
     public int getPlayerCount() {
-        return whitelistedPlayers.size();
+        return size();
     }
     
     @Override
@@ -101,10 +103,9 @@ public class WhitelistManager implements IWhitelistManager {
     @Override
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
-        // Save to whitelist config
         FileConfiguration config = plugin.getConfigManager().getWhitelistConfig();
         config.set("enabled", enabled);
-        plugin.getConfigManager().saveConfig("conf/whitelist.yml");
+        plugin.getConfigManager().saveConfig(ConfigConstants.WHITELIST_CONFIG);
     }
     
     @Override

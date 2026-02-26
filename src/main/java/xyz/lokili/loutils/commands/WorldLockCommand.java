@@ -3,39 +3,35 @@ package xyz.lokili.loutils.commands;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.lokili.loutils.LoUtils;
-import xyz.lokili.loutils.utils.ColorUtil;
+import xyz.lokili.loutils.commands.base.CommandBase;
+import xyz.lokili.loutils.constants.ConfigConstants;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-public class WorldLockCommand implements CommandExecutor, TabCompleter {
+public class WorldLockCommand extends CommandBase {
     
-    private final LoUtils plugin;
     private final List<String> subCommands = Arrays.asList("add", "remove", "list", "reload");
     
     public WorldLockCommand(LoUtils plugin) {
-        this.plugin = plugin;
+        super(plugin);
     }
     
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
                             @NotNull String label, @NotNull String[] args) {
         
-        if (!sender.hasPermission("loutils.worldlock")) {
-            sendMessage(sender, "no-permission");
+        if (!checkPermission(sender, ConfigConstants.Permissions.WORLDLOCK)) {
             return true;
         }
         
         if (args.length == 0) {
-            sendConfigMessage(sender, "usage");
+            sendConfigMessage(sender, ConfigConstants.WORLDLOCK_CONFIG, "messages.usage");
             return true;
         }
         
@@ -46,7 +42,7 @@ public class WorldLockCommand implements CommandExecutor, TabCompleter {
             case "remove" -> handleRemove(sender, args);
             case "list" -> handleList(sender);
             case "reload" -> handleReload(sender);
-            default -> sendConfigMessage(sender, "usage");
+            default -> sendConfigMessage(sender, ConfigConstants.WORLDLOCK_CONFIG, "messages.usage");
         }
         
         return true;
@@ -54,7 +50,7 @@ public class WorldLockCommand implements CommandExecutor, TabCompleter {
     
     private void handleAdd(CommandSender sender, String[] args) {
         if (args.length < 2) {
-            sendConfigMessage(sender, "usage");
+            sendConfigMessage(sender, ConfigConstants.WORLDLOCK_CONFIG, "messages.usage");
             return;
         }
         
@@ -62,16 +58,18 @@ public class WorldLockCommand implements CommandExecutor, TabCompleter {
             String worldName = args[i];
             
             if (plugin.getWorldLockManager().addWorld(worldName)) {
-                sendConfigMessage(sender, "world-added", "{world}", worldName);
+                sendConfigMessage(sender, ConfigConstants.WORLDLOCK_CONFIG, 
+                        "messages.world-added", "{world}", worldName);
             } else {
-                sendConfigMessage(sender, "world-already-locked", "{world}", worldName);
+                sendConfigMessage(sender, ConfigConstants.WORLDLOCK_CONFIG, 
+                        "messages.world-already-locked", "{world}", worldName);
             }
         }
     }
     
     private void handleRemove(CommandSender sender, String[] args) {
         if (args.length < 2) {
-            sendConfigMessage(sender, "usage");
+            sendConfigMessage(sender, ConfigConstants.WORLDLOCK_CONFIG, "messages.usage");
             return;
         }
         
@@ -79,9 +77,11 @@ public class WorldLockCommand implements CommandExecutor, TabCompleter {
             String worldName = args[i];
             
             if (plugin.getWorldLockManager().removeWorld(worldName)) {
-                sendConfigMessage(sender, "world-removed", "{world}", worldName);
+                sendConfigMessage(sender, ConfigConstants.WORLDLOCK_CONFIG, 
+                        "messages.world-removed", "{world}", worldName);
             } else {
-                sendConfigMessage(sender, "world-not-locked", "{world}", worldName);
+                sendConfigMessage(sender, ConfigConstants.WORLDLOCK_CONFIG, 
+                        "messages.world-not-locked", "{world}", worldName);
             }
         }
     }
@@ -90,13 +90,13 @@ public class WorldLockCommand implements CommandExecutor, TabCompleter {
         Set<String> lockedWorlds = plugin.getWorldLockManager().getLockedWorlds();
         
         if (lockedWorlds.isEmpty()) {
-            sendConfigMessage(sender, "no-locked-worlds");
+            sendConfigMessage(sender, ConfigConstants.WORLDLOCK_CONFIG, "messages.no-locked-worlds");
             return;
         }
         
-        sendConfigMessage(sender, "locked-worlds-list");
+        sendConfigMessage(sender, ConfigConstants.WORLDLOCK_CONFIG, "messages.locked-worlds-list");
         String worlds = String.join("&8, &f", lockedWorlds);
-        sender.sendMessage(ColorUtil.colorize("&f" + worlds));
+        sendRawMessage(sender, "&f" + worlds);
     }
     
     private void handleReload(CommandSender sender) {
@@ -104,56 +104,31 @@ public class WorldLockCommand implements CommandExecutor, TabCompleter {
         sendMessage(sender, "config-reloaded");
     }
     
-    private void sendMessage(CommandSender sender, String key) {
-        String prefix = plugin.getConfigManager().getPrefix();
-        String message = plugin.getConfigManager().getMessage(key);
-        sender.sendMessage(ColorUtil.colorize(prefix + message));
-    }
-    
-    private void sendConfigMessage(CommandSender sender, String key) {
-        sendConfigMessage(sender, key, null, null);
-    }
-    
-    private void sendConfigMessage(CommandSender sender, String key, String placeholder, String value) {
-        String prefix = plugin.getConfigManager().getPrefix();
-        String message = plugin.getConfigManager().getConfig("conf/worldlock.yml")
-                .getString("messages." + key, "Message not found: " + key);
-        
-        if (placeholder != null && value != null) {
-            message = message.replace(placeholder, value);
-        }
-        
-        sender.sendMessage(ColorUtil.colorize(prefix + message));
-    }
-    
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command,
                                                  @NotNull String alias, @NotNull String[] args) {
-        if (!sender.hasPermission("loutils.worldlock")) {
-            return new ArrayList<>();
+        if (!sender.hasPermission(ConfigConstants.Permissions.WORLDLOCK)) {
+            return List.of();
         }
         
         if (args.length == 1) {
-            return subCommands.stream()
-                    .filter(s -> s.startsWith(args[0].toLowerCase()))
-                    .toList();
+            return filterTabComplete(subCommands, args[0]);
         }
         
         if (args.length >= 2) {
             if (args[0].equalsIgnoreCase("add")) {
-                // Показываем все миры
-                return Bukkit.getWorlds().stream()
+                List<String> worldNames = Bukkit.getWorlds().stream()
                         .map(World::getName)
-                        .filter(name -> name.toLowerCase().startsWith(args[args.length - 1].toLowerCase()))
                         .toList();
+                return filterTabComplete(worldNames, args[args.length - 1]);
             } else if (args[0].equalsIgnoreCase("remove")) {
-                // Показываем только заблокированные миры
-                return plugin.getWorldLockManager().getLockedWorlds().stream()
-                        .filter(name -> name.toLowerCase().startsWith(args[args.length - 1].toLowerCase()))
-                        .toList();
+                return filterTabComplete(
+                        plugin.getWorldLockManager().getLockedWorlds().stream().toList(),
+                        args[args.length - 1]
+                );
             }
         }
         
-        return new ArrayList<>();
+        return List.of();
     }
 }

@@ -1,34 +1,30 @@
 package xyz.lokili.loutils.commands;
 
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.lokili.loutils.LoUtils;
-import xyz.lokili.loutils.utils.ColorUtil;
+import xyz.lokili.loutils.commands.base.CommandBase;
+import xyz.lokili.loutils.constants.ConfigConstants;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-public class WhitelistCommand implements CommandExecutor, TabCompleter {
+public class WhitelistCommand extends CommandBase {
     
-    private final LoUtils plugin;
     private final List<String> subCommands = Arrays.asList("add", "remove", "list", "enable", "disable", "reload");
     
     public WhitelistCommand(LoUtils plugin) {
-        this.plugin = plugin;
+        super(plugin);
     }
     
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, 
                             @NotNull String label, @NotNull String[] args) {
         
-        if (!sender.hasPermission("loutils.whitelist")) {
-            sendMessage(sender, "no-permission");
+        if (!checkPermission(sender, ConfigConstants.Permissions.WHITELIST)) {
             return true;
         }
         
@@ -86,17 +82,13 @@ public class WhitelistCommand implements CommandExecutor, TabCompleter {
         Set<String> players = plugin.getWhitelistManager().getWhitelistedPlayers();
         int count = players.size();
         
-        String header = plugin.getConfigManager().getMessage("whitelist.list-header")
-                .replace("{count}", String.valueOf(count));
-        sender.sendMessage(ColorUtil.colorize(plugin.getConfigManager().getPrefix() + header));
+        sendMessage(sender, "whitelist.list-header", "{count}", String.valueOf(count));
         
         if (players.isEmpty()) {
             sendMessage(sender, "whitelist.list-empty");
         } else {
             for (String player : players) {
-                String line = plugin.getConfigManager().getMessage("whitelist.list-player")
-                        .replace("{player}", player);
-                sender.sendMessage(ColorUtil.colorize(line));
+                sendMessage(sender, "whitelist.list-player", "{player}", player);
             }
         }
     }
@@ -126,41 +118,25 @@ public class WhitelistCommand implements CommandExecutor, TabCompleter {
         sendMessage(sender, "config-reloaded");
     }
     
-    private void sendMessage(CommandSender sender, String key) {
-        sendMessage(sender, key, null, null);
-    }
-    
-    private void sendMessage(CommandSender sender, String key, String placeholder, String value) {
-        String prefix = plugin.getConfigManager().getPrefix();
-        String message = plugin.getConfigManager().getMessage(key);
-        
-        if (placeholder != null && value != null) {
-            message = message.replace(placeholder, value);
-        }
-        
-        sender.sendMessage(ColorUtil.colorize(prefix + message));
-    }
-    
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command,
                                                  @NotNull String alias, @NotNull String[] args) {
         
-        if (!sender.hasPermission("loutils.whitelist")) {
-            return new ArrayList<>();
+        if (!sender.hasPermission(ConfigConstants.Permissions.WHITELIST)) {
+            return List.of();
         }
         
         if (args.length == 1) {
-            return subCommands.stream()
-                    .filter(s -> s.startsWith(args[0].toLowerCase()))
-                    .toList();
+            return filterTabComplete(subCommands, args[0]);
         }
         
         if (args.length == 2 && args[0].equalsIgnoreCase("remove")) {
-            return plugin.getWhitelistManager().getWhitelistedPlayers().stream()
-                    .filter(s -> s.startsWith(args[1].toLowerCase()))
-                    .toList();
+            return filterTabComplete(
+                    plugin.getWhitelistManager().getWhitelistedPlayers().stream().toList(),
+                    args[1]
+            );
         }
         
-        return new ArrayList<>();
+        return List.of();
     }
 }

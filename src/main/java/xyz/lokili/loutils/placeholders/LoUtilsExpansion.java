@@ -46,6 +46,42 @@ public class LoUtilsExpansion extends PlaceholderExpansion {
             return String.valueOf(plugin.getServer().getOnlinePlayers().size());
         }
         
+        // TPS with colors
+        if (params.equalsIgnoreCase("tps_colored")) {
+            return getColoredTPS();
+        }
+        
+        if (params.equalsIgnoreCase("tps")) {
+            double tps = getGlobalTPS();
+            return String.format("%.1f", Math.min(20.0, tps));
+        }
+        
         return null;
+    }
+    
+    private String getColoredTPS() {
+        double tps = getGlobalTPS();
+        String color;
+        
+        if (tps >= 19.0) {
+            color = "&#55FF55"; // Зелёный
+        } else if (tps >= 17.0) {
+            color = "&#FFFF55"; // Жёлтый
+        } else if (tps >= 14.0) {
+            color = "&#FFAA00"; // Оранжевый
+        } else {
+            color = "&#FF5555"; // Красный
+        }
+        
+        return color + String.format("%.1f", Math.min(20.0, tps));
+    }
+    
+    private double getGlobalTPS() {
+        try {
+            double[] tps = plugin.getServer().getTPS();
+            return tps[0]; // 1 minute average
+        } catch (Exception e) {
+            return 20.0;
+        }
     }
 }

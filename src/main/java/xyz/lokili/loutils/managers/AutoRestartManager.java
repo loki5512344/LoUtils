@@ -20,6 +20,8 @@ public class AutoRestartManager implements IAutoRestartManager {
     private ScheduledTask timerTask;
     private long restartTimeMillis;
     private boolean running;
+    private int lastWarningMinute = -1; // Защита от дублирования
+    private int lastWarningSecond = -1; // Защита от дублирования секунд
     
     public AutoRestartManager(LoUtils plugin) {
         this.plugin = plugin;
@@ -33,6 +35,10 @@ public class AutoRestartManager implements IAutoRestartManager {
         if (!plugin.getConfigManager().getAutoRestartConfig().getBoolean("enabled", false)) {
             return;
         }
+        
+        // Сброс защиты от дублирования
+        lastWarningMinute = -1;
+        lastWarningSecond = -1;
         
         calculateRestartTime();
         startTimer();
@@ -108,20 +114,29 @@ public class AutoRestartManager implements IAutoRestartManager {
         long remainingMinutes = remaining / 60000;
         long remainingSeconds = (remaining / 1000) % 60;
         
-        // Проверяем предупреждения
+        // Проверяем предупреждения (с защитой от дублирования)
         List<Integer> warnings = plugin.getConfigManager().getAutoRestartConfig().getIntegerList("warnings");
         
         for (int warningMinute : warnings) {
-            // Предупреждение в начале минуты
-            if (remainingMinutes == warningMinute && remainingSeconds == 0) {
-                broadcastWarning(warningMinute);
+            // Предупреждение в диапазоне 0-1 секунды начала минуты
+            if (remainingMinutes == warningMinute && remainingSeconds >= 0 && remainingSeconds <= 1) {
+                // Защита от дублирования
+                if (lastWarningMinute != warningMinute) {
+                    broadcastWarning(warningMinute);
+                    lastWarningMinute = warningMinute;
+                }
                 break;
             }
         }
         
         // Последние 10 секунд
         if (remainingMinutes == 0 && remainingSeconds <= 10 && remainingSeconds > 0) {
-            broadcastSecondsWarning((int) remainingSeconds);
+            int seconds = (int) remainingSeconds;
+            // Защита от дублирования
+            if (lastWarningSecond != seconds) {
+                broadcastSecondsWarning(seconds);
+                lastWarningSecond = seconds;
+            }
         }
     }
     
@@ -150,12 +165,10 @@ public class AutoRestartManager implements IAutoRestartManager {
                     plugin.getConfigManager().getMessage("autorestart.now");
             SchedulerUtil.broadcast(plugin, message);
             
-            // Сохранение миров
+            // Сохранение миров (Folia автоматически сохраняет при shutdown)
+            // В Folia нельзя вызывать world.save() из global scheduler
             if (plugin.getConfigManager().getAutoRestartConfig().getBoolean("save_before_restart", true)) {
-                for (World world : Bukkit.getWorlds()) {
-                    world.save();
-                }
-                plugin.getLogger().info("All worlds saved before restart.");
+                plugin.getLogger().info("Worlds will be saved automatically during shutdown.");
             }
             
             // Рестарт через 3 секунды
