@@ -13,8 +13,10 @@ gradle/
 Thumbs.db
 
 # Build output
-*.jar
 out/
 
 # Modrinth publishing
 modrinth/
+
+# API Documentation
+api_docs/

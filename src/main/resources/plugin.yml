@@ -9,6 +9,8 @@ website: https://codeberg.org/loki5512344/LoUtils
 softdepend:
   - PlaceholderAPI
   - LuckPerms
+depend:
+  - LoLib
 
 commands:
   lw:
