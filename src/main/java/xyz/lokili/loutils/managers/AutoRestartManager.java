@@ -2,29 +2,33 @@ package xyz.lokili.loutils.managers;
 
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
-import org.bukkit.World;
 import xyz.lokili.loutils.LoUtils;
 import xyz.lokili.loutils.api.IAutoRestartManager;
-import xyz.lokili.loutils.utils.SchedulerUtil;
+import xyz.lokili.loutils.managers.restart.RestartExecutor;
+import xyz.lokili.loutils.managers.restart.RestartScheduler;
+import xyz.lokili.loutils.managers.restart.WarningBroadcaster;
 
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Улучшенный менеджер авто-рестарта
+ * Применяет Single Responsibility Principle - делегирует задачи компонентам
+ */
 public class AutoRestartManager implements IAutoRestartManager {
     
     private final LoUtils plugin;
+    private final RestartScheduler scheduler;
+    private final WarningBroadcaster broadcaster;
+    private final RestartExecutor executor;
+    
     private ScheduledTask timerTask;
-    private long restartTimeMillis;
-    private boolean running;
-    private int lastWarningMinute = -1; // Защита от дублирования
-    private int lastWarningSecond = -1; // Защита от дублирования секунд
+    private volatile boolean running;
     
     public AutoRestartManager(LoUtils plugin) {
         this.plugin = plugin;
+        this.scheduler = new RestartScheduler();
+        this.broadcaster = new WarningBroadcaster(plugin);
+        this.executor = new RestartExecutor(plugin);
         this.running = false;
     }
     
@@ -36,14 +40,15 @@ public class AutoRestartManager implements IAutoRestartManager {
             return;
         }
         
-        // Сброс защиты от дублирования
-        lastWarningMinute = -1;
-        lastWarningSecond = -1;
+        // Сброс предупреждений и расчет времени
+        broadcaster.reset();
+        scheduler.calculateNextRestart(plugin.getConfigManager().getAutoRestartConfig());
         
-        calculateRestartTime();
+        // Запуск таймера
         startTimer();
         running = true;
-        plugin.getLogger().info("AutoRestart timer started. Restart in " + getTimeRemaining());
+        
+        plugin.getLogger().info("AutoRestart timer started. Restart in " + scheduler.getFormattedRemaining());
     }
     
     @Override
@@ -66,116 +71,27 @@ public class AutoRestartManager implements IAutoRestartManager {
         }
     }
     
-    private void calculateRestartTime() {
-        String dailyTime = plugin.getConfigManager().getAutoRestartConfig().getString("daily_time", "");
-        
-        if (dailyTime != null && !dailyTime.isEmpty()) {
-            // Ежедневный рестарт в определённое время
-            try {
-                LocalTime targetTime = LocalTime.parse(dailyTime, DateTimeFormatter.ofPattern("HH:mm"));
-                LocalDateTime now = LocalDateTime.now();
-                LocalDateTime nextRestart = now.with(targetTime);
-                
-                if (nextRestart.isBefore(now) || nextRestart.isEqual(now)) {
-                    nextRestart = nextRestart.plusDays(1);
-                }
-                
-                long millisUntilRestart = ChronoUnit.MILLIS.between(now, nextRestart);
-                restartTimeMillis = System.currentTimeMillis() + millisUntilRestart;
-            } catch (Exception e) {
-                plugin.getLogger().warning("Invalid daily_time format. Using interval instead.");
-                useIntervalTime();
-            }
-        } else {
-            useIntervalTime();
-        }
-    }
-    
-    private void useIntervalTime() {
-        int intervalMinutes = plugin.getConfigManager().getAutoRestartConfig().getInt("interval_minutes", 360);
-        restartTimeMillis = System.currentTimeMillis() + (intervalMinutes * 60 * 1000L);
-    }
-    
+    /**
+     * Запуск таймера проверки
+     */
     private void startTimer() {
-        // Используем AsyncScheduler для таймера (не зависит от региона)
         timerTask = Bukkit.getAsyncScheduler().runAtFixedRate(plugin, (task) -> {
-            checkAndWarn();
+            checkAndProcess();
         }, 1, 1, TimeUnit.SECONDS);
     }
     
-    private void checkAndWarn() {
-        long remaining = restartTimeMillis - System.currentTimeMillis();
-        
-        if (remaining <= 0) {
-            executeRestart();
+    /**
+     * Проверка и обработка рестарта
+     */
+    private void checkAndProcess() {
+        if (scheduler.isTimeToRestart()) {
+            stop();
+            executor.executeRestart();
             return;
         }
         
-        long remainingMinutes = remaining / 60000;
-        long remainingSeconds = (remaining / 1000) % 60;
-        
-        // Проверяем предупреждения (с защитой от дублирования)
-        List<Integer> warnings = plugin.getConfigManager().getAutoRestartConfig().getIntegerList("warnings");
-        
-        for (int warningMinute : warnings) {
-            // Предупреждение в диапазоне 0-1 секунды начала минуты
-            if (remainingMinutes == warningMinute && remainingSeconds >= 0 && remainingSeconds <= 1) {
-                // Защита от дублирования
-                if (lastWarningMinute != warningMinute) {
-                    broadcastWarning(warningMinute);
-                    lastWarningMinute = warningMinute;
-                }
-                break;
-            }
-        }
-        
-        // Последние 10 секунд
-        if (remainingMinutes == 0 && remainingSeconds <= 10 && remainingSeconds > 0) {
-            int seconds = (int) remainingSeconds;
-            // Защита от дублирования
-            if (lastWarningSecond != seconds) {
-                broadcastSecondsWarning(seconds);
-                lastWarningSecond = seconds;
-            }
-        }
-    }
-    
-    private void broadcastWarning(int minutes) {
-        String message = plugin.getConfigManager().getPrefix() +
-                plugin.getConfigManager().getMessage("autorestart.warning")
-                        .replace("{time}", String.valueOf(minutes));
-        
-        SchedulerUtil.broadcast(plugin, message);
-    }
-    
-    private void broadcastSecondsWarning(int seconds) {
-        String message = plugin.getConfigManager().getPrefix() +
-                plugin.getConfigManager().getMessage("autorestart.warning-seconds")
-                        .replace("{time}", String.valueOf(seconds));
-        
-        SchedulerUtil.broadcast(plugin, message);
-    }
-    
-    private void executeRestart() {
-        stop();
-        
-        SchedulerUtil.runGlobal(plugin, () -> {
-            // Финальное сообщение
-            String message = plugin.getConfigManager().getPrefix() +
-                    plugin.getConfigManager().getMessage("autorestart.now");
-            SchedulerUtil.broadcast(plugin, message);
-            
-            // Сохранение миров (Folia автоматически сохраняет при shutdown)
-            // В Folia нельзя вызывать world.save() из global scheduler
-            if (plugin.getConfigManager().getAutoRestartConfig().getBoolean("save_before_restart", true)) {
-                plugin.getLogger().info("Worlds will be saved automatically during shutdown.");
-            }
-            
-            // Рестарт через 3 секунды
-            SchedulerUtil.runGlobalDelayed(plugin, () -> {
-                Bukkit.shutdown();
-            }, 60L); // 3 секунды
-        });
+        long remaining = scheduler.getRemainingMillis();
+        broadcaster.checkAndBroadcast(remaining, plugin.getConfigManager().getAutoRestartConfig());
     }
     
     @Override
@@ -186,28 +102,12 @@ public class AutoRestartManager implements IAutoRestartManager {
     @Override
     public String getTimeRemaining() {
         if (!running) return "N/A";
-        
-        long remaining = restartTimeMillis - System.currentTimeMillis();
-        if (remaining <= 0) return "0";
-        
-        long hours = remaining / 3600000;
-        long minutes = (remaining % 3600000) / 60000;
-        long seconds = (remaining % 60000) / 1000;
-        
-        return String.format("%dч %dм %dс", hours, minutes, seconds);
+        return scheduler.getFormattedRemaining();
     }
     
     @Override
     public long[] getTimeRemainingParts() {
         if (!running) return new long[]{0, 0, 0};
-        
-        long remaining = restartTimeMillis - System.currentTimeMillis();
-        if (remaining <= 0) return new long[]{0, 0, 0};
-        
-        long hours = remaining / 3600000;
-        long minutes = (remaining % 3600000) / 60000;
-        long seconds = (remaining % 60000) / 1000;
-        
-        return new long[]{hours, minutes, seconds};
+        return scheduler.getRemainingParts();
     }
 }
