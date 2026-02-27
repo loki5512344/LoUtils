@@ -20,6 +20,9 @@ public final class ConfigConstants {
     public static final String VILLAGERLEASH_CONFIG = "conf/villagerleash.yml";
     public static final String CAULDRON_CONFIG = "conf/cauldron.yml";
     public static final String PERFORMANCE_CONFIG = "conf/performance.yml";
+    public static final String LIGHT_BLOCK_CONFIG = "conf/light-block.yml";
+    public static final String DEBUG_STICK_CONFIG = "conf/debug-stick.yml";
+    public static final String INVISIBLE_FRAMES_CONFIG = "conf/invisible-frames.yml";
     
     // Message keys
     public static final class Messages {
@@ -49,6 +52,7 @@ public final class ConfigConstants {
         public static final String WORLDLOCK = "loutils.worldlock";
         public static final String WORLDLOCK_BYPASS = "loutils.worldlock.bypass.";
         public static final String ADMIN = "loutils.admin";
+        public static final String DEBUG_STICK = "loutils.debugstick";
         
         private Permissions() {}
     }
@@ -70,6 +74,9 @@ public final class ConfigConstants {
         public static final String VILLAGERLEASH = "villagerleash";
         public static final String CAULDRON = "cauldron";
         public static final String PERFORMANCE = "performance";
+        public static final String LIGHT_BLOCK = "light-block";
+        public static final String DEBUG_STICK = "debug-stick";
+        public static final String INVISIBLE_FRAMES = "invisible-frames";
         
         private Modules() {}
     }

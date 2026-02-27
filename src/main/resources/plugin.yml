@@ -91,3 +91,6 @@ permissions:
   loutils.worldlock.bypass.*:
     description: Bypass world lock for all worlds
     default: false
+  loutils.debugstick:
+    description: Use debug stick
+    default: op

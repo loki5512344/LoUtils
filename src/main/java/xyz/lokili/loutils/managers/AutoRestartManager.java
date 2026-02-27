@@ -1,14 +1,12 @@
 package xyz.lokili.loutils.managers;
 
-import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
-import org.bukkit.Bukkit;
+import dev.lolib.scheduler.Scheduler;
+import dev.lolib.scheduler.ScheduledTask;
 import xyz.lokili.loutils.LoUtils;
 import xyz.lokili.loutils.api.IAutoRestartManager;
 import xyz.lokili.loutils.managers.restart.RestartExecutor;
 import xyz.lokili.loutils.managers.restart.RestartScheduler;
 import xyz.lokili.loutils.managers.restart.WarningBroadcaster;
-
-import java.util.concurrent.TimeUnit;
 
 /**
  * Улучшенный менеджер авто-рестарта
@@ -75,9 +73,10 @@ public class AutoRestartManager implements IAutoRestartManager {
      * Запуск таймера проверки
      */
     private void startTimer() {
-        timerTask = Bukkit.getAsyncScheduler().runAtFixedRate(plugin, (task) -> {
+        Scheduler scheduler = Scheduler.get(plugin);
+        timerTask = scheduler.runTimerAsync(() -> {
             checkAndProcess();
-        }, 1, 1, TimeUnit.SECONDS);
+        }, 20L, 20L); // 1 секунда = 20 тиков
     }
     
     /**

@@ -3,6 +3,7 @@ package xyz.lokili.loutils.managers.performance;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
+import xyz.lokili.loutils.managers.PerformanceProfiler;
 
 /**
  * Генерация отчетов о производительности
@@ -19,7 +20,7 @@ public class ReportGenerator {
     /**
      * Генерирует полный отчет о производительности
      */
-    public String generateReport(PerformanceMonitor.PerformanceMetrics metrics, FileConfiguration config) {
+    public String generateReport(PerformanceProfiler.PerformanceMetrics metrics, FileConfiguration config) {
         StringBuilder report = new StringBuilder();
         
         // Заголовок
@@ -36,7 +37,7 @@ public class ReportGenerator {
     /**
      * Добавляет заголовок отчета
      */
-    private void appendHeader(StringBuilder report, PerformanceMonitor.PerformanceMetrics metrics) {
+    private void appendHeader(StringBuilder report, PerformanceProfiler.PerformanceMetrics metrics) {
         report.append("**🔴 Performance Alert**\n");
         report.append("```\n");
         report.append(String.format("TPS: %.2f (threshold: %.1f)\n", 

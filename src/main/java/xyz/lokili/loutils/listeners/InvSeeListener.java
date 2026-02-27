@@ -1,6 +1,7 @@
 package xyz.lokili.loutils.listeners;
 
-import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
+import dev.lolib.scheduler.Scheduler;
+import dev.lolib.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -16,7 +17,6 @@ import xyz.lokili.loutils.LoUtils;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 public class InvSeeListener implements Listener {
     
@@ -47,7 +47,7 @@ public class InvSeeListener implements Listener {
         
         // Разрешаем изменения в основном инвентаре (0-35)
         // Синхронизируем изменения сразу после клика
-        Bukkit.getGlobalRegionScheduler().runDelayed(plugin, (task) -> {
+        Scheduler.get(plugin).runLater(() -> {
             syncInventory(event.getInventory(), holder);
         }, 1L);
     }
@@ -84,9 +84,9 @@ public class InvSeeListener implements Listener {
         }
         
         // Создаём новую задачу обновления каждые 10 тиков (0.5 секунды)
-        ScheduledTask task = Bukkit.getAsyncScheduler().runAtFixedRate(plugin, (t) -> {
+        Scheduler scheduler = Scheduler.get(plugin);
+        ScheduledTask task = scheduler.runTimerAsync(() -> {
             if (!viewer.isOnline()) {
-                t.cancel();
                 updateTasks.remove(viewer.getUniqueId());
                 return;
             }
@@ -96,25 +96,23 @@ public class InvSeeListener implements Listener {
                 
                 if (!target.isOnline()) {
                     // Закрываем инвентарь если target оффлайн
-                    Bukkit.getGlobalRegionScheduler().execute(plugin, () -> {
+                    scheduler.run(() -> {
                         viewer.closeInventory();
                     });
-                    t.cancel();
                     updateTasks.remove(viewer.getUniqueId());
                     return;
                 }
                 
                 // Обновляем содержимое инвентаря
-                Bukkit.getGlobalRegionScheduler().execute(plugin, () -> {
+                scheduler.run(() -> {
                     updateInventoryDisplay(invSee, target);
                 });
                 
             } catch (Exception e) {
-                plugin.getLogger().warning("Failed to update InvSee: " + e.getMessage());
-                t.cancel();
+                plugin.loLogger().warn("Failed to update InvSee: " + e.getMessage());
                 updateTasks.remove(viewer.getUniqueId());
             }
-        }, 10, 10, TimeUnit.MILLISECONDS);
+        }, 10L, 10L); // 10 тиков = 0.5 секунды
         
         updateTasks.put(viewer.getUniqueId(), task);
     }

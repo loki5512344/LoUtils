@@ -1,37 +1,31 @@
 package xyz.lokili.loutils.managers;
 
-import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
-import org.bukkit.Bukkit;
+import dev.lolib.performance.TPSMonitor;
+import dev.lolib.scheduler.Scheduler;
+import dev.lolib.scheduler.ScheduledTask;
 import org.bukkit.configuration.file.FileConfiguration;
 import xyz.lokili.loutils.LoUtils;
 import xyz.lokili.loutils.constants.ConfigConstants;
-import xyz.lokili.loutils.managers.performance.PerformanceMonitor;
 import xyz.lokili.loutils.managers.performance.ReportGenerator;
 import xyz.lokili.loutils.managers.performance.WebhookSender;
 
-import java.util.concurrent.TimeUnit;
-
 /**
- * Улучшенный профайлер производительности
- * Применяет Single Responsibility Principle - делегирует задачи компонентам
+ * Профайлер производительности с использованием TPSMonitor из LoLib
+ * Упрощенная версия - делегирует мониторинг TPS библиотеке
  */
 public class PerformanceProfiler {
     
     private final LoUtils plugin;
-    private final PerformanceMonitor monitor;
+    private final TPSMonitor tpsMonitor;
     private final ReportGenerator reportGenerator;
     private final WebhookSender webhookSender;
     
     private ScheduledTask monitorTask;
+    private long lastReportTime = 0;
     
     public PerformanceProfiler(LoUtils plugin) {
         this.plugin = plugin;
-        
-        var config = getConfig();
-        this.monitor = new PerformanceMonitor(
-            config.getDouble("tps-threshold", 15.0),
-            config.getLong("report-cooldown", 300)
-        );
+        this.tpsMonitor = TPSMonitor.get(plugin);
         this.reportGenerator = new ReportGenerator();
         this.webhookSender = new WebhookSender(plugin);
     }
@@ -43,14 +37,15 @@ public class PerformanceProfiler {
         var config = getConfig();
         if (!config.getBoolean("enabled", true)) return;
         
+        double threshold = config.getDouble("tps-threshold", 15.0);
         int interval = config.getInt("check-interval", 30);
         
-        // Используем GlobalScheduler для доступа к TPS (Folia-compatible)
-        monitorTask = Bukkit.getGlobalRegionScheduler().runAtFixedRate(plugin, (task) -> {
-            checkPerformance();
-        }, interval * 20L, interval * 20L); // ticks
+        // Используем TPSMonitor listener для автоматического мониторинга
+        tpsMonitor.addListener(threshold, currentTps -> {
+            checkPerformance(currentTps, threshold);
+        });
         
-        plugin.getLogger().info("Performance Profiler started (check interval: " + interval + "s)");
+        plugin.loLogger().info("Performance Profiler started (threshold: " + threshold + " TPS, check interval: " + interval + "s)");
     }
     
     /**
@@ -66,16 +61,23 @@ public class PerformanceProfiler {
     /**
      * Проверка производительности
      */
-    private void checkPerformance() {
-        if (!monitor.shouldGenerateReport()) {
+    private void checkPerformance(double currentTps, double threshold) {
+        var config = getConfig();
+        long cooldownMillis = config.getLong("report-cooldown", 300) * 1000L;
+        
+        // Проверка cooldown
+        long now = System.currentTimeMillis();
+        if (now - lastReportTime < cooldownMillis) {
             return;
         }
         
-        // Генерация и отправка отчета
-        var metrics = monitor.getCurrentMetrics();
-        String report = reportGenerator.generateReport(metrics, getConfig());
+        lastReportTime = now;
         
-        String webhookUrl = getConfig().getString("webhook-url", "");
+        // Генерация и отправка отчета
+        var metrics = new PerformanceMetrics(currentTps, tpsMonitor.getTickTime(), threshold);
+        String report = reportGenerator.generateReport(metrics, config);
+        
+        String webhookUrl = config.getString("webhook-url", "");
         webhookSender.sendAsync(report, webhookUrl);
     }
     
@@ -84,5 +86,32 @@ public class PerformanceProfiler {
      */
     private FileConfiguration getConfig() {
         return plugin.getConfigManager().getConfig(ConfigConstants.PERFORMANCE_CONFIG);
+    }
+    
+    /**
+     * Класс для хранения метрик (упрощенная версия)
+     */
+    public static class PerformanceMetrics {
+        private final double tps;
+        private final double mspt;
+        private final double threshold;
+        
+        public PerformanceMetrics(double tps, double mspt, double threshold) {
+            this.tps = tps;
+            this.mspt = mspt;
+            this.threshold = threshold;
+        }
+        
+        public double getTps() {
+            return tps;
+        }
+        
+        public double getMspt() {
+            return mspt;
+        }
+        
+        public double getThreshold() {
+            return threshold;
+        }
     }
 }

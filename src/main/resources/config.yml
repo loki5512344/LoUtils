@@ -20,6 +20,9 @@ modules:
   villagerleash: true
   cauldron: true
   performance: true
+  light-block: true
+  debug-stick: true
+  invisible-frames: true
 
 # Префикс плагина
 prefix: "&#3BA8FF[LoUtils] &7"

@@ -1,6 +1,6 @@
 package xyz.lokili.loutils.managers.performance;
 
-import org.bukkit.Bukkit;
+import dev.lolib.scheduler.Scheduler;
 import org.bukkit.plugin.Plugin;
 
 import java.io.OutputStream;
@@ -15,9 +15,11 @@ import java.nio.charset.StandardCharsets;
 public class WebhookSender {
     
     private final Plugin plugin;
+    private final Scheduler scheduler;
     
     public WebhookSender(Plugin plugin) {
         this.plugin = plugin;
+        this.scheduler = Scheduler.get(plugin);
     }
     
     /**
@@ -29,7 +31,7 @@ public class WebhookSender {
             return;
         }
         
-        Bukkit.getAsyncScheduler().runNow(plugin, (task) -> {
+        scheduler.runAsync(() -> {
             send(content, webhookUrl);
         });
     }

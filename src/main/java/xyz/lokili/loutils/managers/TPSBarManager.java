@@ -1,28 +1,30 @@
 package xyz.lokili.loutils.managers;
 
-import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
+import dev.lolib.performance.TPSMonitor;
+import dev.lolib.scheduler.Scheduler;
+import dev.lolib.scheduler.ScheduledTask;
+import dev.lolib.utils.Colors;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import xyz.lokili.loutils.LoUtils;
 import xyz.lokili.loutils.api.ITPSBarManager;
-import xyz.lokili.loutils.utils.ColorUtil;
 
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 public class TPSBarManager implements ITPSBarManager {
     
     private final LoUtils plugin;
+    private final TPSMonitor tpsMonitor;
     private final Map<UUID, BossBar> playerBars;
     private final Map<UUID, ScheduledTask> playerTasks;
     
     public TPSBarManager(LoUtils plugin) {
         this.plugin = plugin;
+        this.tpsMonitor = TPSMonitor.get(plugin);
         this.playerBars = new HashMap<>();
         this.playerTasks = new HashMap<>();
     }
@@ -42,10 +44,11 @@ public class TPSBarManager implements ITPSBarManager {
         player.showBossBar(bar);
         playerBars.put(player.getUniqueId(), bar);
         
-        // Запускаем обновление для этого игрока
-        ScheduledTask task = player.getScheduler().runAtFixedRate(plugin, (t) -> {
+        // Запускаем обновление для этого игрока используя Scheduler из LoLib
+        Scheduler scheduler = Scheduler.get(plugin);
+        ScheduledTask task = scheduler.runTimerAtEntity(player, () -> {
             updateTPSBar(player);
-        }, () -> {}, 20L, 20L);
+        }, 20L, 20L);
         
         playerTasks.put(player.getUniqueId(), task);
     }
@@ -79,82 +82,29 @@ public class TPSBarManager implements ITPSBarManager {
         BossBar bar = playerBars.get(player.getUniqueId());
         if (bar == null) return;
         
-        // Получаем TPS региона игрока
-        double regionTPS = getRegionTPS(player);
-        double globalTPS = getGlobalTPS();
-        double mspt = getMSPT(player);
+        // Получаем TPS и MSPT через TPSMonitor из LoLib
+        double currentTPS = tpsMonitor.getCurrentTPS();
+        double mspt = tpsMonitor.getTickTime();
         
         // Форматируем текст
         String format = plugin.getConfigManager().getConfig("conf/tpsbar.yml")
-                .getString("format", "&7Region: {region_tps} &8| &7Global: {global_tps} &8| &7MSPT: {mspt}");
+                .getString("format", "&7TPS: {tps} &8| &7MSPT: {mspt}");
         
         String text = format
-                .replace("{region_tps}", formatTPS(regionTPS))
-                .replace("{global_tps}", formatTPS(globalTPS))
+                .replace("{tps}", formatTPS(currentTPS))
+                .replace("{region_tps}", formatTPS(currentTPS))
+                .replace("{global_tps}", formatTPS(currentTPS))
                 .replace("{mspt}", formatMSPT(mspt))
                 .replace("{world}", player.getWorld().getName())
                 .replace("{x}", String.valueOf(player.getLocation().getBlockX()))
                 .replace("{z}", String.valueOf(player.getLocation().getBlockZ()));
         
-        bar.name(ColorUtil.colorize(text));
+        bar.name(Colors.parse(text));
         
         // Обновляем цвет и прогресс
-        float progress = (float) Math.min(1.0, regionTPS / 20.0);
+        float progress = (float) Math.min(1.0, currentTPS / 20.0);
         bar.progress(progress);
-        bar.color(getColorForTPS(regionTPS));
-    }
-    
-    private double getRegionTPS(Player player) {
-        try {
-            // Folia API: получаем TPS региона через TickRegions
-            // io.papermc.paper.threadedregions.TickRegionScheduler
-            Object regionScheduler = Bukkit.getServer().getClass()
-                    .getMethod("getRegionScheduler")
-                    .invoke(Bukkit.getServer());
-            
-            // Пробуем получить TPS через reflection
-            // В Folia нет прямого API для TPS региона, используем альтернативу
-            
-            // Метод 1: Через getCurrentRegion
-            Class<?> tickRegionsClass = Class.forName("io.papermc.paper.threadedregions.TickRegions");
-            Method getCurrentRegion = tickRegionsClass.getMethod("getCurrentRegion");
-            Object region = getCurrentRegion.invoke(null);
-            
-            if (region != null) {
-                // Получаем TickData
-                Method getTickData = region.getClass().getMethod("getTickData");
-                Object tickData = getTickData.invoke(region);
-                
-                if (tickData != null) {
-                    Method getCurrentTickMethod = tickData.getClass().getMethod("getCurrentTick");
-                    // Вычисляем TPS на основе данных
-                }
-            }
-        } catch (Exception e) {
-            // Fallback: используем глобальный TPS
-        }
-        
-        // Fallback: возвращаем глобальный TPS
-        return getGlobalTPS();
-    }
-    
-    private double getGlobalTPS() {
-        try {
-            // Paper/Folia API
-            double[] tps = Bukkit.getTPS();
-            return tps[0]; // 1 minute average
-        } catch (Exception e) {
-            return 20.0;
-        }
-    }
-    
-    private double getMSPT(Player player) {
-        try {
-            // Paper API
-            return Bukkit.getAverageTickTime();
-        } catch (Exception e) {
-            return 50.0;
-        }
+        bar.color(getColorForTPS(currentTPS));
     }
     
     private String formatTPS(double tps) {

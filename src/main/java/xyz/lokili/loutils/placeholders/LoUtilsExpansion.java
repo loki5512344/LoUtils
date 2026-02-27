@@ -1,5 +1,6 @@
 package xyz.lokili.loutils.placeholders;
 
+import dev.lolib.performance.TPSMonitor;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -10,9 +11,11 @@ import xyz.lokili.loutils.LoUtils;
 public class LoUtilsExpansion extends PlaceholderExpansion {
     
     private final LoUtils plugin;
+    private final TPSMonitor tpsMonitor;
     
     public LoUtilsExpansion(LoUtils plugin) {
         this.plugin = plugin;
+        this.tpsMonitor = TPSMonitor.get(plugin);
     }
     
     @Override
@@ -60,7 +63,7 @@ public class LoUtilsExpansion extends PlaceholderExpansion {
     }
     
     private String getColoredTPS() {
-        double tps = getGlobalTPS();
+        double tps = tpsMonitor.getCurrentTPS();
         String color;
         
         if (tps >= 19.0) {
@@ -77,11 +80,6 @@ public class LoUtilsExpansion extends PlaceholderExpansion {
     }
     
     private double getGlobalTPS() {
-        try {
-            double[] tps = plugin.getServer().getTPS();
-            return tps[0]; // 1 minute average
-        } catch (Exception e) {
-            return 20.0;
-        }
+        return tpsMonitor.getCurrentTPS();
     }
 }

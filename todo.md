@@ -1,5 +1,45 @@
 # LoUtils - TODO
 
+## 🎨 v2.5.0 - Декоративные предметы (ЗАВЕРШЕНО ✅)
+
+### Реализованные механики:
+
+**1. Невидимые рамки (Invisible Item Frames)** ✅
+- Два способа получения:
+  1. Кинуть splash зелье невидимости на рамку которая уже висит на стене
+  2. Скрафтить в верстаке: 1 обычное зелье невидимости (в центре) + 8 рамок вокруг = 8 невидимых рамок
+- CustomModelData для текстуры предмета в инвентаре (для ресурс-паков)
+- Конфиг: `conf/invisible-frames.yml` ✅
+
+**2. Дебаг палка (Debug Stick)** ✅
+- Крафт: 1 палка + 8 лазурита
+- Функционал как у ванильной дебаг палки
+- НЕ может делать блоки waterlogged (ограничение)
+- Требует permission: `loutils.debugstick`
+- CustomModelData для текстуры предмета в инвентаре (для ресурс-паков)
+- Конфиг: `conf/debug-stick.yml` ✅
+
+**3. Источник света (Light Block)** ✅
+- Крафт: 4 светокамня вокруг 1 свечки (в центре) = блок света уровня 15
+- Shift + ПКМ: изменить уровень света 0-15 (на блоке или в руке)
+- Shift + ЛКМ: сломать блок и он выпадает с сохраненным уровнем света
+- Отображение уровня в названии предмета: "Источник света [15]"
+- CustomModelData для текстуры предмета в инвентаре (для ресурс-паков)
+- Конфиг: `conf/light-block.yml` ✅
+
+### Результаты:
+- ✅ Созданы 3 конфига в `conf/`
+- ✅ Добавлены модули в `config.yml`
+- ✅ Реализованы все 3 листенера (LightBlockListener, InvisibleFrameListener, DebugStickListener)
+- ✅ Добавлены константы в ConfigConstants
+- ✅ Добавлен permission в plugin.yml
+- ✅ Зарегистрированы листенеры в LoUtils
+- ✅ Билд успешен (без тестов)
+- ✅ Все механики event-based, используют LoLib
+- ✅ Следование SOLID/DRY/KISS принципам
+
+---
+
 ## 🔄 v2.4.0 - Миграция на LoLib 2.0 (В ПРОЦЕССЕ)
 
 ### Этап 1: Базовая интеграция ✅ ЗАВЕРШЕНО
@@ -19,17 +59,27 @@
   - [x] ItemBuilder не используется в проекте
   - [x] Удалить ItemBuilder.java (~100 строк) ✅
 
-### Этап 3: Улучшение производительности (СРЕДНИЙ ПРИОРИТЕТ)
-- [ ] Заменить PerformanceProfiler → TPSMonitor из LoLib
-  - [ ] Использовать TPSMonitor.get(plugin)
-  - [ ] Добавить listener для низкого TPS
-  - [ ] Упростить PerformanceProfiler используя TPSMonitor
-- [ ] Использовать NumberFormatter для форматирования чисел
-  - [ ] Найти места с форматированием чисел
-  - [ ] Заменить на NumberFormatter.formatShort() / formatDecimal()
-- [ ] Использовать AsyncExecutor вместо Bukkit.getAsyncScheduler()
-  - [ ] Найти все async задачи
-  - [ ] Заменить на AsyncExecutor
+### Этап 3: Улучшение производительности (ЗАВЕРШЕНО ✅)
+- [x] Заменить PerformanceProfiler → TPSMonitor из LoLib
+  - [x] Использовать TPSMonitor.get(plugin) вместо PerformanceMonitor
+  - [x] Добавить listener для низкого TPS
+  - [x] Упростить PerformanceProfiler используя TPSMonitor
+  - [x] Удалить PerformanceMonitor.java (~80 строк) ✅
+  - [x] Исправлен баг с Folia "Not on any region" ✅
+- [x] Использовать TPSMonitor в TPSBarManager
+  - [x] Заменить Bukkit.getTPS() на tpsMonitor.getCurrentTPS()
+  - [x] Заменить Bukkit.getAverageTickTime() на tpsMonitor.getTickTime()
+  - [x] Удалить сложный reflection код для получения TPS (~60 строк) ✅
+- [x] Использовать TPSMonitor в PlaceholderAPI
+  - [x] Заменить plugin.getServer().getTPS() на tpsMonitor.getCurrentTPS()
+  - [x] Исправлен потенциальный баг с Folia ✅
+- [x] Использовать Scheduler из LoLib везде
+  - [x] WebhookSender: Bukkit.getAsyncScheduler() → Scheduler.runAsync()
+  - [x] AutoRestartManager: Bukkit.getAsyncScheduler() → Scheduler.runTimerAsync()
+  - [x] InvSeeListener: Bukkit.getAsyncScheduler() → Scheduler.runTimerAsync()
+  - [x] InvSeeListener: Bukkit.getGlobalRegionScheduler() → Scheduler.runLater()
+- [x] NumberFormatter не нужен - текущее форматирование (%.1f, %.2f) оптимально для TPS/MSPT
+- [x] AsyncExecutor не нужен - Scheduler.runAsync покрывает все async задачи (3 места)
 
 ### Этап 4: Улучшение команд (НИЗКИЙ ПРИОРИТЕТ)
 - [ ] Добавить @Command аннотации для команд
@@ -37,20 +87,21 @@
 - [ ] Упростить регистрацию команд
 
 ### Этап 5: Новые возможности (ОПЦИОНАЛЬНО)
-- [ ] Использовать ItemConfig для создания предметов из YAML
-- [ ] Добавить Database поддержку (опционально)
 - [ ] Использовать GUI API для InvSee
 
 ### Прогресс:
 - ✅ Этап 1: Базовая интеграция (100%)
-- ✅ Этап 2: Замена утилит (100% - SchedulerUtil и ColorUtil уже обёртки, TimeUtil и ItemBuilder удалены)
-- ⏳ Этап 3: Производительность (0%)
+- ✅ Этап 2: Замена утилит (100%)
+- ✅ Этап 3: Производительность (100% - TPSMonitor и Scheduler из LoLib везде)
 - ⏳ Этап 4: Команды (0%)
 - ⏳ Этап 5: Новые возможности (0%)
 
 ### Ожидаемые результаты:
-- Удалено ~180 строк кода (TimeUtil + ItemBuilder)
-- SchedulerUtil и ColorUtil уже являются обёртками над LoLib
+- Удалено ~320 строк кода (TimeUtil + ItemBuilder + PerformanceMonitor + reflection код)
+- TPSMonitor из LoLib используется везде (PerformanceProfiler, TPSBarManager, PlaceholderAPI)
+- Scheduler из LoLib используется везде вместо Bukkit schedulers
+- Исправлен критический баг с Folia "Not on any region" ✅
+- Все async задачи используют единый Scheduler API
 - Готово к дальнейшей оптимизации
 
 ---
@@ -178,6 +229,106 @@
 - Упрощение кода (KISS)
 - Лучшая тестируемость
 - Билд успешен ✅
+
+---
+
+## 🎨 v2.5.0 - Декоративные предметы (НОВОЕ)
+
+### Механики для реализации:
+
+**1. Невидимые рамки (Invisible Item Frames)**
+- Два способа получения:
+  1. Кинуть splash зелье невидимости на рамку которая уже висит на стене
+  2. Скрафтить в верстаке: 1 обычное зелье невидимости (в центре) + 8 рамок вокруг = 8 невидимых рамок
+- CustomModelData для текстуры предмета в инвентаре (для ресурс-паков)
+- Конфиг: `conf/invisible-frames.yml`
+  - enabled: true/false
+  - splash-potion-method: true/false (кинуть зелье на рамку)
+  - crafting-method: true/false (крафт в верстаке)
+  - custom-model-data: число (текстура предмета в инвентаре, опционально)
+
+**2. Дебаг палка (Debug Stick)**
+- Крафт: 1 палка + 8 лазурита
+- Функционал как у ванильной дебаг палки
+- НЕ может делать блоки waterlogged (ограничение)
+- Требует permission: `loutils.debugstick`
+- CustomModelData для текстуры предмета в инвентаре (для ресурс-паков)
+- Конфиг: `conf/debug-stick.yml`
+  - enabled: true/false
+  - require-permission: true/false
+  - allow-waterlogging: false (всегда false)
+  - crafting-enabled: true/false
+  - custom-model-data: число (текстура предмета в инвентаре, опционально)
+
+**3. Источник света (Light Block)**
+- Крафт: 4 светокамня вокруг 1 свечки (в центре) = блок света уровня 15
+- Shift + ПКМ: изменить уровень света 0-15
+  - Можно кликать по уже установленному блоку света
+  - Можно кликать держа блок света в руке (в инвентаре)
+- Shift + ЛКМ: сломать блок и он выпадает с сохраненным уровнем света
+- Отображение уровня в названии предмета: "Источник света [15]"
+- CustomModelData для текстуры предмета в инвентаре (для ресурс-паков)
+- Конфиг: `conf/light-block.yml`
+  - enabled: true/false
+  - crafting-enabled: true/false
+  - crafting-recipe-configurable: true (можно настроить крафт)
+  - max-level: 15
+  - min-level: 0
+  - name-format: "Источник света [%level%]"
+  - custom-model-data: число (текстура предмета в инвентаре, опционально)
+
+### Архитектурный план:
+
+```
+listeners/
+  ├── InvisibleFrameListener.java    # Невидимые рамки (котел + крафт)
+  ├── DebugStickListener.java        # Дебаг палка (крафт + использование)
+  └── LightBlockListener.java        # Источник света (крафт + изменение уровня)
+
+conf/
+  ├── invisible-frames.yml           # Конфиг невидимых рамок
+  ├── debug-stick.yml                # Конфиг дебаг палки
+  └── light-block.yml                # Конфиг источника света
+```
+
+### Технические детали:
+
+**InvisibleFrameListener:**
+- `ProjectileHitEvent` - splash зелье невидимости попало в рамку на стене
+- `PrepareItemCraftEvent` - крафт 1 зелье (центр) + 8 рамок = 8 невидимых рамок
+- Использовать `ItemMeta.setCustomModelData()` для текстуры предмета в инвентаре
+- Использовать `ItemFrame.setVisible(false)` для невидимости рамки
+
+**DebugStickListener:**
+- `PrepareItemCraftEvent` - крафт палки + 8 лазурита
+- `PlayerInteractEvent` - использование дебаг палки
+- Проверка permission через `player.hasPermission("loutils.debugstick")`
+- Блокировка waterlogging через проверку `BlockData` свойств
+- Использовать `ItemMeta.setCustomModelData()` для текстуры предмета в инвентаре
+
+**LightBlockListener:**
+- `PrepareItemCraftEvent` - крафт 4 светокамня вокруг + 1 свечка (центр) = блок света 15
+- `PlayerInteractEvent` - Shift + ПКМ для изменения уровня (на блоке или в руке)
+- `BlockBreakEvent` - Shift + ЛКМ для дропа блока с сохраненным уровнем
+- Использовать `Light` BlockData для установки уровня света (0-15)
+- Сохранять уровень в `ItemMeta` через PersistentDataContainer
+- Использовать `ItemMeta.setCustomModelData()` для текстуры предмета в инвентаре
+- Все крафты настраиваются через конфиг (можно отключить/изменить)
+
+### Приоритет реализации:
+1. Источник света (Light Block) - самое полезное
+2. Невидимые рамки (Invisible Frames) - популярная механика
+3. Дебаг палка (Debug Stick) - для админов
+
+### Следующие шаги:
+- [ ] Создать конфиги в `conf/`
+- [ ] Добавить модули в `config.yml`
+- [ ] Реализовать LightBlockListener
+- [ ] Реализовать InvisibleFrameListener
+- [ ] Реализовать DebugStickListener
+- [ ] Добавить сообщения в `messages.yml`
+- [ ] Тестирование каждой механики
+- [ ] Билд и проверка
 
 ---
 

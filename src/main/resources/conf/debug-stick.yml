@@ -1,0 +1,16 @@
+# Debug Stick - Дебаг палка
+
+enabled: true
+
+# Крафт в верстаке (1 палка + 8 лазурита)
+crafting-enabled: true
+
+# Требовать permission loutils.debugstick для использования
+require-permission: true
+
+# Разрешить делать блоки waterlogged (всегда false)
+allow-waterlogging: false
+
+# CustomModelData для текстуры предмета в инвентаре (для ресурс-паков)
+# Установите 0 чтобы не использовать кастомную модель
+custom-model-data: 0
