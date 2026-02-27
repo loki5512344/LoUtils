@@ -2,7 +2,7 @@ package xyz.lokili.loutils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
-import org.bukkit.plugin.java.JavaPlugin;
+import dev.lolib.core.LoPlugin;
 import xyz.lokili.loutils.api.*;
 import xyz.lokili.loutils.commands.*;
 import xyz.lokili.loutils.listeners.*;
@@ -10,7 +10,7 @@ import xyz.lokili.loutils.managers.*;
 import xyz.lokili.loutils.placeholders.LoUtilsExpansion;
 import xyz.lokili.loutils.utils.MessageUtil;
 
-public class LoUtils extends JavaPlugin {
+public class LoUtils extends LoPlugin {
     
     private IConfigManager configManager;
     private IWhitelistManager whitelistManager;
@@ -23,7 +23,7 @@ public class LoUtils extends JavaPlugin {
     private InvSeeListener invSeeListener;
     
     @Override
-    public void onEnable() {
+    protected void enable() {
         // Config manager first (validation happens inside)
         configManager = new ConfigManager(this);
         
@@ -57,23 +57,25 @@ public class LoUtils extends JavaPlugin {
         // Register PlaceholderAPI expansion
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new LoUtilsExpansion(this).register();
-            getLogger().info("PlaceholderAPI expansion registered!");
+            loLogger().info("PlaceholderAPI expansion registered!");
         }
         
-        getLogger().info("LoUtils v2.2.0 enabled!");
-        getLogger().info("Modules: Whitelist, AutoRestart, Enchant, DeathMessages, TPSBar, InvSee, SpawnMob, Fly, WorldLock, CustomWorldHeight, FastLeafDecay, SleepPercentage, VillagerLeash, Cauldron, PerformanceProfiler");
+        loLogger().info("LoUtils v2.2.0 enabled!");
+        loLogger().info("Modules: Whitelist, AutoRestart, Enchant, DeathMessages, TPSBar, InvSee, SpawnMob, Fly, WorldLock, CustomWorldHeight, FastLeafDecay, SleepPercentage, VillagerLeash, Cauldron, PerformanceProfiler");
     }
+
     
     @Override
-    public void onDisable() {
+    protected void disable() {
         if (invSeeListener != null) invSeeListener.shutdown();
         if (tpsBarManager != null) tpsBarManager.shutdown();
         if (autoRestartManager != null) autoRestartManager.stop();
         if (performanceProfiler != null) performanceProfiler.stop();
         if (whitelistManager != null) whitelistManager.saveWhitelist();
         
-        getLogger().info("LoUtils v2.2.0 disabled!");
+        loLogger().info("LoUtils v2.2.0 disabled!");
     }
+
     
     private void registerCommands() {
         // Whitelist
@@ -121,7 +123,7 @@ public class LoUtils extends JavaPlugin {
                                  org.bukkit.command.TabCompleter tabCompleter) {
         PluginCommand command = getCommand(name);
         if (command == null) {
-            getLogger().severe("Command '" + name + "' is not defined in plugin.yml");
+            loLogger().error("Command '" + name + "' is not defined in plugin.yml");
             return;
         }
         command.setExecutor(executor);
