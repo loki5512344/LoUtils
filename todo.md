@@ -1,5 +1,60 @@
 # LoUtils - TODO
 
+## 🔄 v2.4.0 - Миграция на LoLib 2.0 (В ПРОЦЕССЕ)
+
+### Этап 1: Базовая интеграция ✅ ЗАВЕРШЕНО
+- [x] Обновить build.gradle.kts - заменить loapi на lolib-2.0.0.jar
+- [x] Обновить plugin.yml - зависимость LoAPI → LoLib
+- [x] LoUtils уже extends LoPlugin (enable/disable методы)
+
+### Этап 2: Замена утилит (ЗАВЕРШЕНО ✅)
+- [x] Заменить SchedulerUtil → Scheduler из LoLib напрямую
+  - Не используется в проекте (уже обёртка над LoLib)
+- [x] Заменить ColorUtil → Colors из LoLib напрямую
+  - Не используется напрямую (уже обёртка над LoLib)
+- [x] Заменить TimeUtil → TimeFormatter из LoLib
+  - [x] TimeUtil не используется в проекте
+  - [x] Удалить TimeUtil.java (~80 строк) ✅
+- [x] Удалить ItemBuilder → использовать ItemBuilder из LoLib
+  - [x] ItemBuilder не используется в проекте
+  - [x] Удалить ItemBuilder.java (~100 строк) ✅
+
+### Этап 3: Улучшение производительности (СРЕДНИЙ ПРИОРИТЕТ)
+- [ ] Заменить PerformanceProfiler → TPSMonitor из LoLib
+  - [ ] Использовать TPSMonitor.get(plugin)
+  - [ ] Добавить listener для низкого TPS
+  - [ ] Упростить PerformanceProfiler используя TPSMonitor
+- [ ] Использовать NumberFormatter для форматирования чисел
+  - [ ] Найти места с форматированием чисел
+  - [ ] Заменить на NumberFormatter.formatShort() / formatDecimal()
+- [ ] Использовать AsyncExecutor вместо Bukkit.getAsyncScheduler()
+  - [ ] Найти все async задачи
+  - [ ] Заменить на AsyncExecutor
+
+### Этап 4: Улучшение команд (НИЗКИЙ ПРИОРИТЕТ)
+- [ ] Добавить @Command аннотации для команд
+- [ ] Использовать @Arg для аргументов команд
+- [ ] Упростить регистрацию команд
+
+### Этап 5: Новые возможности (ОПЦИОНАЛЬНО)
+- [ ] Использовать ItemConfig для создания предметов из YAML
+- [ ] Добавить Database поддержку (опционально)
+- [ ] Использовать GUI API для InvSee
+
+### Прогресс:
+- ✅ Этап 1: Базовая интеграция (100%)
+- ✅ Этап 2: Замена утилит (100% - SchedulerUtil и ColorUtil уже обёртки, TimeUtil и ItemBuilder удалены)
+- ⏳ Этап 3: Производительность (0%)
+- ⏳ Этап 4: Команды (0%)
+- ⏳ Этап 5: Новые возможности (0%)
+
+### Ожидаемые результаты:
+- Удалено ~180 строк кода (TimeUtil + ItemBuilder)
+- SchedulerUtil и ColorUtil уже являются обёртками над LoLib
+- Готово к дальнейшей оптимизации
+
+---
+
 ## ✅ v2.3.0 - Интеграция LoLib (ЗАВЕРШЕНО)
 
 ### Базовая интеграция LoLib ✅

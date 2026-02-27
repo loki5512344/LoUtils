@@ -21,8 +21,8 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.3-R0.1-SNAPSHOT")
     compileOnly("me.clip:placeholderapi:2.11.6")
     
-    // LoAPI - custom library (will be in libs folder)
-    compileOnly(files("libs/loapi-2.0.0-SNAPSHOT.jar"))
+    // LoLib - custom library (will be in libs folder)
+    compileOnly(files("libs/lolib-2.0.0.jar"))
     
     // Testing
     testImplementation(platform("org.junit:junit-bom:5.10.1"))
