@@ -1,0 +1,21 @@
+# LoUtils - AutoRestart Configuration
+
+enabled: false
+
+# Интервал рестарта в минутах
+interval_minutes: 360
+
+# Ежедневный рестарт (формат HH:mm, пусто = использовать interval)
+daily_time: ""
+
+# Предупреждения за N минут до рестарта
+warnings:
+  - 30
+  - 15
+  - 10
+  - 5
+  - 3
+  - 1
+
+# Сохранять миры перед рестартом
+save_before_restart: true

@@ -1,0 +1,20 @@
+# LoUtils - Enchant Configuration
+# Поддержка цветов: &#RRGGBB (hex) и &c (legacy)
+
+# Максимальный уровень зачарования (0 = без лимита)
+max_level: 0
+
+# Разрешить небезопасные зачарования (несовместимые с предметом)
+allow_unsafe: true
+
+# Сообщения
+messages:
+  success: "&#3BA8FFЗачарование &f{enchant} {level} &#3BA8FFдобавлено"
+  removed: "&#3BA8FFЗачарование &f{enchant} &#3BA8FFудалено"
+  removed-all: "&#3BA8FFВсе зачарования удалены"
+  no-item: "&cВозьмите предмет в руку"
+  invalid-enchant: "&cНеизвестное зачарование: {enchant}"
+  invalid-level: "&cНеверный уровень"
+  max-level: "&cМаксимальный уровень: {max}"
+  list-header: "&#3BA8FF=== Доступные зачарования ==="
+  usage: "&cИспользование: /lenchant <зачарование> <уровень> или /lenchant list"

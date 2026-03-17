@@ -1,41 +1,37 @@
 package xyz.lokili.loutils.listeners;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 import xyz.lokili.loutils.LoUtils;
+import xyz.lokili.loutils.constants.ConfigConstants;
+import xyz.lokili.loutils.listeners.base.BaseListener;
 import xyz.lokili.loutils.utils.ColorUtil;
 
-public class DeathMessageListener implements Listener {
+public class DeathMessageListener extends BaseListener {
     
-    private final LoUtils plugin;
-    
-    public DeathMessageListener(LoUtils plugin) {
-        this.plugin = plugin;
+    public DeathMessageListener(LoUtils plugin, xyz.lokili.loutils.api.IConfigManager configManager) {
+        super(plugin, configManager, ConfigConstants.Modules.DEATH_MESSAGES, ConfigConstants.DEATH_MESSAGES_CONFIG);
     }
     
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerDeath(PlayerDeathEvent event) {
-        if (!plugin.getConfigManager().getDeathMessagesConfig().getBoolean("enabled", true)) {
+        if (!config.getBoolean("enabled", true)) {
             return;
         }
         
-        if (!plugin.getConfigManager().getDeathMessagesConfig().getBoolean("disable_vanilla", true)) {
+        if (!config.getBoolean("disable_vanilla", true)) {
             return;
         }
         
         Player victim = event.getEntity();
-        String victimName = victim.getName();
-        
         String message = getDeathMessage(victim);
         
         event.deathMessage(ColorUtil.colorize(message));
@@ -50,7 +46,7 @@ public class DeathMessageListener implements Listener {
         if (killer != null) {
             // Check if killer is invisible
             if (killer.hasPotionEffect(PotionEffectType.INVISIBILITY)) {
-                return plugin.getConfigManager().getRandomDeathMessage("invisible_killer",
+                return configManager.getRandomDeathMessage("invisible_killer",
                         "{victim}", victimName);
             }
             
@@ -58,7 +54,7 @@ public class DeathMessageListener implements Listener {
             ItemStack weapon = killer.getInventory().getItemInMainHand();
             String weaponType = getWeaponType(weapon);
             
-            return plugin.getConfigManager().getRandomDeathMessage("pvp." + weaponType,
+            return configManager.getRandomDeathMessage("pvp." + weaponType,
                     "{victim}", victimName,
                     "{killer}", killer.getName());
         }
@@ -75,24 +71,24 @@ public class DeathMessageListener implements Listener {
                     String path = "mobs." + mobType;
                     
                     // Check if specific mob message exists
-                    if (plugin.getConfigManager().getDeathMessagesConfig().contains(path)) {
-                        return plugin.getConfigManager().getRandomDeathMessage(path,
+                    if (config.contains(path)) {
+                        return configManager.getRandomDeathMessage(path,
                                 "{victim}", victimName);
                     }
-                    return plugin.getConfigManager().getRandomDeathMessage("mobs.default",
+                    return configManager.getRandomDeathMessage("mobs.default",
                             "{victim}", victimName);
                 }
             }
             
             String envPath = getEnvironmentPath(cause);
             if (envPath != null) {
-                return plugin.getConfigManager().getRandomDeathMessage("environment." + envPath,
+                return configManager.getRandomDeathMessage("environment." + envPath,
                         "{victim}", victimName);
             }
         }
         
         // Default death
-        return plugin.getConfigManager().getRandomDeathMessage("other",
+        return configManager.getRandomDeathMessage("other",
                 "{victim}", victimName);
     }
     

@@ -1,6 +1,5 @@
 package xyz.lokili.loutils.utils;
 
-import org.bukkit.configuration.file.FileConfiguration;
 import xyz.lokili.loutils.LoUtils;
 
 import java.util.List;

@@ -1,10 +1,11 @@
 package xyz.lokili.loutils.managers.restart;
 
+import dev.lolib.utils.TimeFormatter;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.plugin.Plugin;
 import xyz.lokili.loutils.LoUtils;
 import xyz.lokili.loutils.utils.SchedulerUtil;
 
+import java.time.Duration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -58,9 +59,13 @@ public class WarningBroadcaster {
      * Отправка предупреждения за N минут
      */
     private void broadcastMinuteWarning(int minutes) {
+        // Используем TimeFormatter из LoLib для красивого форматирования
+        Duration duration = Duration.ofMinutes(minutes);
+        String timeFormatted = TimeFormatter.formatSmart(duration);
+        
         String message = plugin.getConfigManager().getPrefix() +
                 plugin.getConfigManager().getMessage("autorestart.warning")
-                        .replace("{time}", String.valueOf(minutes));
+                        .replace("{time}", timeFormatted);
         
         SchedulerUtil.broadcast(plugin, message);
     }
@@ -69,9 +74,13 @@ public class WarningBroadcaster {
      * Отправка предупреждения за N секунд
      */
     private void broadcastSecondWarning(int seconds) {
+        // Используем TimeFormatter из LoLib
+        Duration duration = Duration.ofSeconds(seconds);
+        String timeFormatted = TimeFormatter.formatSmart(duration);
+        
         String message = plugin.getConfigManager().getPrefix() +
                 plugin.getConfigManager().getMessage("autorestart.warning-seconds")
-                        .replace("{time}", String.valueOf(seconds));
+                        .replace("{time}", timeFormatted);
         
         SchedulerUtil.broadcast(plugin, message);
     }

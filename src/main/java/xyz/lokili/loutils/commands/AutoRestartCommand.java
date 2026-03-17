@@ -7,7 +7,6 @@ import org.jetbrains.annotations.Nullable;
 import xyz.lokili.loutils.LoUtils;
 import xyz.lokili.loutils.commands.base.CommandBase;
 import xyz.lokili.loutils.constants.ConfigConstants;
-import xyz.lokili.loutils.utils.ColorUtil;
 
 import java.util.Arrays;
 import java.util.List;

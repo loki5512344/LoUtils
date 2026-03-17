@@ -1,0 +1,71 @@
+# Player Poses — система поз для игроков (логика портирована с GSit)
+
+enabled: true
+
+# === Сидение (Sit) ===
+sit:
+  enabled: true
+
+  # Автоматическое сидение при ПКМ по разрешённым блокам (пустая рука)
+  right-click-enabled: true
+
+  # Список ключевых слов. Блок разрешён, если его имя СОДЕРЖИТ любое из них.
+  # Примеры: "STAIRS" → поймает OAK_STAIRS, STONE_STAIRS и т.д.
+  #          "SLAB"   → поймает OAK_SLAB, SMOOTH_STONE_SLAB и т.д.
+  right-click-blocks:
+    - STAIRS
+    - SLAB
+    - CARPET
+    - BED
+    - BENCH
+
+  # Сидение на игроках (Shift + ПКМ по игроку с пустой рукой)
+  player-sit-enabled: true
+
+  # Per-material Y-offset поверх высоты блока (sit-height в GSit S_SITMATERIALS).
+  # 0.0 = стандартная высота верхней грани блока.
+  # Отрицательное значение — опустить игрока ниже (напр. -0.5 для мягкого ощущения).
+  sit-height: 0.0
+
+# === Лежание (Lay) ===
+lay:
+  enabled: true
+
+  # Звук храпа для лежащих игроков
+  snoring-sound: true
+
+  # Интервал храпа (в секундах)
+  snoring-interval: 30
+
+  # Y-offset для лежания. -0.5 — игрок чуть ниже верхней грани блока.
+  lay-height: -0.5
+
+# === Ползание (Crawl) ===
+crawl:
+  enabled: true
+
+  # Снижение урона при ползании (0.5 = получает 50% урона)
+  damage-reduction: 0.5
+
+  # Автоматическое ползание в 1-блочных проходах
+  auto-crawl-in-tight-spaces: true
+
+# === Общие настройки ===
+general:
+  # Отменять позу при получении урона (не распространяется на ползание — там урон снижается)
+  cancel-on-damage: true
+
+  # Отменять ползание при движении
+  cancel-on-move: true
+
+  # Сообщения (поддерживают hex-цвета &#RRGGBB)
+  messages:
+    sit-start:    "&#9878C9Вы сели"
+    sit-stop:     "&#9878C9Вы встали"
+    sit-on-player: "&#9878C9Вы сели на игрока"
+    lay-start:    "&#9878C9Вы легли"
+    lay-stop:     "&#9878C9Вы встали"
+    crawl-start:  "&#9878C9Вы начали ползти"
+    crawl-stop:   "&#9878C9Вы перестали ползти"
+    already-in-pose: "&#FF6B6BВы уже в позе"
+    cannot-sit-here: "&#FF6B6BЗдесь нельзя сесть"

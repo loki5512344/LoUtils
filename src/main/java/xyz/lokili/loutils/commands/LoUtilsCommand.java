@@ -25,7 +25,7 @@ public class LoUtilsCommand extends CommandBase {
         }
         
         if (args.length == 0 || !args[0].equalsIgnoreCase("reload")) {
-            sendRawMessage(sender, "&#3BA8FF&lLoUtils &7v" + plugin.getDescription().getVersion());
+            sendRawMessage(sender, "&#3BA8FF&lLoUtils &7v" + plugin.getPluginMeta().getVersion());
             sendRawMessage(sender, "&7Автор: &floki");
             sendRawMessage(sender, "&7Использование: &f/loutils reload");
             return true;

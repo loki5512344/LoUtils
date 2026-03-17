@@ -3,20 +3,19 @@ package xyz.lokili.loutils.listeners;
 import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import org.bukkit.event.world.WorldLoadEvent;
 import xyz.lokili.loutils.LoUtils;
+import xyz.lokili.loutils.constants.ConfigConstants;
+import xyz.lokili.loutils.listeners.base.BaseListener;
 import xyz.lokili.loutils.managers.CustomWorldHeightManager;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-public class CustomWorldHeightListener implements Listener {
+public class CustomWorldHeightListener extends BaseListener {
     
-    private final LoUtils plugin;
-    
-    public CustomWorldHeightListener(LoUtils plugin) {
-        this.plugin = plugin;
+    public CustomWorldHeightListener(LoUtils plugin, xyz.lokili.loutils.api.IConfigManager configManager) {
+        super(plugin, configManager, ConfigConstants.Modules.CUSTOMWORLDHEIGHT, ConfigConstants.CUSTOMWORLDHEIGHT_CONFIG);
     }
     
     @EventHandler(priority = EventPriority.LOWEST)

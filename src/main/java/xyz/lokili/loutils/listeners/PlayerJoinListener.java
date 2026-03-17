@@ -2,17 +2,19 @@ package xyz.lokili.loutils.listeners;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import xyz.lokili.loutils.LoUtils;
+import xyz.lokili.loutils.listeners.base.BaseListener;
 import xyz.lokili.loutils.utils.ColorUtil;
 
-public class PlayerJoinListener implements Listener {
+/**
+ * PlayerJoinListener - Проверка whitelist при входе
+ * Всегда включен (не зависит от модуля)
+ */
+public class PlayerJoinListener extends BaseListener {
     
-    private final LoUtils plugin;
-    
-    public PlayerJoinListener(LoUtils plugin) {
-        this.plugin = plugin;
+    public PlayerJoinListener(LoUtils plugin, xyz.lokili.loutils.api.IConfigManager configManager) {
+        super(plugin, configManager, null, null); // Всегда включен
     }
     
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -24,8 +26,12 @@ public class PlayerJoinListener implements Listener {
         String playerName = event.getName();
         
         if (!plugin.getWhitelistManager().isWhitelisted(playerName)) {
-            String kickMessage = plugin.getConfigManager().getWhitelistConfig().getString("kick-message", 
-                "&cВы не в белом списке сервера.");
+            String kickMessage = configManager.getWhitelistConfig().getString("kick-message", 
+                "<#3BA8FF><bold>LoUtils Whitelist</bold>\n\n<gray>Вы не в белом списке сервера.\n<gray>Обратитесь к администрации.");
+            
+            // Обрабатываем многострочное сообщение
+            kickMessage = kickMessage.replace("\n", "\n");
+            
             event.disallow(
                 AsyncPlayerPreLoginEvent.Result.KICK_WHITELIST,
                 ColorUtil.colorize(kickMessage)

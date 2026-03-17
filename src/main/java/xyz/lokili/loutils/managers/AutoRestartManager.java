@@ -4,6 +4,7 @@ import dev.lolib.scheduler.Scheduler;
 import dev.lolib.scheduler.ScheduledTask;
 import xyz.lokili.loutils.LoUtils;
 import xyz.lokili.loutils.api.IAutoRestartManager;
+import xyz.lokili.loutils.api.IConfigManager;
 import xyz.lokili.loutils.managers.restart.RestartExecutor;
 import xyz.lokili.loutils.managers.restart.RestartScheduler;
 import xyz.lokili.loutils.managers.restart.WarningBroadcaster;
@@ -15,6 +16,7 @@ import xyz.lokili.loutils.managers.restart.WarningBroadcaster;
 public class AutoRestartManager implements IAutoRestartManager {
     
     private final LoUtils plugin;
+    private final IConfigManager configManager;
     private final RestartScheduler scheduler;
     private final WarningBroadcaster broadcaster;
     private final RestartExecutor executor;
@@ -22,8 +24,9 @@ public class AutoRestartManager implements IAutoRestartManager {
     private ScheduledTask timerTask;
     private volatile boolean running;
     
-    public AutoRestartManager(LoUtils plugin) {
+    public AutoRestartManager(LoUtils plugin, IConfigManager configManager) {
         this.plugin = plugin;
+        this.configManager = configManager;
         this.scheduler = new RestartScheduler();
         this.broadcaster = new WarningBroadcaster(plugin);
         this.executor = new RestartExecutor(plugin);
@@ -34,13 +37,13 @@ public class AutoRestartManager implements IAutoRestartManager {
     public void start() {
         if (running) return;
         
-        if (!plugin.getConfigManager().getAutoRestartConfig().getBoolean("enabled", false)) {
+        if (!configManager.getAutoRestartConfig().getBoolean("enabled", false)) {
             return;
         }
         
         // Сброс предупреждений и расчет времени
         broadcaster.reset();
-        scheduler.calculateNextRestart(plugin.getConfigManager().getAutoRestartConfig());
+        scheduler.calculateNextRestart(configManager.getAutoRestartConfig());
         
         // Запуск таймера
         startTimer();
@@ -64,7 +67,7 @@ public class AutoRestartManager implements IAutoRestartManager {
     @Override
     public void reload() {
         stop();
-        if (plugin.getConfigManager().getAutoRestartConfig().getBoolean("enabled", false)) {
+        if (configManager.getAutoRestartConfig().getBoolean("enabled", false)) {
             start();
         }
     }
@@ -90,7 +93,7 @@ public class AutoRestartManager implements IAutoRestartManager {
         }
         
         long remaining = scheduler.getRemainingMillis();
-        broadcaster.checkAndBroadcast(remaining, plugin.getConfigManager().getAutoRestartConfig());
+        broadcaster.checkAndBroadcast(remaining, configManager.getAutoRestartConfig());
     }
     
     @Override

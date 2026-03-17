@@ -1,27 +1,23 @@
 package xyz.lokili.loutils.listeners;
 
-import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import xyz.lokili.loutils.LoUtils;
 import xyz.lokili.loutils.constants.ConfigConstants;
+import xyz.lokili.loutils.constants.GameplayConstants;
+import xyz.lokili.loutils.listeners.base.BaseListener;
 
-public class SleepPercentageListener implements Listener {
+public class SleepPercentageListener extends BaseListener {
     
-    private final LoUtils plugin;
-    
-    public SleepPercentageListener(LoUtils plugin) {
-        this.plugin = plugin;
+    public SleepPercentageListener(LoUtils plugin, xyz.lokili.loutils.api.IConfigManager configManager) {
+        super(plugin, configManager, ConfigConstants.Modules.SLEEPPERCENTAGE, ConfigConstants.SLEEPPERCENTAGE_CONFIG);
     }
     
     @EventHandler
     public void onPlayerBedEnter(PlayerBedEnterEvent event) {
-        if (!plugin.getConfigManager().isModuleEnabled(ConfigConstants.Modules.SLEEPPERCENTAGE)) {
-            return;
-        }
+        if (!checkEnabled()) return;
         
         if (event.getBedEnterResult() != PlayerBedEnterEvent.BedEnterResult.OK) {
             return;
@@ -35,10 +31,8 @@ public class SleepPercentageListener implements Listener {
             return;
         }
         
-        int sleepPercentage = plugin.getConfigManager().getConfig(ConfigConstants.SLEEPPERCENTAGE_CONFIG)
-                .getInt("sleep-percentage", 30);
-        boolean showMessage = plugin.getConfigManager().getConfig(ConfigConstants.SLEEPPERCENTAGE_CONFIG)
-                .getBoolean("show-message", true);
+        int sleepPercentage = config.getInt("sleep-percentage", GameplayConstants.DEFAULT_SLEEP_PERCENTAGE);
+        boolean showMessage = config.getBoolean("show-message", true);
         
         // Count sleeping players
         long sleeping = world.getPlayers().stream()

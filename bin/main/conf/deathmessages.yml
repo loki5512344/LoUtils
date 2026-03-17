@@ -1,0 +1,100 @@
+# LoUtils - Death Messages Configuration
+
+enabled: true
+
+# Отключить стандартные сообщения о смерти
+disable_vanilla: true
+
+# Сообщения при убийстве невидимым игроком (без ника убийцы)
+invisible_killer:
+  - "&c{victim} &7был заколот до смерти"
+  - "&c{victim} &7погиб от невидимой руки"
+  - "&c{victim} &7был убит из тени"
+  - "&c{victim} &7пал от неизвестного врага"
+  - "&c{victim} &7встретил таинственную смерть"
+
+# Обычные сообщения PvP
+pvp:
+  sword:
+    - "&c{victim} &7был зарублен игроком &c{killer}"
+    - "&c{killer} &7одолел &c{victim} &7в бою"
+    - "&c{victim} &7пал от меча &c{killer}"
+  axe:
+    - "&c{victim} &7был разрублен топором &c{killer}"
+    - "&c{killer} &7раскроил &c{victim}"
+  bow:
+    - "&c{victim} &7был застрелен игроком &c{killer}"
+    - "&c{killer} &7попал в &c{victim} &7с расстояния"
+  trident:
+    - "&c{victim} &7был пронзён трезубцем &c{killer}"
+  fist:
+    - "&c{victim} &7был забит кулаками &c{killer}"
+    - "&c{killer} &7отправил &c{victim} &7в нокаут"
+  other:
+    - "&c{victim} &7был убит игроком &c{killer}"
+
+# Смерти от окружения
+environment:
+  fall:
+    - "&c{victim} &7разбился насмерть"
+    - "&c{victim} &7не рассчитал высоту"
+    - "&c{victim} &7познал гравитацию"
+  lava:
+    - "&c{victim} &7решил искупаться в лаве"
+    - "&c{victim} &7сгорел в лаве"
+  fire:
+    - "&c{victim} &7сгорел заживо"
+    - "&c{victim} &7превратился в пепел"
+  drown:
+    - "&c{victim} &7захлебнулся"
+    - "&c{victim} &7забыл как дышать"
+  void:
+    - "&c{victim} &7упал в пустоту"
+    - "&c{victim} &7провалился в бездну"
+  explosion:
+    - "&c{victim} &7был взорван"
+    - "&c{victim} &7разлетелся на кусочки"
+  cactus:
+    - "&c{victim} &7обнял кактус"
+  lightning:
+    - "&c{victim} &7был поражён молнией"
+  starve:
+    - "&c{victim} &7умер от голода"
+  poison:
+    - "&c{victim} &7был отравлен"
+  wither:
+    - "&c{victim} &7иссох"
+  magic:
+    - "&c{victim} &7был убит магией"
+
+# Смерти от мобов
+mobs:
+  zombie:
+    - "&c{victim} &7был съеден зомби"
+  skeleton:
+    - "&c{victim} &7был застрелен скелетом"
+  creeper:
+    - "&c{victim} &7был взорван крипером"
+  spider:
+    - "&c{victim} &7стал жертвой паука"
+  enderman:
+    - "&c{victim} &7посмотрел эндермену в глаза"
+  blaze:
+    - "&c{victim} &7был сожжён ифритом"
+  wither_skeleton:
+    - "&c{victim} &7был убит визер-скелетом"
+  piglin:
+    - "&c{victim} &7был убит пиглином"
+  warden:
+    - "&c{victim} &7разбудил Хранителя"
+  ender_dragon:
+    - "&c{victim} &7был убит Драконом Края"
+  wither:
+    - "&c{victim} &7был уничтожен Визером"
+  default:
+    - "&c{victim} &7был убит мобом"
+
+# Другие смерти
+other:
+  - "&c{victim} &7погиб"
+  - "&c{victim} &7умер"

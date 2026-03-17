@@ -23,10 +23,24 @@ public class MessageUtil {
             message = message.replace(replacements[i], replacements[i + 1]);
         }
         
+        // Используем улучшенный ColorUtil
         sender.sendMessage(ColorUtil.colorize(prefix + message));
     }
     
     public void sendRaw(CommandSender sender, String message) {
+        sender.sendMessage(ColorUtil.colorize(message));
+    }
+    
+    /**
+     * Отправляет сообщение без префикса (для отладки цветов)
+     */
+    public void sendWithoutPrefix(CommandSender sender, String key, String... replacements) {
+        String message = plugin.getConfigManager().getMessage(key);
+        
+        for (int i = 0; i < replacements.length - 1; i += 2) {
+            message = message.replace(replacements[i], replacements[i + 1]);
+        }
+        
         sender.sendMessage(ColorUtil.colorize(message));
     }
 }

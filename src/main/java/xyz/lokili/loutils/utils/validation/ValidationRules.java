@@ -1,7 +1,5 @@
 package xyz.lokili.loutils.utils.validation;
 
-import org.bukkit.configuration.file.FileConfiguration;
-
 import java.util.List;
 import java.util.function.Predicate;
 

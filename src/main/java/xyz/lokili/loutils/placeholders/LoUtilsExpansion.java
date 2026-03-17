@@ -1,9 +1,9 @@
 package xyz.lokili.loutils.placeholders;
 
 import dev.lolib.performance.TPSMonitor;
+import dev.lolib.utils.NumberFormatter;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.lokili.loutils.LoUtils;
@@ -11,11 +11,12 @@ import xyz.lokili.loutils.LoUtils;
 public class LoUtilsExpansion extends PlaceholderExpansion {
     
     private final LoUtils plugin;
-    private final TPSMonitor tpsMonitor;
+    private final TPSMonitor tpsMonitor; // Может быть null на Folia
     
     public LoUtilsExpansion(LoUtils plugin) {
         this.plugin = plugin;
-        this.tpsMonitor = TPSMonitor.get(plugin);
+        // TPSMonitor может быть null на Folia
+        this.tpsMonitor = plugin.getDependencies().getTPSMonitor();
     }
     
     @Override
@@ -30,7 +31,7 @@ public class LoUtilsExpansion extends PlaceholderExpansion {
     
     @Override
     public @NotNull String getVersion() {
-        return plugin.getDescription().getVersion();
+        return plugin.getPluginMeta().getVersion();
     }
     
     @Override
@@ -56,13 +57,18 @@ public class LoUtilsExpansion extends PlaceholderExpansion {
         
         if (params.equalsIgnoreCase("tps")) {
             double tps = getGlobalTPS();
-            return String.format("%.1f", Math.min(20.0, tps));
+            // Используем NumberFormatter из LoLib
+            return NumberFormatter.formatDecimal(Math.min(20.0, tps), "#.#");
         }
         
         return null;
     }
     
     private String getColoredTPS() {
+        if (tpsMonitor == null) {
+            return "&#AAAAAA20.0"; // Серый цвет если TPSMonitor недоступен
+        }
+        
         double tps = tpsMonitor.getCurrentTPS();
         String color;
         
@@ -76,10 +82,12 @@ public class LoUtilsExpansion extends PlaceholderExpansion {
             color = "&#FF5555"; // Красный
         }
         
-        return color + String.format("%.1f", Math.min(20.0, tps));
+        // Используем NumberFormatter из LoLib
+        String formatted = NumberFormatter.formatDecimal(Math.min(20.0, tps), "#.#");
+        return color + formatted;
     }
     
     private double getGlobalTPS() {
-        return tpsMonitor.getCurrentTPS();
+        return tpsMonitor != null ? tpsMonitor.getCurrentTPS() : 20.0;
     }
 }

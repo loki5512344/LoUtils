@@ -51,27 +51,57 @@ public class ConfigLoader {
         loadConfig("conf/fastleafdecay.yml");
         loadConfig("conf/cauldron.yml");
         loadConfig("conf/villagerleash.yml");
+        loadConfig(ConfigConstants.LIGHT_BLOCK_CONFIG);
+        loadConfig(ConfigConstants.DEBUG_STICK_CONFIG);
+        loadConfig(ConfigConstants.INVISIBLE_FRAMES_CONFIG);
+        loadConfig(ConfigConstants.POSES_CONFIG);
         
         // Validate all configs after loading
         validator.validateAll(configs);
     }
     
     public FileConfiguration loadConfig(String path) {
+        if (path == null || path.isEmpty()) {
+            plugin.getLogger().warning("Attempted to load config with null/empty path");
+            return null;
+        }
+        
         File file = new File(plugin.getDataFolder(), path);
         
         if (!file.exists()) {
             file.getParentFile().mkdirs();
-            plugin.saveResource(path, false);
+            try {
+                plugin.saveResource(path, false);
+            } catch (IllegalArgumentException e) {
+                plugin.getLogger().warning("Could not save default config for " + path + ": " + e.getMessage());
+            }
         }
         
         FileConfiguration config = YamlConfiguration.loadConfiguration(file);
         
         // Load defaults from jar
-        InputStream defaultStream = plugin.getResource(path);
-        if (defaultStream != null) {
-            YamlConfiguration defaultConfig = YamlConfiguration.loadConfiguration(
-                    new InputStreamReader(defaultStream, StandardCharsets.UTF_8));
-            config.setDefaults(defaultConfig);
+        boolean hasDefaults = false;
+        try (InputStream defaultStream = plugin.getResource(path)) {
+            if (defaultStream != null) {
+                YamlConfiguration defaultConfig = YamlConfiguration.loadConfiguration(
+                        new InputStreamReader(defaultStream, StandardCharsets.UTF_8));
+                config.setDefaults(defaultConfig);
+                hasDefaults = true;
+            }
+        } catch (IOException e) {
+            plugin.getLogger().warning("Could not load defaults for " + path + ": " + e.getMessage());
+        }
+        
+        // Автоматически добавлять недостающие ключи из дефолтов
+        if (hasDefaults) {
+            config.options().copyDefaults(true);
+            
+            // Сохраняем конфиг если были добавлены новые ключи
+            try {
+                config.save(file);
+            } catch (IOException e) {
+                plugin.getLogger().warning("Could not save updated config " + path + ": " + e.getMessage());
+            }
         }
         
         configs.put(path, config);
@@ -88,10 +118,18 @@ public class ConfigLoader {
     }
     
     public FileConfiguration getConfig(String path) {
+        if (path == null) {
+            return null;
+        }
         return configs.get(path);
     }
     
     public void saveConfig(String path) {
+        if (path == null) {
+            plugin.getLogger().warning("Attempted to save config with null path");
+            return;
+        }
+        
         FileConfiguration config = configs.get(path);
         File file = configFiles.get(path);
         if (config != null && file != null) {
@@ -100,6 +138,8 @@ public class ConfigLoader {
             } catch (IOException e) {
                 plugin.getLogger().severe("Could not save " + path + ": " + e.getMessage());
             }
+        } else {
+            plugin.getLogger().warning("Config or file not found for path: " + path);
         }
     }
     

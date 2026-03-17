@@ -2,7 +2,6 @@ package xyz.lokili.loutils.listeners;
 
 import dev.lolib.scheduler.Scheduler;
 import dev.lolib.scheduler.ScheduledTask;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;

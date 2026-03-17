@@ -1,0 +1,21 @@
+enabled: true
+
+# Тростник
+sugar-cane:
+  enabled: true
+  max-height: 3           # Максимальная высота
+  growth-amount-min: 1    # Минимум блоков роста
+  growth-amount-max: 3    # Максимум блоков роста
+  success-chance: 0.75    # Шанс успеха (75%)
+
+# Кактус
+cactus:
+  enabled: true
+  max-height: 3
+  growth-amount-min: 1
+  growth-amount-max: 3
+  success-chance: 0.75
+
+# Эффекты
+particles: true  # Зелёные частицы
+sounds: true     # Звук использования костной муки

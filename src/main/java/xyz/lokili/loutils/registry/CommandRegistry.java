@@ -52,9 +52,32 @@ public class CommandRegistry {
         TPSBarCommand tpsBarCommand = new TPSBarCommand(plugin);
         register("ltpsbar", tpsBarCommand, tpsBarCommand);
         
+        // Color Test (временная команда для отладки)
+        ColorTestCommand colorTestCommand = new ColorTestCommand(plugin);
+        register("lcolortest", colorTestCommand, colorTestCommand);
+        
+        // Color Fix (команда для исправления цветов)
+        ColorFixCommand colorFixCommand = new ColorFixCommand(plugin);
+        register("lcolorfix", colorFixCommand, colorFixCommand);
+        
+        // FastLeafDecay (управление быстрым опаданием листьев)
+        FastLeafDecayCommand fastLeafDecayCommand = new FastLeafDecayCommand(plugin);
+        register("lfastleaf", fastLeafDecayCommand, fastLeafDecayCommand);
+        
         // WorldLock
         WorldLockCommand worldLockCommand = new WorldLockCommand(plugin);
         register("worldlock", worldLockCommand, worldLockCommand);
+        
+        // Player Poses
+        SitCommand sitCommand = new SitCommand(plugin);
+        register("sit", sitCommand, sitCommand);
+        
+        PoseCommand poseCommand = new PoseCommand(plugin);
+        register("pose", poseCommand, poseCommand);
+        
+        // Map Locking
+        MapCommand mapCommand = new MapCommand(plugin);
+        register("map", mapCommand, mapCommand);
     }
     
     private void register(String name, org.bukkit.command.CommandExecutor executor,

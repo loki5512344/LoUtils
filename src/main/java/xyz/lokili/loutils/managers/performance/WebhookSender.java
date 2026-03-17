@@ -5,6 +5,7 @@ import org.bukkit.plugin.Plugin;
 
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
@@ -41,7 +42,7 @@ public class WebhookSender {
      */
     private void send(String content, String webhookUrl) {
         try {
-            URL url = new URL(webhookUrl);
+            URL url = URI.create(webhookUrl).toURL();
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json");

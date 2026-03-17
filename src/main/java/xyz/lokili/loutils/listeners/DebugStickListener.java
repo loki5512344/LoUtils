@@ -3,20 +3,15 @@ package xyz.lokili.loutils.listeners;
 import dev.lolib.utils.Colors;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.block.Block;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.block.data.Waterlogged;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import xyz.lokili.loutils.LoUtils;
 import xyz.lokili.loutils.constants.ConfigConstants;
+import xyz.lokili.loutils.listeners.base.BaseListener;
 
 /**
  * DebugStickListener - Дебаг палка
@@ -24,16 +19,14 @@ import xyz.lokili.loutils.constants.ConfigConstants;
  * Механики:
  * 1. Крафт: 1 палка + 8 лазурита
  * 2. Работает как ванильная дебаг палка
- * 3. НЕ может делать блоки waterlogged
+ * 3. Запрещена в аду (Nether)
  * 4. Требует permission loutils.debugstick
  */
-public class DebugStickListener implements Listener {
-    
-    private final LoUtils plugin;
+public class DebugStickListener extends BaseListener {
     private final NamespacedKey debugStickKey;
     
-    public DebugStickListener(LoUtils plugin) {
-        this.plugin = plugin;
+    public DebugStickListener(LoUtils plugin, xyz.lokili.loutils.api.IConfigManager configManager) {
+        super(plugin, configManager, ConfigConstants.Modules.DEBUG_STICK, ConfigConstants.DEBUG_STICK_CONFIG);
         this.debugStickKey = new NamespacedKey(plugin, "debug_stick");
         registerRecipe();
     }
@@ -42,7 +35,6 @@ public class DebugStickListener implements Listener {
      * Регистрация крафта: 1 палка + 8 лазурита
      */
     private void registerRecipe() {
-        var config = plugin.getConfigManager().getConfig(ConfigConstants.DEBUG_STICK_CONFIG);
         if (!config.getBoolean("crafting-enabled", true)) return;
         
         ItemStack result = createDebugStick();
@@ -67,8 +59,6 @@ public class DebugStickListener implements Listener {
      * Создание дебаг палки
      */
     private ItemStack createDebugStick() {
-        var config = plugin.getConfigManager().getConfig(ConfigConstants.DEBUG_STICK_CONFIG);
-        
         ItemStack item = new ItemStack(Material.DEBUG_STICK);
         ItemMeta meta = item.getItemMeta();
         
@@ -89,11 +79,11 @@ public class DebugStickListener implements Listener {
     }
     
     /**
-     * Использование дебаг палки - блокируем waterlogging
+     * Использование дебаг палки - запрещаем в аду
      */
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
-        if (!plugin.getConfigManager().isModuleEnabled(ConfigConstants.Modules.DEBUG_STICK)) return;
+        if (!checkEnabled()) return;
         
         Player player = event.getPlayer();
         ItemStack item = player.getInventory().getItemInMainHand();
@@ -107,30 +97,21 @@ public class DebugStickListener implements Listener {
         }
         
         // Проверка permission
-        var config = plugin.getConfigManager().getConfig(ConfigConstants.DEBUG_STICK_CONFIG);
         if (config.getBoolean("require-permission", true)) {
             if (!player.hasPermission(ConfigConstants.Permissions.DEBUG_STICK)) {
                 event.setCancelled(true);
+                player.sendMessage(Colors.parse("§cУ вас нет прав на использование дебаг палки!"));
                 return;
             }
         }
         
-        // Блокируем waterlogging
-        if (event.getAction() == Action.LEFT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            Block block = event.getClickedBlock();
-            if (block != null) {
-                BlockData blockData = block.getBlockData();
-                
-                // Если блок может быть waterlogged, блокируем изменение этого свойства
-                if (blockData instanceof Waterlogged) {
-                    // Дебаг палка не может изменять waterlogged свойство
-                    // Мы не можем полностью заблокировать, но можем предупредить
-                    // Ванильная механика дебаг палки работает на клиенте
-                    // Поэтому просто не даём использовать на waterlogged блоках
-                    event.setCancelled(true);
-                    player.sendMessage(Colors.parse("§cДебаг палка не может изменять waterlogged блоки!"));
-                }
-            }
+        // Запрещаем использование в аду (Nether)
+        if (player.getWorld().getEnvironment() == org.bukkit.World.Environment.NETHER) {
+            event.setCancelled(true);
+            player.sendMessage(Colors.parse("§cДебаг палка не работает в аду!"));
+            return;
         }
+        
+        // В обычном мире разрешаем всё, включая waterlogged
     }
 }

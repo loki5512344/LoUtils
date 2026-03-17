@@ -3,6 +3,7 @@ package xyz.lokili.loutils.managers;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import xyz.lokili.loutils.LoUtils;
+import xyz.lokili.loutils.api.IConfigManager;
 import xyz.lokili.loutils.api.IWhitelistManager;
 import xyz.lokili.loutils.constants.ConfigConstants;
 import xyz.lokili.loutils.managers.base.BaseStorageManager;
@@ -17,13 +18,15 @@ import java.util.Set;
 public class WhitelistManager extends BaseStorageManager implements IWhitelistManager {
     
     private final LoUtils plugin;
+    private final IConfigManager configManager;
     private File whitelistFile;
     private FileConfiguration whitelistConfig;
     private boolean enabled;
     
-    public WhitelistManager(LoUtils plugin) {
+    public WhitelistManager(LoUtils plugin, IConfigManager configManager) {
         super(plugin, "data/whitelist.yml", "players", false);
         this.plugin = plugin;
+        this.configManager = configManager;
         loadWhitelist();
     }
     
@@ -42,7 +45,7 @@ public class WhitelistManager extends BaseStorageManager implements IWhitelistMa
         whitelistConfig = YamlConfiguration.loadConfiguration(whitelistFile);
         load(whitelistConfig);
         
-        enabled = plugin.getConfigManager().getWhitelistConfig().getBoolean("enabled", true);
+        enabled = configManager.getWhitelistConfig().getBoolean("enabled", true);
     }
     
     @Override
@@ -103,9 +106,9 @@ public class WhitelistManager extends BaseStorageManager implements IWhitelistMa
     @Override
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
-        FileConfiguration config = plugin.getConfigManager().getWhitelistConfig();
+        FileConfiguration config = configManager.getWhitelistConfig();
         config.set("enabled", enabled);
-        plugin.getConfigManager().saveConfig(ConfigConstants.WHITELIST_CONFIG);
+        configManager.saveConfig(ConfigConstants.WHITELIST_CONFIG);
     }
     
     @Override

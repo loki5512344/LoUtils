@@ -23,6 +23,13 @@ public final class ConfigConstants {
     public static final String LIGHT_BLOCK_CONFIG = "conf/light-block.yml";
     public static final String DEBUG_STICK_CONFIG = "conf/debug-stick.yml";
     public static final String INVISIBLE_FRAMES_CONFIG = "conf/invisible-frames.yml";
+    public static final String POSES_CONFIG = "conf/poses.yml";
+    public static final String CUSTOM_CRAFTS_CONFIG = "conf/custom-crafts.yml";
+    public static final String MAP_LOCKING_CONFIG = "conf/map-locking.yml";
+    public static final String FRAME_LOCKING_CONFIG = "conf/frame-locking.yml";
+    public static final String ENHANCED_BONE_MEAL_CONFIG = "conf/enhanced-bone-meal.yml";
+    public static final String ANVIL_REPAIR_CONFIG = "conf/anvil-repair.yml";
+    public static final String NAME_TAG_REMOVAL_CONFIG = "conf/name-tag-removal.yml";
     
     // Message keys
     public static final class Messages {
@@ -77,6 +84,13 @@ public final class ConfigConstants {
         public static final String LIGHT_BLOCK = "light-block";
         public static final String DEBUG_STICK = "debug-stick";
         public static final String INVISIBLE_FRAMES = "invisible-frames";
+        public static final String POSES = "poses";
+        public static final String CUSTOM_CRAFTS = "custom-crafts";
+        public static final String MAP_LOCKING = "map-locking";
+        public static final String FRAME_LOCKING = "frame-locking";
+        public static final String ENHANCED_BONE_MEAL = "enhanced-bone-meal";
+        public static final String ANVIL_REPAIR = "anvil-repair";
+        public static final String NAME_TAG_REMOVAL = "name-tag-removal";
         
         private Modules() {}
     }

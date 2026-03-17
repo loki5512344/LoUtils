@@ -1,0 +1,22 @@
+enabled: true
+
+# Предмет для блокировки рамки
+lock-item: HONEYCOMB
+
+# Предмет для разблокировки рамки
+unlock-item: BRUSH
+
+# Защита
+prevent-rotation: true      # Запретить поворот предмета
+prevent-item-removal: true  # Запретить вытаскивание предмета
+prevent-break: true         # Запретить разрушение рамки
+
+# Эффекты
+particles: true  # Частицы при блокировке/разблокировке
+sounds: true     # Звуки при блокировке/разблокировке
+
+# Сообщения (action bar)
+messages:
+  locked: "&#9878C9Рамка заблокирована"
+  unlocked: "&#9878C9Рамка разблокирована"
+  is-locked: "&#FF6B6BЭта рамка заблокирована"

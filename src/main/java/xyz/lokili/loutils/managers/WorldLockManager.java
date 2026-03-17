@@ -2,6 +2,7 @@ package xyz.lokili.loutils.managers;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import xyz.lokili.loutils.LoUtils;
+import xyz.lokili.loutils.api.IConfigManager;
 import xyz.lokili.loutils.api.IWorldLockManager;
 import xyz.lokili.loutils.constants.ConfigConstants;
 import xyz.lokili.loutils.managers.base.BaseStorageManager;
@@ -14,21 +15,23 @@ import java.util.Set;
 public class WorldLockManager extends BaseStorageManager implements IWorldLockManager {
     
     private final LoUtils plugin;
+    private final IConfigManager configManager;
     
-    public WorldLockManager(LoUtils plugin) {
+    public WorldLockManager(LoUtils plugin, IConfigManager configManager) {
         super(plugin, ConfigConstants.WORLDLOCK_CONFIG, "locked-worlds", true);
         this.plugin = plugin;
+        this.configManager = configManager;
         reload();
     }
     
     @Override
     protected FileConfiguration getConfig() {
-        return plugin.getConfigManager().getConfig(ConfigConstants.WORLDLOCK_CONFIG);
+        return configManager.getConfig(ConfigConstants.WORLDLOCK_CONFIG);
     }
     
     @Override
     protected void saveConfig(FileConfiguration config) {
-        plugin.getConfigManager().saveConfig(ConfigConstants.WORLDLOCK_CONFIG);
+        configManager.saveConfig(ConfigConstants.WORLDLOCK_CONFIG);
     }
     
     @Override

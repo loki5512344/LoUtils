@@ -4,7 +4,6 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -13,14 +12,14 @@ import org.jetbrains.annotations.Nullable;
 import xyz.lokili.loutils.LoUtils;
 import xyz.lokili.loutils.commands.base.CommandBase;
 import xyz.lokili.loutils.constants.ConfigConstants;
-import xyz.lokili.loutils.utils.ColorUtil;
+import dev.lolib.utils.Colors;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.StreamSupport;
 
-public class EnchantCommand extends CommandBase implements TabCompleter {
+public class EnchantCommand extends CommandBase {
     
     private final List<String> enchantNames = StreamSupport.stream(Registry.ENCHANTMENT.spliterator(), false)
             .map(e -> e.getKey().getKey()).toList();
@@ -50,7 +49,7 @@ public class EnchantCommand extends CommandBase implements TabCompleter {
             for (int i = 0; i < enchantNames.size(); i++) {
                 sb.append(enchantNames.get(i)).append(i % 5 == 4 ? "\n&7" : ", ");
             }
-            sender.sendMessage(ColorUtil.colorize(sb.toString()));
+            sender.sendMessage(Colors.parse(sb.toString()));
             return true;
         }
         

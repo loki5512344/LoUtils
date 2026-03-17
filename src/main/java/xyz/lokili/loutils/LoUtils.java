@@ -2,58 +2,30 @@ package xyz.lokili.loutils;
 
 import org.bukkit.Bukkit;
 import dev.lolib.core.LoPlugin;
-import xyz.lokili.loutils.api.*;
-import xyz.lokili.loutils.listeners.InvSeeListener;
-import xyz.lokili.loutils.managers.*;
+import xyz.lokili.loutils.core.DependencyContainer;
 import xyz.lokili.loutils.placeholders.LoUtilsExpansion;
 import xyz.lokili.loutils.registry.CommandRegistry;
 import xyz.lokili.loutils.registry.ListenerRegistry;
-import xyz.lokili.loutils.utils.MessageUtil;
 
 public class LoUtils extends LoPlugin {
     
-    private IConfigManager configManager;
-    private IWhitelistManager whitelistManager;
-    private IAutoRestartManager autoRestartManager;
-    private ITPSBarManager tpsBarManager;
-    private IWorldLockManager worldLockManager;
-    private ICustomWorldHeightManager customWorldHeightManager;
-    private PerformanceProfiler performanceProfiler;
-    private MessageUtil messageUtil;
+    private DependencyContainer container;
     private ListenerRegistry listenerRegistry;
     
     @Override
     protected void enable() {
-        // Config manager first (validation happens inside)
-        configManager = new ConfigManager(this);
+        // Создаём контейнер зависимостей
+        container = new DependencyContainer(this);
         
-        // Initialize utilities
-        messageUtil = new MessageUtil(this);
-        
-        // Initialize managers
-        whitelistManager = new WhitelistManager(this);
-        autoRestartManager = new AutoRestartManager(this);
-        tpsBarManager = new TPSBarManager(this);
-        worldLockManager = new WorldLockManager(this);
-        customWorldHeightManager = new CustomWorldHeightManager(this);
-        performanceProfiler = new PerformanceProfiler(this);
-        
-        // Register commands and listeners
+        // Регистрируем команды и листенеры
         new CommandRegistry(this).registerAll();
-        listenerRegistry = new ListenerRegistry(this);
+        listenerRegistry = new ListenerRegistry(this, container.getConfigManager());
         listenerRegistry.registerAll();
         
-        // Start autorestart if enabled
-        if (configManager.isModuleEnabled("autorestart")) {
-            autoRestartManager.start();
-        }
+        // Запускаем сервисы
+        container.startServices();
         
-        // Start performance profiler if enabled
-        if (configManager.isModuleEnabled("performance")) {
-            performanceProfiler.start();
-        }
-        
-        // Register PlaceholderAPI expansion
+        // Регистрируем PlaceholderAPI
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new LoUtilsExpansion(this).register();
             loLogger().info("PlaceholderAPI expansion registered!");
@@ -64,32 +36,65 @@ public class LoUtils extends LoPlugin {
     
     @Override
     protected void disable() {
+        // Останавливаем InvSeeListener
         if (listenerRegistry != null && listenerRegistry.getInvSeeListener() != null) {
             listenerRegistry.getInvSeeListener().shutdown();
         }
-        if (tpsBarManager != null) tpsBarManager.shutdown();
-        if (autoRestartManager != null) autoRestartManager.stop();
-        if (performanceProfiler != null) performanceProfiler.stop();
-        if (whitelistManager != null) whitelistManager.saveWhitelist();
+        
+        // Останавливаем все сервисы
+        if (container != null) {
+            container.shutdown();
+        }
         
         loLogger().info("LoUtils v2.5.0 disabled!");
     }
     
     public void reload() {
-        configManager.reloadAll();
-        whitelistManager.reload();
-        autoRestartManager.reload();
+        if (container != null) {
+            container.reload();
+        }
     }
     
-    // Getters
-    public IConfigManager getConfigManager() { return configManager; }
-    public IWhitelistManager getWhitelistManager() { return whitelistManager; }
-    public IAutoRestartManager getAutoRestartManager() { return autoRestartManager; }
-    public ITPSBarManager getTPSBarManager() { return tpsBarManager; }
-    public IWorldLockManager getWorldLockManager() { return worldLockManager; }
-    public ICustomWorldHeightManager getCustomWorldHeightManager() { return customWorldHeightManager; }
-    public MessageUtil getMessageUtil() { return messageUtil; }
-    public InvSeeListener getInvSeeListener() { 
-        return listenerRegistry != null ? listenerRegistry.getInvSeeListener() : null; 
+    // Главный геттер - доступ к контейнеру
+    public DependencyContainer getContainer() {
+        return container;
+    }
+    
+    // Alias для getContainer
+    public DependencyContainer getDependencies() {
+        return container;
+    }
+    
+    // Удобные геттеры для обратной совместимости
+    public xyz.lokili.loutils.api.IConfigManager getConfigManager() {
+        return container.getConfigManager();
+    }
+    
+    public xyz.lokili.loutils.api.IWhitelistManager getWhitelistManager() {
+        return container.getWhitelistManager();
+    }
+    
+    public xyz.lokili.loutils.api.IAutoRestartManager getAutoRestartManager() {
+        return container.getAutoRestartManager();
+    }
+    
+    public xyz.lokili.loutils.api.ITPSBarManager getTPSBarManager() {
+        return container.getTPSBarManager();
+    }
+    
+    public xyz.lokili.loutils.api.IWorldLockManager getWorldLockManager() {
+        return container.getWorldLockManager();
+    }
+    
+    public xyz.lokili.loutils.api.ICustomWorldHeightManager getCustomWorldHeightManager() {
+        return container.getCustomWorldHeightManager();
+    }
+    
+    public xyz.lokili.loutils.utils.MessageUtil getMessageUtil() {
+        return container.getMessageUtil();
+    }
+    
+    public xyz.lokili.loutils.listeners.InvSeeListener getInvSeeListener() {
+        return listenerRegistry != null ? listenerRegistry.getInvSeeListener() : null;
     }
 }

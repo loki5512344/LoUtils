@@ -13,6 +13,7 @@ import java.util.logging.Logger;
  */
 public class ConfigValidatorV2 {
     
+    @SuppressWarnings("unused") // Может использоваться в будущем
     private final Plugin plugin;
     private final Logger logger;
     private final Map<String, ConfigValidationRule> validators;

@@ -3,6 +3,7 @@ package xyz.lokili.loutils.managers;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import xyz.lokili.loutils.LoUtils;
+import xyz.lokili.loutils.api.IConfigManager;
 import xyz.lokili.loutils.api.ICustomWorldHeightManager;
 
 import java.util.HashMap;
@@ -12,11 +13,13 @@ import java.util.regex.Pattern;
 public class CustomWorldHeightManager implements ICustomWorldHeightManager {
     
     private final LoUtils plugin;
+    private final IConfigManager configManager;
     private final Map<String, WorldHeightConfig> worldConfigs;
     private final Map<Pattern, WorldHeightConfig> regexConfigs;
     
-    public CustomWorldHeightManager(LoUtils plugin) {
+    public CustomWorldHeightManager(LoUtils plugin, IConfigManager configManager) {
         this.plugin = plugin;
+        this.configManager = configManager;
         this.worldConfigs = new HashMap<>();
         this.regexConfigs = new HashMap<>();
         loadConfigs();
@@ -26,7 +29,7 @@ public class CustomWorldHeightManager implements ICustomWorldHeightManager {
         worldConfigs.clear();
         regexConfigs.clear();
         
-        FileConfiguration config = plugin.getConfigManager().getConfig("conf/customworldheight.yml");
+        FileConfiguration config = configManager.getConfig("conf/customworldheight.yml");
         if (config == null) {
             plugin.getLogger().warning("CustomWorldHeight config not found!");
             return;

@@ -5,19 +5,21 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import xyz.lokili.loutils.LoUtils;
+import xyz.lokili.loutils.listeners.base.BaseListener;
 import xyz.lokili.loutils.utils.ColorUtil;
 
-public class WorldLockListener implements Listener {
+/**
+ * WorldLockListener - Блокировка доступа к мирам
+ * Всегда включен (не зависит от модуля)
+ */
+public class WorldLockListener extends BaseListener {
     
-    private final LoUtils plugin;
-    
-    public WorldLockListener(LoUtils plugin) {
-        this.plugin = plugin;
+    public WorldLockListener(LoUtils plugin, xyz.lokili.loutils.api.IConfigManager configManager) {
+        super(plugin, configManager, null, "conf/worldlock.yml");
     }
     
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -86,9 +88,8 @@ public class WorldLockListener implements Listener {
     }
     
     private void sendLockMessage(Player player, String worldName) {
-        String prefix = plugin.getConfigManager().getPrefix();
-        String message = plugin.getConfigManager().getConfig("conf/worldlock.yml")
-                .getString("messages.world-locked", "&cЭтот мир заблокирован!");
+        String prefix = configManager.getPrefix();
+        String message = config.getString("messages.world-locked", "&cЭтот мир заблокирован!");
         player.sendMessage(ColorUtil.colorize(prefix + message));
     }
 }

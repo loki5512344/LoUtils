@@ -4,14 +4,12 @@ import dev.lolib.utils.Colors;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
-import org.bukkit.block.data.Lightable;
 import org.bukkit.block.data.type.Light;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.inventory.PrepareItemCraftEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
@@ -19,68 +17,54 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import xyz.lokili.loutils.LoUtils;
 import xyz.lokili.loutils.constants.ConfigConstants;
+import xyz.lokili.loutils.listeners.base.BaseListener;
+import xyz.lokili.loutils.services.LightParticleService;
 
 /**
  * LightBlockListener - Источник света
  * 
  * Механики:
- * 1. Крафт: 4 светокамня вокруг + 1 свечка в центре = блок света уровня 15
- * 2. Shift + ПКМ: изменить уровень света 0-15 (на блоке или в руке)
- * 3. Shift + ЛКМ: сломать блок и получить дроп с сохраненным уровнем
+ * 1. Крафт: 4 светокамня + 1 свечка = блок света уровня 15
+ * 2. Shift + ПКМ: изменить уровень света 0-15
+ * 3. ЛКМ: сломать блок и получить дроп с сохраненным уровнем
+ * 4. Частицы: показываются когда игрок держит блок света в руке
  */
-public class LightBlockListener implements Listener {
+public class LightBlockListener extends BaseListener {
     
-    private final LoUtils plugin;
     private final NamespacedKey lightLevelKey;
+    private final LightParticleService particleService;
     
-    public LightBlockListener(LoUtils plugin) {
-        this.plugin = plugin;
+    public LightBlockListener(LoUtils plugin, xyz.lokili.loutils.api.IConfigManager configManager, LightParticleService particleService) {
+        super(plugin, configManager, ConfigConstants.Modules.LIGHT_BLOCK, ConfigConstants.LIGHT_BLOCK_CONFIG);
         this.lightLevelKey = new NamespacedKey(plugin, "light_level");
+        this.particleService = particleService;
         registerRecipe();
     }
     
-    /**
-     * Регистрация крафта: 4 светокамня + 1 свечка = блок света
-     */
     private void registerRecipe() {
-        var config = plugin.getConfigManager().getConfig(ConfigConstants.LIGHT_BLOCK_CONFIG);
         if (!config.getBoolean("crafting-enabled", true)) return;
         
         ItemStack result = createLightBlock(15);
-        
-        ShapedRecipe recipe = new ShapedRecipe(
-            new NamespacedKey(plugin, "light_block"),
-            result
-        );
-        
+        ShapedRecipe recipe = new ShapedRecipe(new NamespacedKey(plugin, "light_block"), result);
         recipe.shape("GGG", "GCG", "GGG");
         recipe.setIngredient('G', Material.GLOWSTONE);
         recipe.setIngredient('C', Material.CANDLE);
         
         try {
             plugin.getServer().addRecipe(recipe);
-        } catch (IllegalStateException e) {
-            // Recipe already exists
+        } catch (IllegalStateException ignored) {
         }
     }
     
-    /**
-     * Создание блока света с уровнем
-     */
     private ItemStack createLightBlock(int level) {
-        var config = plugin.getConfigManager().getConfig(ConfigConstants.LIGHT_BLOCK_CONFIG);
-        
         ItemStack item = new ItemStack(Material.LIGHT);
         ItemMeta meta = item.getItemMeta();
         
-        // Сохраняем уровень
         meta.getPersistentDataContainer().set(lightLevelKey, PersistentDataType.INTEGER, level);
         
-        // Название
         String nameFormat = config.getString("name-format", "§eИсточник света §7[§f%level%§7]");
         meta.displayName(Colors.parse(nameFormat.replace("%level%", String.valueOf(level))));
         
-        // CustomModelData
         int customModelData = config.getInt("custom-model-data", 0);
         if (customModelData > 0) {
             meta.setCustomModelData(customModelData);
@@ -91,89 +75,103 @@ public class LightBlockListener implements Listener {
     }
     
     /**
-     * Shift + ПКМ: изменить уровень света
+     * ЛКМ по блоку света: сломать и получить дроп
+     */
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onLeftClick(PlayerInteractEvent event) {
+        if (!checkEnabled()) return;
+        if (event.getAction() != Action.LEFT_CLICK_BLOCK) return;
+        
+        Block block = event.getClickedBlock();
+        if (block == null) return;
+        if (block.getType() != Material.LIGHT) return;
+        
+        Player player = event.getPlayer();
+        if (!(block.getBlockData() instanceof Light light)) return;
+        
+        int level = light.getLevel();
+        event.setCancelled(true);
+        
+        block.setType(Material.AIR);
+        ItemStack drop = createLightBlock(level);
+        block.getWorld().dropItemNaturally(block.getLocation(), drop);
+        particleService.remove(block.getLocation());
+        
+        player.sendMessage(Colors.parse("§eБлок света сломан (уровень §f" + level + "§e)"));
+    }
+    
+    /**
+     * ПКМ: изменить уровень света
+     * - На блоке (Shift + ПКМ): изменить уровень установленного блока
+     * - В воздух (Shift + ПКМ): изменить уровень предмета в руке
      */
     @EventHandler
-    public void onPlayerInteract(PlayerInteractEvent event) {
-        if (!plugin.getConfigManager().isModuleEnabled(ConfigConstants.Modules.LIGHT_BLOCK)) return;
-        if (!event.getPlayer().isSneaking()) return;
-        if (event.getAction() != Action.RIGHT_CLICK_BLOCK && event.getAction() != Action.RIGHT_CLICK_AIR) return;
+    public void onRightClick(PlayerInteractEvent event) {
+        if (!checkEnabled()) return;
         
         Player player = event.getPlayer();
         ItemStack item = player.getInventory().getItemInMainHand();
-        Block block = event.getClickedBlock();
         
-        // Изменение уровня блока света в мире
-        if (block != null && block.getType() == Material.LIGHT) {
-            changeLightLevel(block);
-            event.setCancelled(true);
-            return;
+        // Shift + ПКМ по блоку света
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK && player.isSneaking()) {
+            Block block = event.getClickedBlock();
+            if (block != null && block.getType() == Material.LIGHT) {
+                if (!(block.getBlockData() instanceof Light light)) return;
+                
+                int level = light.getLevel();
+                level++;
+                if (level > 15) level = 0;
+                
+                light.setLevel(level);
+                block.setBlockData(light, false);
+                
+                player.sendMessage(Colors.parse("§eУровень света: §f" + level));
+                event.setCancelled(true);
+                return;
+            }
         }
         
-        // Изменение уровня блока света в руке
-        if (item.getType() == Material.LIGHT && item.hasItemMeta()) {
-            ItemMeta meta = item.getItemMeta();
-            if (meta.getPersistentDataContainer().has(lightLevelKey, PersistentDataType.INTEGER)) {
-                int currentLevel = meta.getPersistentDataContainer().get(lightLevelKey, PersistentDataType.INTEGER);
-                int newLevel = getNextLevel(currentLevel);
-                
-                ItemStack newItem = createLightBlock(newLevel);
-                player.getInventory().setItemInMainHand(newItem);
-                event.setCancelled(true);
+        // Shift + ПКМ в воздух с блоком света в руке
+        if (event.getAction() == Action.RIGHT_CLICK_AIR && player.isSneaking()) {
+            if (item.getType() == Material.LIGHT && item.hasItemMeta()) {
+                ItemMeta meta = item.getItemMeta();
+                if (meta.getPersistentDataContainer().has(lightLevelKey, PersistentDataType.INTEGER)) {
+                    int currentLevel = meta.getPersistentDataContainer().get(lightLevelKey, PersistentDataType.INTEGER);
+                    int newLevel = currentLevel + 1;
+                    if (newLevel > 15) newLevel = 0;
+                    
+                    ItemStack newItem = createLightBlock(newLevel);
+                    player.getInventory().setItemInMainHand(newItem);
+                    player.sendMessage(Colors.parse("§eУровень света: §f" + newLevel));
+                    event.setCancelled(true);
+                }
             }
         }
     }
     
     /**
-     * Изменить уровень света блока в мире
-     */
-    private void changeLightLevel(Block block) {
-        if (!(block.getBlockData() instanceof Light light)) return;
-        
-        int currentLevel = light.getLevel();
-        int newLevel = getNextLevel(currentLevel);
-        
-        light.setLevel(newLevel);
-        block.setBlockData(light);
-    }
-    
-    /**
-     * Получить следующий уровень света (циклично 0-15)
-     */
-    private int getNextLevel(int current) {
-        var config = plugin.getConfigManager().getConfig(ConfigConstants.LIGHT_BLOCK_CONFIG);
-        int maxLevel = config.getInt("max-level", 15);
-        int minLevel = config.getInt("min-level", 0);
-        
-        int next = current + 1;
-        if (next > maxLevel) {
-            return minLevel;
-        }
-        return next;
-    }
-    
-    /**
-     * Shift + ЛКМ: сломать блок и получить дроп с уровнем
+     * Установка блока света: устанавливаем правильный уровень из NBT
      */
     @EventHandler
-    public void onBlockBreak(BlockBreakEvent event) {
-        if (!plugin.getConfigManager().isModuleEnabled(ConfigConstants.Modules.LIGHT_BLOCK)) return;
+    public void onPlace(BlockPlaceEvent event) {
+        if (!checkEnabled()) return;
         
-        Block block = event.getBlock();
+        Block block = event.getBlockPlaced();
         if (block.getType() != Material.LIGHT) return;
         
-        Player player = event.getPlayer();
-        if (!player.isSneaking()) return;
+        ItemStack item = event.getItemInHand();
+        if (!item.hasItemMeta()) return;
         
-        // Получаем уровень света
-        if (!(block.getBlockData() instanceof Light light)) return;
-        int level = light.getLevel();
+        ItemMeta meta = item.getItemMeta();
+        if (!meta.getPersistentDataContainer().has(lightLevelKey, PersistentDataType.INTEGER)) return;
         
-        // Отменяем стандартный дроп
-        event.setDropItems(false);
+        int level = meta.getPersistentDataContainer().get(lightLevelKey, PersistentDataType.INTEGER);
         
-        // Дропаем блок света с сохраненным уровнем
-        ItemStack drop = createLightBlock(level);
-        block.getWorld().dropItemNaturally(block.getLocation(), drop);
+        if (block.getBlockData() instanceof Light light) {
+            light.setLevel(level);
+            block.setBlockData(light, false);
+        }
+        
+        particleService.add(block.getLocation());
     }
 }

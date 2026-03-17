@@ -1,0 +1,38 @@
+# Custom Crafts - Кастомные крафты
+
+enabled: true
+
+# Колокол (Bell)
+# Рецепт: камень + палка + камень / золото x3 / самородок + золото + самородок
+bell:
+  enabled: true
+
+# Красный гриб блок (Red Mushroom Block)
+# Рецепт: 4 красных гриба
+red-mushroom-block:
+  enabled: true
+
+# Коричневый гриб блок (Brown Mushroom Block)
+# Рецепт: 4 коричневых гриба
+brown-mushroom-block:
+  enabled: true
+
+# Паутина (Cobweb)
+# Рецепт: 5 ниток
+cobweb:
+  enabled: true
+
+# Подмостки (Scaffolding)
+# Рецепт: 6 палок + нить
+scaffolding:
+  enabled: true
+  amount: 4 # количество в результате
+
+# Фейерверк 4 уровня (Firework Level 4)
+# Рецепт: бумага + огненный порошок / 3 пороха
+firework-level-4:
+  enabled: true
+  flight-duration: 4
+  name-format: "§eФейерверк §7[§f%level%§7]"
+  lore:
+    - "§7Длительность полёта: §f%level%"

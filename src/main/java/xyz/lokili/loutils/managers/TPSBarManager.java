@@ -4,6 +4,7 @@ import dev.lolib.performance.TPSMonitor;
 import dev.lolib.scheduler.Scheduler;
 import dev.lolib.scheduler.ScheduledTask;
 import dev.lolib.utils.Colors;
+import dev.lolib.utils.NumberFormatter;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -18,18 +19,23 @@ import java.util.UUID;
 public class TPSBarManager implements ITPSBarManager {
     
     private final LoUtils plugin;
-    private final TPSMonitor tpsMonitor;
+    private final TPSMonitor tpsMonitor; // Может быть null на Folia
     private final Map<UUID, BossBar> playerBars;
     private final Map<UUID, ScheduledTask> playerTasks;
     
-    public TPSBarManager(LoUtils plugin) {
+    public TPSBarManager(LoUtils plugin, TPSMonitor tpsMonitor) {
         this.plugin = plugin;
-        this.tpsMonitor = TPSMonitor.get(plugin);
+        this.tpsMonitor = tpsMonitor;
         this.playerBars = new HashMap<>();
         this.playerTasks = new HashMap<>();
     }
     
     public void enableTPSBar(Player player) {
+        if (tpsMonitor == null) {
+            player.sendMessage(Colors.parse("&#FF5555TPS Bar недоступен на Folia"));
+            return;
+        }
+        
         if (playerBars.containsKey(player.getUniqueId())) {
             return;
         }
@@ -118,7 +124,9 @@ public class TPSBarManager implements ITPSBarManager {
         } else {
             color = "&#FF5555"; // Красный
         }
-        return color + String.format("%.1f", Math.min(20.0, tps));
+        // Используем NumberFormatter из LoLib
+        String formatted = NumberFormatter.formatDecimal(Math.min(20.0, tps), "#.#");
+        return color + formatted;
     }
     
     private String formatMSPT(double mspt) {
@@ -132,7 +140,9 @@ public class TPSBarManager implements ITPSBarManager {
         } else {
             color = "&#FF5555";
         }
-        return color + String.format("%.1f", mspt) + "ms";
+        // Используем NumberFormatter из LoLib
+        String formatted = NumberFormatter.formatDecimal(mspt, "#.#");
+        return color + formatted + "ms";
     }
     
     private BossBar.Color getColorForTPS(double tps) {

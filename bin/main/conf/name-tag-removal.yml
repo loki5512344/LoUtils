@@ -1,0 +1,18 @@
+enabled: true
+
+# Дропать бирку как предмет при снятии
+drop-tag: true
+
+# Звуки
+sounds: true
+
+# Чёрный список мобов (с которых нельзя снять бирку)
+blacklist:
+  - ENDER_DRAGON
+  - WITHER
+
+# Сообщения (action bar)
+messages:
+  removed: "&#9878C9Бирка снята"
+  no-tag: "&#FF6B6BУ этого моба нет бирки"
+  blacklisted: "&#FF6B6BС этого моба нельзя снять бирку"

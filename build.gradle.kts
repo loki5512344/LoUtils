@@ -21,8 +21,8 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.3-R0.1-SNAPSHOT")
     compileOnly("me.clip:placeholderapi:2.11.6")
     
-    // LoLib - custom library (will be in libs folder)
-    compileOnly(files("libs/lolib-2.0.0.jar"))
+    // LoLib - custom library (will be shaded into JAR)
+    implementation(files("libs/lolib-2.0.0.jar"))
     
     // Testing
     testImplementation(platform("org.junit:junit-bom:5.10.1"))
@@ -45,6 +45,13 @@ tasks.processResources {
 
 tasks.jar {
     archiveFileName.set("LoUtils-${version}.jar")
+    
+    // Bundle LoLib into the JAR
+    from(zipTree("libs/lolib-2.0.0.jar")) {
+        exclude("META-INF/**")
+    }
+    
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 tasks.withType<JavaCompile> {

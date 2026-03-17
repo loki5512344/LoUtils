@@ -4,42 +4,39 @@ import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerLeashEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import xyz.lokili.loutils.LoUtils;
 import xyz.lokili.loutils.constants.ConfigConstants;
+import xyz.lokili.loutils.constants.GameplayConstants;
+import xyz.lokili.loutils.listeners.base.BaseListener;
 import xyz.lokili.loutils.utils.SchedulerUtil;
 
-public class VillagerLeashListener implements Listener {
+public class VillagerLeashListener extends BaseListener {
     
-    private final LoUtils plugin;
-    
-    public VillagerLeashListener(LoUtils plugin) {
-        this.plugin = plugin;
+    public VillagerLeashListener(LoUtils plugin, xyz.lokili.loutils.api.IConfigManager configManager) {
+        super(plugin, configManager, ConfigConstants.Modules.VILLAGERLEASH, ConfigConstants.VILLAGERLEASH_CONFIG);
     }
     
     @EventHandler
     public void onPlayerLeashEntity(PlayerLeashEntityEvent event) {
-        if (!plugin.getConfigManager().isModuleEnabled(ConfigConstants.Modules.VILLAGERLEASH)) return;
+        if (!checkEnabled()) return;
         if (event.getEntity().getType() != EntityType.VILLAGER) return;
         
-        boolean leashEnabled = plugin.getConfigManager().getConfig(ConfigConstants.VILLAGERLEASH_CONFIG)
-                .getBoolean("leash-enabled", true);
+        boolean leashEnabled = config.getBoolean("leash-enabled", true);
         
         if (leashEnabled) event.setCancelled(false);
     }
     
     @EventHandler
     public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
-        if (!plugin.getConfigManager().isModuleEnabled(ConfigConstants.Modules.VILLAGERLEASH)) return;
+        if (!checkEnabled()) return;
         if (!(event.getRightClicked() instanceof Villager villager)) return;
         if (event.getPlayer().getInventory().getItemInMainHand().getType() != Material.EMERALD) return;
         
-        var config = plugin.getConfigManager().getConfig(ConfigConstants.VILLAGERLEASH_CONFIG);
         if (!config.getBoolean("emerald-attraction.enabled", true)) return;
         
-        double speed = config.getDouble("emerald-attraction.movement-speed", 0.6);
+        double speed = config.getDouble("emerald-attraction.movement-speed", GameplayConstants.VILLAGER_MOVEMENT_SPEED);
         var player = event.getPlayer();
         
         SchedulerUtil.runForEntity(plugin, villager, () -> {

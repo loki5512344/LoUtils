@@ -9,13 +9,15 @@ import org.bukkit.block.data.Levelled;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import xyz.lokili.loutils.LoUtils;
 import xyz.lokili.loutils.constants.ConfigConstants;
+import xyz.lokili.loutils.constants.GameplayConstants;
+import xyz.lokili.loutils.listeners.base.BaseListener;
+import xyz.lokili.loutils.services.EffectService;
 
 /**
  * CauldronCrafting - Котел как станция переработки
@@ -24,17 +26,18 @@ import xyz.lokili.loutils.constants.ConfigConstants;
  * 1. Сухой бетон → Бетон (ПКМ или бросок)
  * 2. Стирка цветных предметов → белый цвет (ПКМ или бросок)
  */
-public class CauldronListener implements Listener {
+public class CauldronListener extends BaseListener {
     
-    private final LoUtils plugin;
+    private final EffectService effectService;
     
-    public CauldronListener(LoUtils plugin) {
-        this.plugin = plugin;
+    public CauldronListener(LoUtils plugin, xyz.lokili.loutils.api.IConfigManager configManager) {
+        super(plugin, configManager, ConfigConstants.Modules.CAULDRON, ConfigConstants.CAULDRON_CONFIG);
+        this.effectService = plugin.getContainer().getEffectService();
     }
     
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
-        if (!plugin.getConfigManager().isModuleEnabled(ConfigConstants.Modules.CAULDRON)) return;
+        if (!checkEnabled()) return;
         if (event.getAction() != org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK) return;
         
         Block block = event.getClickedBlock();
@@ -43,28 +46,30 @@ public class CauldronListener implements Listener {
         ItemStack item = event.getPlayer().getInventory().getItemInMainHand();
         if (item.getType() == Material.AIR) return;
         
-        if (processConcrete(item, block, event.getPlayer()) || processWashing(item, block, null)) {
+        if (processConcrete(item, block, event.getPlayer()) || processWashing(item, block, event.getPlayer(), false)) {
             event.setCancelled(true);
         }
     }
     
     @EventHandler
     public void onPlayerDropItem(PlayerDropItemEvent event) {
-        if (!plugin.getConfigManager().isModuleEnabled(ConfigConstants.Modules.CAULDRON)) return;
+        if (!checkEnabled()) return;
         
         Item droppedItem = event.getItemDrop();
         
-        Scheduler.get(plugin).runLater(() -> {
+        // Используем location-based scheduler вместо глобального
+        Scheduler.get(plugin).runLaterAtLocation(droppedItem.getLocation(), () -> {
             if (!droppedItem.isValid() || droppedItem.isDead()) return;
             
-            Block block = droppedItem.getLocation().getBlock();
+            // Проверяем блок под предметом (где он приземлится)
+            Block block = droppedItem.getLocation().subtract(0, 0.5, 0).getBlock();
             if (block.getType() != Material.WATER_CAULDRON) return;
             
             ItemStack item = droppedItem.getItemStack();
-            if (processConcrete(item, block, null) || processWashing(item, block, block)) {
+            if (processConcrete(item, block, null) || processWashing(item, block, null, true)) {
                 droppedItem.remove();
             }
-        }, 1L);
+        }, 5L);
     }
     
     /**
@@ -72,7 +77,6 @@ public class CauldronListener implements Listener {
      * @param dropLocation если не null - дропаем предмет, иначе даём игроку
      */
     private boolean processConcrete(ItemStack item, Block cauldron, Player player) {
-        var config = plugin.getConfigManager().getConfig(ConfigConstants.CAULDRON_CONFIG);
         if (!config.getBoolean("concrete-cleaning.enabled", true)) return false;
         if (!item.getType().name().endsWith("_CONCRETE_POWDER")) return false;
         
@@ -92,16 +96,16 @@ public class CauldronListener implements Listener {
         }
         
         useWater(cauldron, waterCost);
-        effect(cauldron, Sound.BLOCK_LAVA_EXTINGUISH, Particle.SPLASH, player != null ? 5 : 8);
+        effectService.playBlockEffect(cauldron, Sound.BLOCK_LAVA_EXTINGUISH, Particle.SPLASH, player != null ? 5 : 8);
         return true;
     }
     
     /**
      * Обработка стирки: цветной → белый
-     * @param dropLocation если не null - дропаем предмет, иначе меняем in-place
+     * @param player игрок (может быть null для броска)
+     * @param isDropped true если предмет брошен, false если ПКМ
      */
-    private boolean processWashing(ItemStack item, Block cauldron, Block dropLocation) {
-        var config = plugin.getConfigManager().getConfig(ConfigConstants.CAULDRON_CONFIG);
+    private boolean processWashing(ItemStack item, Block cauldron, Player player, boolean isDropped) {
         if (!config.getBoolean("washing.enabled", true)) return false;
         
         String name = item.getType().name();
@@ -110,25 +114,32 @@ public class CauldronListener implements Listener {
         int waterCost = config.getInt("washing.water-cost", 1);
         if (!hasWater(cauldron, waterCost)) return false;
         
-        ItemStack washed = dropLocation != null ? item.clone() : item;
-        
-        if (washed.getItemMeta() instanceof LeatherArmorMeta meta) {
+        if (item.getItemMeta() instanceof LeatherArmorMeta meta) {
             meta.setColor(null);
-            washed.setItemMeta(meta);
+            item.setItemMeta(meta);
         } else {
             String[] parts = name.split("_", 2);
             if (parts.length == 2) {
                 Material white = Material.getMaterial("WHITE_" + parts[1]);
-                if (white != null) washed.setType(white);
+                if (white != null) {
+                    ItemStack newItem = new ItemStack(white, item.getAmount());
+                    if (item.hasItemMeta()) {
+                        newItem.setItemMeta(item.getItemMeta());
+                    }
+                    
+                    if (isDropped) {
+                        // Для броска - дропаем новый предмет
+                        cauldron.getWorld().dropItemNaturally(cauldron.getLocation().add(0.5, 1.0, 0.5), newItem);
+                    } else if (player != null) {
+                        // Для ПКМ - заменяем в руке игрока
+                        player.getInventory().setItemInMainHand(newItem);
+                    }
+                }
             }
         }
         
-        if (dropLocation != null) {
-            cauldron.getWorld().dropItemNaturally(cauldron.getLocation().add(0.5, 1.0, 0.5), washed);
-        }
-        
         useWater(cauldron, waterCost);
-        effect(cauldron, Sound.ITEM_BUCKET_EMPTY, Particle.BUBBLE_POP, dropLocation != null ? 5 : 3);
+        effectService.playBlockEffect(cauldron, Sound.ITEM_BUCKET_EMPTY, Particle.BUBBLE_POP, isDropped ? 5 : 3);
         return true;
     }
     
@@ -140,17 +151,11 @@ public class CauldronListener implements Listener {
         if (!(cauldron.getBlockData() instanceof Levelled l)) return;
         
         int newLevel = l.getLevel() - amount;
-        if (newLevel <= 0) {
+        if (newLevel <= GameplayConstants.CAULDRON_EMPTY_LEVEL) {
             cauldron.setType(Material.CAULDRON);
         } else {
             l.setLevel(newLevel);
             cauldron.setBlockData(l);
         }
-    }
-    
-    private void effect(Block cauldron, Sound sound, Particle particle, int count) {
-        var loc = cauldron.getLocation().add(0.5, 0.5, 0.5);
-        cauldron.getWorld().playSound(loc, sound, 1.0f, 1.0f);
-        cauldron.getWorld().spawnParticle(particle, loc, count, 0.3, 0.3, 0.3);
     }
 }

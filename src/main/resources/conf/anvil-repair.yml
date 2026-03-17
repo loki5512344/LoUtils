@@ -1,0 +1,13 @@
+enabled: true
+
+# Предмет для починки наковальни
+repair-item: IRON_BLOCK
+
+# Эффекты
+particles: true  # Частицы железа при починке
+sounds: true     # Звук наковальни при починке
+
+# Сообщения (action bar)
+messages:
+  repaired: "&#9878C9Наковальня починена"
+  not-damaged: "&#FF6B6BНаковальня не нуждается в починке"

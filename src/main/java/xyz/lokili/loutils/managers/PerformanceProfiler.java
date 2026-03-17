@@ -1,7 +1,6 @@
 package xyz.lokili.loutils.managers;
 
 import dev.lolib.performance.TPSMonitor;
-import dev.lolib.scheduler.Scheduler;
 import dev.lolib.scheduler.ScheduledTask;
 import org.bukkit.configuration.file.FileConfiguration;
 import xyz.lokili.loutils.LoUtils;
@@ -16,16 +15,16 @@ import xyz.lokili.loutils.managers.performance.WebhookSender;
 public class PerformanceProfiler {
     
     private final LoUtils plugin;
-    private final TPSMonitor tpsMonitor;
+    private final TPSMonitor tpsMonitor; // Может быть null на Folia
     private final ReportGenerator reportGenerator;
     private final WebhookSender webhookSender;
     
     private ScheduledTask monitorTask;
     private long lastReportTime = 0;
     
-    public PerformanceProfiler(LoUtils plugin) {
+    public PerformanceProfiler(LoUtils plugin, TPSMonitor tpsMonitor) {
         this.plugin = plugin;
-        this.tpsMonitor = TPSMonitor.get(plugin);
+        this.tpsMonitor = tpsMonitor;
         this.reportGenerator = new ReportGenerator();
         this.webhookSender = new WebhookSender(plugin);
     }
@@ -34,6 +33,11 @@ public class PerformanceProfiler {
      * Запуск мониторинга
      */
     public void start() {
+        if (tpsMonitor == null) {
+            plugin.loLogger().warn("Performance Profiler disabled - TPSMonitor not available (Folia compatibility)");
+            return;
+        }
+        
         var config = getConfig();
         if (!config.getBoolean("enabled", true)) return;
         
