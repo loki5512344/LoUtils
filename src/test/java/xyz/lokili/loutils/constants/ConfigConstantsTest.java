@@ -11,10 +11,10 @@ class ConfigConstantsTest {
         assertNotNull(ConfigConstants.MESSAGES_CONFIG);
         assertNotNull(ConfigConstants.WHITELIST_CONFIG);
         assertNotNull(ConfigConstants.AUTORESTART_CONFIG);
-        assertNotNull(ConfigConstants.PERFORMANCE_CONFIG);
+        assertNotNull(ConfigConstants.POSES_CONFIG);
         
         assertTrue(ConfigConstants.WHITELIST_CONFIG.endsWith(".yml"));
-        assertTrue(ConfigConstants.PERFORMANCE_CONFIG.contains("conf/"));
+        assertTrue(ConfigConstants.POSES_CONFIG.contains("conf/"));
     }
     
     @Test
@@ -41,10 +41,10 @@ class ConfigConstantsTest {
     void testModules() {
         assertNotNull(ConfigConstants.Modules.WHITELIST);
         assertNotNull(ConfigConstants.Modules.AUTORESTART);
-        assertNotNull(ConfigConstants.Modules.PERFORMANCE);
+        assertNotNull(ConfigConstants.Modules.POSES);
         assertNotNull(ConfigConstants.Modules.CAULDRON);
         
         assertEquals("whitelist", ConfigConstants.Modules.WHITELIST);
-        assertEquals("performance", ConfigConstants.Modules.PERFORMANCE);
+        assertEquals("poses", ConfigConstants.Modules.POSES);
     }
 }

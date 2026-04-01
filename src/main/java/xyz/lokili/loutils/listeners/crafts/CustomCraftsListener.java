@@ -1,9 +1,11 @@
 package xyz.lokili.loutils.listeners.crafts;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.inventory.recipe.CraftingBookCategory;
 import xyz.lokili.loutils.LoUtils;
 import xyz.lokili.loutils.constants.ConfigConstants;
 import xyz.lokili.loutils.listeners.base.BaseListener;
@@ -18,6 +20,8 @@ import xyz.lokili.loutils.listeners.base.BaseListener;
  * 4. Паутина (cobweb)
  * 5. Подмостки x4 (scaffolding)
  * 6. Фейерверк 4 уровня (firework level 4)
+ * 7. Кварц x8: 8 андезита вокруг булыжника (3x3)
+ * (Элитры — см. ElytraCraftListener)
  */
 public class CustomCraftsListener extends BaseListener {
     
@@ -28,43 +32,47 @@ public class CustomCraftsListener extends BaseListener {
     
     private void registerCrafts() {
         if (!checkEnabled()) return;
-        if (config == null) {
+        if (moduleConfig() == null) {
             plugin.getLogger().warning("Custom crafts config not loaded!");
             return;
         }
         
-        if (config.getBoolean("bell.enabled", true)) {
+        if (moduleConfig().getBoolean("bell.enabled", true)) {
             registerBellCraft();
         }
         
-        if (config.getBoolean("red-mushroom-block.enabled", true)) {
+        if (moduleConfig().getBoolean("red-mushroom-block.enabled", true)) {
             registerRedMushroomBlockCraft();
         }
         
-        if (config.getBoolean("brown-mushroom-block.enabled", true)) {
+        if (moduleConfig().getBoolean("brown-mushroom-block.enabled", true)) {
             registerBrownMushroomBlockCraft();
         }
         
-        if (config.getBoolean("cobweb.enabled", true)) {
+        if (moduleConfig().getBoolean("cobweb.enabled", true)) {
             registerCobwebCraft();
         }
         
-        if (config.getBoolean("scaffolding.enabled", true)) {
+        if (moduleConfig().getBoolean("scaffolding.enabled", true)) {
             registerScaffoldingCraft();
+        }
+
+        if (moduleConfig().getBoolean("quartz.enabled", true)) {
+            registerQuartzCraft();
         }
     }
     
     /**
-     * Колокол: камень + палка + камень / золото x3 / самородок + золото + самородок
+     * Колокол: золото x3 / камень + палка + камень / самородок x3
      */
     private void registerBellCraft() {
         ItemStack result = new ItemStack(Material.BELL);
         ShapedRecipe recipe = new ShapedRecipe(new NamespacedKey(plugin, "bell"), result);
         
-        recipe.shape("STS", "GGG", "IGI");
+        recipe.shape("GGG", "STS", "III");
+        recipe.setIngredient('G', Material.GOLD_INGOT);
         recipe.setIngredient('S', Material.STONE);
         recipe.setIngredient('T', Material.STICK);
-        recipe.setIngredient('G', Material.GOLD_INGOT);
         recipe.setIngredient('I', Material.GOLD_NUGGET);
         
         try {
@@ -80,7 +88,7 @@ public class CustomCraftsListener extends BaseListener {
         ItemStack result = new ItemStack(Material.RED_MUSHROOM_BLOCK);
         ShapedRecipe recipe = new ShapedRecipe(new NamespacedKey(plugin, "red_mushroom_block"), result);
         
-        recipe.shape("MM ", "  ", "MM ");
+        recipe.shape("MM", "MM");
         recipe.setIngredient('M', Material.RED_MUSHROOM);
         
         try {
@@ -96,7 +104,7 @@ public class CustomCraftsListener extends BaseListener {
         ItemStack result = new ItemStack(Material.BROWN_MUSHROOM_BLOCK);
         ShapedRecipe recipe = new ShapedRecipe(new NamespacedKey(plugin, "brown_mushroom_block"), result);
         
-        recipe.shape("MM ", "  ", "MM ");
+        recipe.shape("MM", "MM");
         recipe.setIngredient('M', Material.BROWN_MUSHROOM);
         
         try {
@@ -125,8 +133,8 @@ public class CustomCraftsListener extends BaseListener {
      * Подмостки x4: 6 палок + нить
      */
     private void registerScaffoldingCraft() {
-        if (config == null) return;
-        int amount = config.getInt("scaffolding.amount", 4);
+        if (moduleConfig() == null) return;
+        int amount = moduleConfig().getInt("scaffolding.amount", 4);
         ItemStack result = new ItemStack(Material.SCAFFOLDING, amount);
         ShapedRecipe recipe = new ShapedRecipe(new NamespacedKey(plugin, "scaffolding"), result);
         
@@ -137,6 +145,28 @@ public class CustomCraftsListener extends BaseListener {
         try {
             plugin.getServer().addRecipe(recipe);
         } catch (IllegalStateException ignored) {
+        }
+    }
+
+    /**
+     * Кварц: верстак 3×3 — булыжник по центру, андезит по периметру (8 шт.) → кварц x amount.
+     * Перед добавлением старый рецепт с тем же ключом удаляется — иначе после /reload крафт ломается.
+     */
+    private void registerQuartzCraft() {
+        if (moduleConfig() == null) return;
+        NamespacedKey key = new NamespacedKey(plugin, "custom_quartz");
+        Bukkit.removeRecipe(key);
+
+        int amount = moduleConfig().getInt("quartz.amount", 8);
+        ItemStack result = new ItemStack(Material.QUARTZ, amount);
+        ShapedRecipe recipe = new ShapedRecipe(key, result);
+        recipe.shape("AAA", "ACA", "AAA");
+        recipe.setIngredient('A', Material.ANDESITE);
+        recipe.setIngredient('C', Material.COBBLESTONE);
+        recipe.setCategory(CraftingBookCategory.MISC);
+
+        if (!Bukkit.addRecipe(recipe)) {
+            plugin.getLogger().warning("Не удалось зарегистрировать рецепт custom_quartz (кварц). Проверьте конфликт ключей.");
         }
     }
 }

@@ -7,6 +7,14 @@ player-not-found: "&#FF6B6BИгрок не найден"
 player-required: "&#FF6B6BУкажите имя игрока"
 config-reloaded: "&#9878C9Конфигурация перезагружена"
 invalid-number: "&#FF6B6BНеверное число"
+player-only: "&#FF6B6BЭта команда только для игрока"
+
+# === LoUtils (/loutils) ===
+loutils:
+  usage: "&#FF6B6BИспользование: /loutils <reload|give>"
+  give-usage: "&#FF6B6BИспользование: /loutils give <предмет> [кол-во]"
+  give-invalid-item: "&#FF6B6BНеизвестный предмет. Варианты: inventory-check-stick, debug-stick, handcuffs"
+  give-received: "&#9878C9Получено: &f{amount} &7× &f{label}"
 
 # === Whitelist ===
 whitelist:

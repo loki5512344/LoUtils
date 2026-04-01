@@ -1,22 +1,24 @@
+# Frame Locking - Блокировка рамок мёдом
+# ПКМ по рамке с мёдом = заблокировать
+# ПКМ по заблокированной рамке с кистью = разблокировать
+
 enabled: true
 
-# Предмет для блокировки рамки
-lock-item: HONEYCOMB
-
-# Предмет для разблокировки рамки
-unlock-item: BRUSH
+# Предметы
+lock-item: HONEYCOMB    # Предмет для блокировки
+unlock-item: BRUSH      # Предмет для разблокировки
 
 # Защита
-prevent-rotation: true      # Запретить поворот предмета
-prevent-item-removal: true  # Запретить вытаскивание предмета
-prevent-break: true         # Запретить разрушение рамки
+prevent-rotation: true        # Запретить поворот предмета
+prevent-item-removal: true    # Запретить вытаскивание предмета
+prevent-break: true           # Запретить разрушение рамки
 
 # Эффекты
-particles: true  # Частицы при блокировке/разблокировке
-sounds: true     # Звуки при блокировке/разблокировке
+particles: true
+sounds: true
 
 # Сообщения (action bar)
 messages:
-  locked: "&#9878C9Рамка заблокирована"
-  unlocked: "&#9878C9Рамка разблокирована"
-  is-locked: "&#FF6B6BЭта рамка заблокирована"
+  locked: "&#9878C9✓ &#B798A8Рамка заблокирована"
+  unlocked: "&#9878C9✓ &#B798A8Рамка разблокирована"
+  is-locked: "&#FF6B6B✗ &#B798A8Эта рамка заблокирована"

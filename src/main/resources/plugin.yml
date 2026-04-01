@@ -41,7 +41,7 @@ commands:
     permission: loutils.flyspeed
   loutils:
     description: Main plugin command
-    usage: /loutils reload
+    usage: /loutils <reload|give>
     permission: loutils.admin
     aliases: [lu]
   ltpsbar:
@@ -114,9 +114,21 @@ permissions:
   loutils.worldlock.bypass.*:
     description: Bypass world lock for all worlds
     default: false
+  # Включает Paper: minecraft.debugstick.always — иначе в выживании палка не работает (только креатив/оп)
   loutils.debugstick:
-    description: Use debug stick
+    description: Use custom debug stick (survival + creative)
     default: op
+    children:
+      minecraft.debugstick.always: true
+  loutils.inventorycheckstick:
+    description: Use inventory check stick (hit players to scan)
+    default: op
+  loutils.handcuffs:
+    description: Use handcuffs (cuff/uncuff players)
+    default: op
+  loutils.handcuffs.bypass:
+    description: Move and teleport while cuffed (admin/debug)
+    default: false
   loutils.sit:
     description: Access to /sit command
     default: true

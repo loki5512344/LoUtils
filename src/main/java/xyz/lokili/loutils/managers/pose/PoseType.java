@@ -6,6 +6,9 @@ package xyz.lokili.loutils.managers.pose;
 public enum PoseType {
     /** Сидение на блоке */
     SIT,
+
+    /** Сидение на игроке (через невидимый стенд-посредник) */
+    SIT_ON_PLAYER,
     
     /** Лежание на блоке */
     LAY,

@@ -54,9 +54,10 @@ public class StairSeatCalculator {
             return new StairSeatPosition(0d, 0d, 0d, playerYaw);
         }
 
-        // Верхняя половина ступеньки — сидим как на обычном блоке
+        // Верхняя половина (верхний блок ступеньки) — не используем «сиденье на ступени»,
+        // иначе оффсет (0,0,0) даёт посадку «на верх» как на полном блоке.
         if (stairData.getHalf() != Bisected.Half.BOTTOM) {
-            return new StairSeatPosition(0d, 0d, 0d, playerYaw);
+            return new StairSeatPosition();
         }
 
         BlockFace facing = stairData.getFacing().getOppositeFace();

@@ -29,9 +29,23 @@ public class DismountCalculator {
      * @return позиция для телепортации игрока
      */
     public Location calculateDismountLocation(PoseData data) {
-        Block block = data.getBlock();
         Location seatLocation = data.getSeatLocation();
-        
+
+        if (data.getType() == PoseType.SIT_ON_PLAYER) {
+            Location ret = data.getReturnLocation();
+            Location back = ret != null ? ret.clone() : seatLocation.clone();
+            if (ret != null) {
+                back.setYaw(ret.getYaw());
+            }
+            back.add(0d, 0.05d, 0d);
+            return back;
+        }
+
+        Block block = data.getBlock();
+        if (block == null) {
+            return seatLocation.clone().add(0d, 1.0d, 0d);
+        }
+
         // Определяем configOffset в зависимости от типа позы
         FileConfiguration config = plugin.getConfigManager().getConfig(ConfigConstants.POSES_CONFIG);
         double configOffset = (data.getType() == PoseType.SIT) 

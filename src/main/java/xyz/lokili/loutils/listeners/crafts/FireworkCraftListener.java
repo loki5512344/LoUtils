@@ -33,16 +33,17 @@ public class FireworkCraftListener extends BaseListener {
      */
     private void registerFireworkCraft() {
         if (!checkEnabled()) return;
-        if (config == null) {
+        if (moduleConfig() == null) {
             plugin.getLogger().warning("Custom crafts config not loaded for firework!");
             return;
         }
-        if (!config.getBoolean("firework-level-4.enabled", true)) return;
+        if (!moduleConfig().getBoolean("firework-level-4.enabled", true)) return;
         
         ItemStack result = new ItemStack(Material.FIREWORK_ROCKET);
         ShapedRecipe recipe = new ShapedRecipe(new NamespacedKey(plugin, "firework_level_4"), result);
         
-        recipe.shape("BF ", "XXX", "   ");
+        // Рецепт: бумага сверху, огненный порошок в центре, 3 пороха по бокам и снизу
+        recipe.shape(" B ", "XFX", " X ");
         recipe.setIngredient('B', Material.PAPER);
         recipe.setIngredient('F', Material.BLAZE_POWDER);
         recipe.setIngredient('X', Material.GUNPOWDER);
@@ -59,8 +60,8 @@ public class FireworkCraftListener extends BaseListener {
     @EventHandler
     public void onPrepareItemCraft(PrepareItemCraftEvent event) {
         if (!checkEnabled()) return;
-        if (config == null) return;
-        if (!config.getBoolean("firework-level-4.enabled", true)) return;
+        if (moduleConfig() == null) return;
+        if (!moduleConfig().getBoolean("firework-level-4.enabled", true)) return;
         
         ItemStack result = event.getInventory().getResult();
         if (result == null || result.getType() != Material.FIREWORK_ROCKET) return;
@@ -97,21 +98,21 @@ public class FireworkCraftListener extends BaseListener {
      * Создание фейерверка с кастомным NBT
      */
     private ItemStack createCustomFirework() {
-        if (config == null) return new ItemStack(Material.FIREWORK_ROCKET);
+        if (moduleConfig() == null) return new ItemStack(Material.FIREWORK_ROCKET);
         
         ItemStack firework = new ItemStack(Material.FIREWORK_ROCKET);
         FireworkMeta meta = (FireworkMeta) firework.getItemMeta();
         
         // Устанавливаем длительность полёта
-        int flightDuration = config.getInt("firework-level-4.flight-duration", 4);
+        int flightDuration = moduleConfig().getInt("firework-level-4.flight-duration", 4);
         meta.setPower(flightDuration);
         
         // Название
-        String nameFormat = config.getString("firework-level-4.name-format", "§eФейерверк §7[§f%level%§7]");
+        String nameFormat = moduleConfig().getString("firework-level-4.name-format", "§eФейерверк §7[§f%level%§7]");
         meta.displayName(Colors.parse(nameFormat.replace("%level%", String.valueOf(flightDuration))));
         
         // Описание
-        List<String> loreList = config.getStringList("firework-level-4.lore");
+        List<String> loreList = moduleConfig().getStringList("firework-level-4.lore");
         if (!loreList.isEmpty()) {
             List<net.kyori.adventure.text.Component> lore = loreList.stream()
                 .map(line -> line.replace("%level%", String.valueOf(flightDuration)))

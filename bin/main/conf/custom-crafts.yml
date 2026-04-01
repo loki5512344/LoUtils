@@ -28,6 +28,11 @@ scaffolding:
   enabled: true
   amount: 4 # количество в результате
 
+# Кварц (Quartz) — верстак 3×3: булыжник в центре, 8 андезита по краю → QUARTZ x amount
+quartz:
+  enabled: true
+  amount: 8
+
 # Фейерверк 4 уровня (Firework Level 4)
 # Рецепт: бумага + огненный порошок / 3 пороха
 firework-level-4:

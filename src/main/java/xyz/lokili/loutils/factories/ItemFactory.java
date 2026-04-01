@@ -23,6 +23,41 @@ public class ItemFactory {
     }
     
     /**
+     * Палка проверки инвентаря (конфиг {@code conf/inventory-check-stick.yml}).
+     */
+    public ItemStack createInventoryCheckStick(FileConfiguration config) {
+        ItemStack item = new ItemStack(Material.STICK);
+        ItemMeta meta = item.getItemMeta();
+        NamespacedKey key = new NamespacedKey(plugin, "inventory_check_stick");
+        meta.getPersistentDataContainer().set(key, PersistentDataType.BYTE, (byte) 1);
+        String name = config.getString("item-name", "&6Палка проверки");
+        meta.displayName(Colors.parse(name));
+        int cmd = config.getInt("custom-model-data", 0);
+        if (cmd > 0) {
+            meta.setCustomModelData(cmd);
+        }
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    /**
+     * Кандалы / наручники (поводок с маркером).
+     */
+    public ItemStack createHandcuffs(FileConfiguration config) {
+        ItemStack item = new ItemStack(Material.LEAD);
+        ItemMeta meta = item.getItemMeta();
+        NamespacedKey key = new NamespacedKey(plugin, "handcuffs_item");
+        meta.getPersistentDataContainer().set(key, PersistentDataType.BYTE, (byte) 1);
+        meta.displayName(Colors.parse(config.getString("item-name", "&7Кандалы")));
+        int cmd = config.getInt("custom-model-data", 0);
+        if (cmd > 0) {
+            meta.setCustomModelData(cmd);
+        }
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    /**
      * Создаёт дебаг палку
      */
     public ItemStack createDebugStick(FileConfiguration config) {

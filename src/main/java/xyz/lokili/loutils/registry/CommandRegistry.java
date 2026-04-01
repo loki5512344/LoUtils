@@ -2,84 +2,84 @@ package xyz.lokili.loutils.registry;
 
 import org.bukkit.command.PluginCommand;
 import xyz.lokili.loutils.LoUtils;
-import xyz.lokili.loutils.commands.*;
+import xyz.lokili.loutils.commands.admin.AutoRestartCommand;
+import xyz.lokili.loutils.commands.admin.ColorFixCommand;
+import xyz.lokili.loutils.commands.admin.ColorTestCommand;
+import xyz.lokili.loutils.commands.admin.LoUtilsCommand;
+import xyz.lokili.loutils.commands.admin.WhitelistCommand;
+import xyz.lokili.loutils.commands.gameplay.EnchantCommand;
+import xyz.lokili.loutils.commands.gameplay.MapCommand;
+import xyz.lokili.loutils.commands.player.FlyCommand;
+import xyz.lokili.loutils.commands.player.FlySpeedCommand;
+import xyz.lokili.loutils.commands.player.InvSeeCommand;
+import xyz.lokili.loutils.commands.player.PoseCommand;
+import xyz.lokili.loutils.commands.player.SitCommand;
+import xyz.lokili.loutils.commands.player.SpawnMobCommand;
+import xyz.lokili.loutils.commands.player.TPSBarCommand;
+import xyz.lokili.loutils.commands.world.FastLeafDecayCommand;
+import xyz.lokili.loutils.commands.world.WorldLockCommand;
 
 /**
  * Регистрация команд плагина
  */
 public class CommandRegistry {
-    
+
     private final LoUtils plugin;
-    
+
     public CommandRegistry(LoUtils plugin) {
         this.plugin = plugin;
     }
-    
+
     public void registerAll() {
-        // Whitelist
         WhitelistCommand whitelistCommand = new WhitelistCommand(plugin);
         register("lw", whitelistCommand, whitelistCommand);
-        
-        // AutoRestart
+
         AutoRestartCommand autoRestartCommand = new AutoRestartCommand(plugin);
         register("lar", autoRestartCommand, autoRestartCommand);
-        
-        // SpawnMob
+
         SpawnMobCommand spawnMobCommand = new SpawnMobCommand(plugin);
         register("lspawnmob", spawnMobCommand, spawnMobCommand);
-        
-        // InvSee
+
         InvSeeCommand invSeeCommand = new InvSeeCommand(plugin);
         register("linvsee", invSeeCommand, invSeeCommand);
-        
-        // Enchant
+
         EnchantCommand enchantCommand = new EnchantCommand(plugin);
         register("lenchant", enchantCommand, enchantCommand);
 
-        // Fly
         FlyCommand flyCommand = new FlyCommand(plugin);
         register("lfly", flyCommand, flyCommand);
 
-        // FlySpeed
         FlySpeedCommand flySpeedCommand = new FlySpeedCommand(plugin);
         register("lflyspeed", flySpeedCommand, flySpeedCommand);
-        
-        // Main command
+
         LoUtilsCommand loUtilsCommand = new LoUtilsCommand(plugin);
         register("loutils", loUtilsCommand, loUtilsCommand);
-        
-        // TPSBar
+
         TPSBarCommand tpsBarCommand = new TPSBarCommand(plugin);
         register("ltpsbar", tpsBarCommand, tpsBarCommand);
-        
-        // Color Test (временная команда для отладки)
+
         ColorTestCommand colorTestCommand = new ColorTestCommand(plugin);
         register("lcolortest", colorTestCommand, colorTestCommand);
-        
-        // Color Fix (команда для исправления цветов)
+
         ColorFixCommand colorFixCommand = new ColorFixCommand(plugin);
         register("lcolorfix", colorFixCommand, colorFixCommand);
-        
-        // FastLeafDecay (управление быстрым опаданием листьев)
+
         FastLeafDecayCommand fastLeafDecayCommand = new FastLeafDecayCommand(plugin);
         register("lfastleaf", fastLeafDecayCommand, fastLeafDecayCommand);
-        
-        // WorldLock
+
         WorldLockCommand worldLockCommand = new WorldLockCommand(plugin);
         register("worldlock", worldLockCommand, worldLockCommand);
-        
-        // Player Poses
+
         SitCommand sitCommand = new SitCommand(plugin);
         register("sit", sitCommand, sitCommand);
-        
+
         PoseCommand poseCommand = new PoseCommand(plugin);
         register("pose", poseCommand, poseCommand);
-        
-        // Map Locking
+
         MapCommand mapCommand = new MapCommand(plugin);
         register("map", mapCommand, mapCommand);
     }
-    
+
     private void register(String name, org.bukkit.command.CommandExecutor executor,
                          org.bukkit.command.TabCompleter tabCompleter) {
         PluginCommand command = plugin.getCommand(name);

@@ -94,7 +94,7 @@ public class LoUtils extends LoPlugin {
         return container.getMessageUtil();
     }
     
-    public xyz.lokili.loutils.listeners.InvSeeListener getInvSeeListener() {
+    public xyz.lokili.loutils.listeners.player.InvSeeListener getInvSeeListener() {
         return listenerRegistry != null ? listenerRegistry.getInvSeeListener() : null;
     }
 }

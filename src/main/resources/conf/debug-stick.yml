@@ -6,6 +6,7 @@ enabled: true
 crafting-enabled: true
 
 # Требовать permission loutils.debugstick для использования
+# (в plugin.yml к loutils.debugstick привязано minecraft.debugstick.always — нужно для выживания)
 require-permission: true
 
 # Запретить использование в аду (Nether)

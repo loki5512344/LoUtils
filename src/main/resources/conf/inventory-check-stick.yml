@@ -1,0 +1,230 @@
+# Палка проверки инвентаря — удар по игроку основной рукой с этой палкой
+# сканирует инвентарь цели (рюкзак, хотбар, броня, вторая рука) на материалы из списка.
+
+enabled: true
+
+# Крафт палки отключён — выдача только админ-командой /loutils give и т.п.
+crafting-enabled: false
+
+# Право loutils.inventorycheckstick
+require-permission: true
+
+# Не наносить урон при проверке
+cancel-damage: true
+
+# Задержка между проверками одного игрока (секунды), 0 = без задержки
+cooldown-seconds: 0
+
+# CustomModelData для ресурс-пака (0 = выкл)
+custom-model-data: 0
+
+# Имя предмета (цвета & и &#RRGGBB)
+item-name: "&6Палка проверки"
+
+# Имена материалов Bukkit (как в /give): https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html
+# Неизвестные строки пишутся в лог при загрузке.
+forbidden-materials:
+  # Золото
+  - GOLD_BLOCK
+  - RAW_GOLD_BLOCK
+  - GOLD_INGOT
+  - GOLD_NUGGET
+  - GOLD_ORE
+  - DEEPSLATE_GOLD_ORE
+  # Кварц (блоки и руда Нижнего мира)
+  - QUARTZ
+  - QUARTZ_BLOCK
+  - SMOOTH_QUARTZ
+  - QUARTZ_PILLAR
+  - QUARTZ_BRICKS
+  - CHISELED_QUARTZ_BLOCK
+  - QUARTZ_STAIRS
+  - SMOOTH_QUARTZ_STAIRS
+  - QUARTZ_SLAB
+  - SMOOTH_QUARTZ_SLAB
+  - NETHER_QUARTZ_ORE
+  # Незерак и общий «незер»
+  - NETHERRACK
+  - RESPAWN_ANCHOR
+  - CRYING_OBSIDIAN
+  - GLOWSTONE
+  - GLOWSTONE_DUST
+  # Незерит
+  - ANCIENT_DEBRIS
+  - NETHERITE_BLOCK
+  - NETHERITE_INGOT
+  - NETHERITE_SCRAP
+  - NETHERITE_UPGRADE_SMITHING_TEMPLATE
+  # Незер-кирпичи / крепость / звезда
+  - NETHER_BRICK
+  - NETHER_BRICKS
+  - CRACKED_NETHER_BRICKS
+  - CHISELED_NETHER_BRICKS
+  - RED_NETHER_BRICKS
+  - NETHER_BRICK_FENCE
+  - NETHER_BRICK_WALL
+  - NETHER_BRICK_STAIRS
+  - RED_NETHER_BRICK_STAIRS
+  - NETHER_STAR
+  # Нарост (незерский нарост)
+  - NETHER_WART
+  - NETHER_WART_BLOCK
+  # Песок душ / почва душ
+  - SOUL_SAND
+  - SOUL_SOIL
+  - SOUL_TORCH
+  - SOUL_LANTERN
+  - SOUL_CAMPFIRE
+  # Чернит
+  - BLACKSTONE
+  - POLISHED_BLACKSTONE
+  - POLISHED_BLACKSTONE_BRICKS
+  - CRACKED_POLISHED_BLACKSTONE_BRICKS
+  - CHISELED_POLISHED_BLACKSTONE
+  - GILDED_BLACKSTONE
+  # Базальт
+  - BASALT
+  - POLISHED_BASALT
+  - SMOOTH_BASALT
+  # Магма / пламенный порошок / стержень
+  - MAGMA_BLOCK
+  - MAGMA_CREAM
+  - BLAZE_POWDER
+  - BLAZE_ROD
+  # Багровое / искажённое дерево, грибы, свет (SHROOMLIGHT, фонари)
+  - CRIMSON_STEM
+  - WARPED_STEM
+  - STRIPPED_CRIMSON_STEM
+  - STRIPPED_WARPED_STEM
+  - CRIMSON_HYPHAE
+  - WARPED_HYPHAE
+  - CRIMSON_PLANKS
+  - WARPED_PLANKS
+  - CRIMSON_NYLIUM
+  - WARPED_NYLIUM
+  - CRIMSON_FUNGUS
+  - WARPED_FUNGUS
+  - CRIMSON_ROOTS
+  - WARPED_ROOTS
+  - WEEPING_VINES
+  - TWISTING_VINES
+  - SHROOMLIGHT
+  - LANTERN
+  - SOUL_LANTERN
+  # Грибы (любые)
+  - RED_MUSHROOM
+  - BROWN_MUSHROOM
+  - RED_MUSHROOM_BLOCK
+  - BROWN_MUSHROOM_BLOCK
+  - MUSHROOM_STEM
+  # Руды Нижнего мира (золотая, кварцевая, обломки)
+  - NETHER_GOLD_ORE
+  # Костные блоки и головы (GHAST_HEAD, DRIED_GHAST — с 1.21.6+; на более старых ядрах
+  # неизвестные имена дадут предупреждение в лог при загрузке — удалите строки при необходимости)
+  - BONE_BLOCK
+  - WITHER_SKELETON_SKULL
+  - GHAST_HEAD
+  - DRIED_GHAST
+  # Эндер-жемчуг
+  - ENDER_PEARL
+
+# Русские названия для вывода в чат (один файл с палкой и списком)
+material-names:
+  GOLD_BLOCK: "Золотой блок"
+  RAW_GOLD_BLOCK: "Блок необработанного золота"
+  GOLD_INGOT: "Золотой слиток"
+  GOLD_NUGGET: "Золотой самородок"
+  GOLD_ORE: "Золотая руда"
+  DEEPSLATE_GOLD_ORE: "Золотая руда глубинного сланца"
+  QUARTZ: "Кварц"
+  QUARTZ_BLOCK: "Кварцевый блок"
+  SMOOTH_QUARTZ: "Гладкий кварц"
+  QUARTZ_PILLAR: "Кварцевая колонна"
+  QUARTZ_BRICKS: "Кварцевые кирпичи"
+  CHISELED_QUARTZ_BLOCK: "Резной кварцевый блок"
+  QUARTZ_STAIRS: "Кварцевые ступени"
+  SMOOTH_QUARTZ_STAIRS: "Ступени из гладкого кварца"
+  QUARTZ_SLAB: "Кварцевая плита"
+  SMOOTH_QUARTZ_SLAB: "Плита из гладкого кварца"
+  NETHER_QUARTZ_ORE: "Руда кварца Нижнего мира"
+  NETHERRACK: "Незерак"
+  RESPAWN_ANCHOR: "Якорь возрождения"
+  CRYING_OBSIDIAN: "Плачущий обсидиан"
+  GLOWSTONE: "Светокамень"
+  GLOWSTONE_DUST: "Светокаменная пыль"
+  ANCIENT_DEBRIS: "Древние обломки"
+  NETHERITE_BLOCK: "Блок незерита"
+  NETHERITE_INGOT: "Слиток незерита"
+  NETHERITE_SCRAP: "Незеритовый лом"
+  NETHERITE_UPGRADE_SMITHING_TEMPLATE: "Кузнечный шаблон: незерит"
+  NETHER_BRICK: "Незерский кирпич"
+  NETHER_BRICKS: "Незерские кирпичи"
+  CRACKED_NETHER_BRICKS: "Потрескавшиеся незерские кирпичи"
+  CHISELED_NETHER_BRICKS: "Резные незерские кирпичи"
+  RED_NETHER_BRICKS: "Красные незерские кирпичи"
+  NETHER_BRICK_FENCE: "Незерский забор"
+  NETHER_BRICK_WALL: "Незерская ограда"
+  NETHER_BRICK_STAIRS: "Незерские ступени"
+  RED_NETHER_BRICK_STAIRS: "Ступени из красного незерского кирпича"
+  NETHER_STAR: "Звезда Нижнего мира"
+  NETHER_WART: "Незерский нарост"
+  NETHER_WART_BLOCK: "Блок незерского нароста"
+  SOUL_SAND: "Песок душ"
+  SOUL_SOIL: "Почва душ"
+  SOUL_TORCH: "Факел душ"
+  SOUL_LANTERN: "Фонарь душ"
+  SOUL_CAMPFIRE: "Костёр душ"
+  BLACKSTONE: "Чернит"
+  POLISHED_BLACKSTONE: "Полированный чернит"
+  POLISHED_BLACKSTONE_BRICKS: "Кирпичи из полированного чернита"
+  CRACKED_POLISHED_BLACKSTONE_BRICKS: "Потрескавшиеся кирпичи из полированного чернита"
+  CHISELED_POLISHED_BLACKSTONE: "Резной полированный чернит"
+  GILDED_BLACKSTONE: "Позолоченный чернит"
+  BASALT: "Базальт"
+  POLISHED_BASALT: "Полированный базальт"
+  SMOOTH_BASALT: "Гладкий базальт"
+  MAGMA_BLOCK: "Магмовый блок"
+  MAGMA_CREAM: "Магмовый крем"
+  BLAZE_POWDER: "Огненный порошок"
+  BLAZE_ROD: "Огненный стержень"
+  CRIMSON_STEM: "Багровый ствол"
+  WARPED_STEM: "Искажённый ствол"
+  STRIPPED_CRIMSON_STEM: "Обтёсанный багровый ствол"
+  STRIPPED_WARPED_STEM: "Обтёсанный искажённый ствол"
+  CRIMSON_HYPHAE: "Багровая гифа"
+  WARPED_HYPHAE: "Искажённая гифа"
+  CRIMSON_PLANKS: "Багровые доски"
+  WARPED_PLANKS: "Искажённые доски"
+  CRIMSON_NYLIUM: "Багровый нилий"
+  WARPED_NYLIUM: "Искажённый нилий"
+  CRIMSON_FUNGUS: "Багровый гриб"
+  WARPED_FUNGUS: "Искажённый гриб"
+  CRIMSON_ROOTS: "Багровые корни"
+  WARPED_ROOTS: "Искажённые корни"
+  WEEPING_VINES: "Плакучие лианы"
+  TWISTING_VINES: "Вьющиеся лианы"
+  SHROOMLIGHT: "Грибосвет"
+  LANTERN: "Фонарь"
+  RED_MUSHROOM: "Красный гриб"
+  BROWN_MUSHROOM: "Коричневый гриб"
+  RED_MUSHROOM_BLOCK: "Красный грибной блок"
+  BROWN_MUSHROOM_BLOCK: "Коричневый грибной блок"
+  MUSHROOM_STEM: "Грибной стебель"
+  NETHER_GOLD_ORE: "Золотая руда Нижнего мира"
+  BONE_BLOCK: "Костный блок"
+  WITHER_SKELETON_SKULL: "Череп визер-скелета"
+  GHAST_HEAD: "Голова гаста"
+  DRIED_GHAST: "Сухой гаст"
+  ENDER_PEARL: "Эндер-жемчуг"
+
+messages:
+  no-permission: "&cНет прав на использование палки проверки."
+  none-found: "&aУ игрока &e{target} &aнет предметов из списка."
+  # Заголовок и разделитель при нахождении запрета (несколько строк в чат)
+  found-title: "&cСписок запреток"
+  found-separator: "&7--------------------------------------------------"
+  # Строка под разделителем (цель). Пусто или none — не показывать
+  found-target-line: "&7Игрок: &e{target}"
+  # Одна строка = один предмет: русское имя | количество
+  found-line: "&f{name} &7| &e{amount}"
+

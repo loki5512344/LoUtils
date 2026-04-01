@@ -1,5 +1,6 @@
 package xyz.lokili.loutils.managers.pose;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
@@ -8,6 +9,7 @@ import org.bukkit.entity.Player;
 import xyz.lokili.loutils.LoUtils;
 import xyz.lokili.loutils.utils.SchedulerUtil;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -22,6 +24,8 @@ public class PoseManager {
 
     private final LoUtils plugin;
     private final Map<UUID, PoseData> activePoses = new HashMap<>();
+    /** Носитель (игрок) → сидящий на нём игрок (после посадки через стенд). */
+    private final Map<UUID, UUID> carrierToSitter = new HashMap<>();
     private final DismountCalculator dismountCalculator;
 
     public PoseManager(LoUtils plugin) {
@@ -89,6 +93,53 @@ public class PoseManager {
     }
 
     /**
+     * Сесть на игрока: носитель → невидимый стенд → сидящий (чтобы не блокировать удары/интеракции носителя).
+     */
+    public boolean sitPlayerOnPlayer(Player sitter, Player carrier) {
+        if (isInPose(sitter)) return false;
+        if (isInPose(carrier)) return false;
+        if (carrierToSitter.containsKey(carrier.getUniqueId())) return false;
+
+        Location seatLoc = carrier.getLocation().clone().add(0d, carrier.getHeight() - 0.25d, 0d);
+        seatLoc.setYaw(sitter.getLocation().getYaw());
+        seatLoc.setPitch(0f);
+
+        ArmorStand bridge = SeatFactory.createSeat(seatLoc);
+        carrier.addPassenger(bridge);
+        bridge.addPassenger(sitter);
+
+        carrierToSitter.put(carrier.getUniqueId(), sitter.getUniqueId());
+        activePoses.put(sitter.getUniqueId(),
+                new PoseData(PoseType.SIT_ON_PLAYER, bridge, null, seatLoc.clone(),
+                        sitter.getLocation().clone(), carrier.getUniqueId()));
+        return true;
+    }
+
+    /**
+     * Shift носителя — сбросить сидящего на нём игрока.
+     */
+    public boolean kickPassengerFromCarrier(Player carrier) {
+        UUID sitterId = carrierToSitter.get(carrier.getUniqueId());
+        if (sitterId == null) return false;
+        Player sitter = Bukkit.getPlayer(sitterId);
+        if (sitter == null || !sitter.isOnline()) {
+            carrierToSitter.remove(carrier.getUniqueId());
+            return false;
+        }
+        return removePlayerPose(sitter);
+    }
+
+    /** Носитель вышел с сервера — снять сидящего с позы. */
+    public void onCarrierQuit(Player carrier) {
+        UUID sitterId = carrierToSitter.remove(carrier.getUniqueId());
+        if (sitterId == null) return;
+        Player sitter = Bukkit.getPlayer(sitterId);
+        if (sitter != null && sitter.isOnline()) {
+            removePlayerPose(sitter);
+        }
+    }
+
+    /**
      * Убрать игрока из любой позы.
      * Безопасный dismount: снимаем пассажира + телепортируем в одной entity-задаче,
      * потом удаляем стенд — иначе vanilla-dismount бросает игрока в случайную точку.
@@ -100,6 +151,10 @@ public class PoseManager {
         if (data.getType() == PoseType.CRAWL) {
             player.setSwimming(false);
             return true;
+        }
+
+        if (data.getType() == PoseType.SIT_ON_PLAYER && data.getCarrierUuid() != null) {
+            carrierToSitter.remove(data.getCarrierUuid());
         }
 
         if (data.getArmorStand() != null) {
@@ -116,6 +171,13 @@ public class PoseManager {
             // removePassenger + teleportAsync в одной entity-задаче
             SchedulerUtil.runForEntity(plugin, player, () -> {
                 stand.removePassenger(player);
+                if (data.getType() == PoseType.SIT_ON_PLAYER) {
+                    Player carrier = data.getCarrierUuid() != null
+                            ? Bukkit.getPlayer(data.getCarrierUuid()) : null;
+                    if (carrier != null && carrier.isValid()) {
+                        carrier.removePassenger(stand);
+                    }
+                }
                 player.teleportAsync(upLocation);
             });
 
@@ -139,12 +201,28 @@ public class PoseManager {
 
     /** Принудительно сбросить все позы (onDisable). */
     public void clearAll() {
-        for (PoseData data : activePoses.values()) {
-            if (data.getArmorStand() != null) {
-                data.getArmorStand().remove();
+        for (UUID uuid : new ArrayList<>(activePoses.keySet())) {
+            Player p = Bukkit.getPlayer(uuid);
+            if (p != null && p.isOnline()) {
+                removePlayerPose(p);
+            } else {
+                PoseData data = activePoses.remove(uuid);
+                if (data == null) continue;
+                if (data.getType() == PoseType.SIT_ON_PLAYER && data.getCarrierUuid() != null) {
+                    carrierToSitter.remove(data.getCarrierUuid());
+                }
+                ArmorStand stand = data.getArmorStand();
+                if (stand != null) {
+                    Player carrier = data.getCarrierUuid() != null
+                            ? Bukkit.getPlayer(data.getCarrierUuid()) : null;
+                    if (carrier != null && carrier.isValid()) {
+                        carrier.removePassenger(stand);
+                    }
+                    stand.remove();
+                }
             }
         }
-        activePoses.clear();
+        carrierToSitter.clear();
     }
 
     // ── Внутренняя логика ────────────────────────────────────────────────────

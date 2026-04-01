@@ -1,0 +1,21 @@
+# Cow Milking Balance - Балансировка доения коров
+# Ограничение на доение коров для предотвращения фарма
+
+enabled: true
+
+# Кулдаун между доениями (в минутах)
+cooldown-minutes: 10
+
+# Ускорение восстановления пшеницей
+wheat-speedup: true
+wheat-speedup-minutes: 2  # На сколько минут ускоряет кормление
+
+# Визуальный индикатор готовности
+visual-indicator: true
+particle-effect: HEART  # Частицы когда корова готова к доению
+
+# Сообщения (action bar)
+messages:
+  milked: "&#9878C9✓ &#B798A8Корова подоена"
+  on-cooldown: "&#FF6B6B✗ &#B798A8Корова устала, подождите ещё %minutes% мин"
+  fed: "&#9878C9✓ &#B798A8Корова покормлена (осталось %minutes% мин)"

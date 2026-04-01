@@ -24,6 +24,11 @@ modules:
   debug-stick: true
   invisible-frames: true
   poses: true
+  inventory-check-stick: true
+  cow-milking: true
+  handcuffs: true
+  # Крафты: колокол, паутина, кварц (андезит+булыжник), подмостки и т.д.
+  custom-crafts: true
 
 # Префикс плагина
 prefix: "&#7858E9[LoUtils] &7"

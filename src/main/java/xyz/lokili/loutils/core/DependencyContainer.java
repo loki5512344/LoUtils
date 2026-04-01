@@ -35,8 +35,6 @@ public class DependencyContainer {
     private final ICustomWorldHeightManager customWorldHeightManager;
     private final PoseManager poseManager;
     
-    // Performance
-    private final PerformanceProfiler performanceProfiler;
     private final TPSMonitor tpsMonitor; // Может быть null на Folia
     private final AsyncExecutor asyncExecutor;
     
@@ -51,7 +49,6 @@ public class DependencyContainer {
         this.itemFactory = new ItemFactory(plugin);
         this.effectService = new EffectService();
         
-        // Performance - создаём до менеджеров
         // TPSMonitor не работает на Folia (использует старый Bukkit Scheduler)
         TPSMonitor monitor = null;
         try {
@@ -72,7 +69,6 @@ public class DependencyContainer {
         this.tpsBarManager = new TPSBarManager(plugin, tpsMonitor);
         this.worldLockManager = new WorldLockManager(plugin, configManager);
         this.customWorldHeightManager = new CustomWorldHeightManager(plugin, configManager);
-        this.performanceProfiler = new PerformanceProfiler(plugin, tpsMonitor);
         this.poseManager = new PoseManager(plugin);
     }
     
@@ -85,10 +81,6 @@ public class DependencyContainer {
             autoRestartManager.start();
         }
         
-        // Performance Profiler
-        if (configManager.isModuleEnabled("performance")) {
-            performanceProfiler.start();
-        }
     }
     
     /**
@@ -98,10 +90,6 @@ public class DependencyContainer {
         // Останавливаем менеджеры
         if (autoRestartManager != null) {
             autoRestartManager.stop();
-        }
-        
-        if (performanceProfiler != null) {
-            performanceProfiler.stop();
         }
         
         if (tpsBarManager != null) {
@@ -142,7 +130,6 @@ public class DependencyContainer {
     public ITPSBarManager getTPSBarManager() { return tpsBarManager; }
     public IWorldLockManager getWorldLockManager() { return worldLockManager; }
     public ICustomWorldHeightManager getCustomWorldHeightManager() { return customWorldHeightManager; }
-    public PerformanceProfiler getPerformanceProfiler() { return performanceProfiler; }
     public TPSMonitor getTPSMonitor() { return tpsMonitor; }
     public AsyncExecutor getAsyncExecutor() { return asyncExecutor; }
     public PoseManager getPoseManager() { return poseManager; }

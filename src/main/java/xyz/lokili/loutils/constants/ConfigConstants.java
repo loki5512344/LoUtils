@@ -19,7 +19,6 @@ public final class ConfigConstants {
     public static final String SLEEPPERCENTAGE_CONFIG = "conf/sleeppercentage.yml";
     public static final String VILLAGERLEASH_CONFIG = "conf/villagerleash.yml";
     public static final String CAULDRON_CONFIG = "conf/cauldron.yml";
-    public static final String PERFORMANCE_CONFIG = "conf/performance.yml";
     public static final String LIGHT_BLOCK_CONFIG = "conf/light-block.yml";
     public static final String DEBUG_STICK_CONFIG = "conf/debug-stick.yml";
     public static final String INVISIBLE_FRAMES_CONFIG = "conf/invisible-frames.yml";
@@ -30,6 +29,10 @@ public final class ConfigConstants {
     public static final String ENHANCED_BONE_MEAL_CONFIG = "conf/enhanced-bone-meal.yml";
     public static final String ANVIL_REPAIR_CONFIG = "conf/anvil-repair.yml";
     public static final String NAME_TAG_REMOVAL_CONFIG = "conf/name-tag-removal.yml";
+    public static final String ENHANCED_HOES_CONFIG = "conf/enhanced-hoes.yml";
+    public static final String COW_MILKING_CONFIG = "conf/cow-milking.yml";
+    public static final String INVENTORY_CHECK_STICK_CONFIG = "conf/inventory-check-stick.yml";
+    public static final String HANDCUFFS_CONFIG = "conf/handcuffs.yml";
     
     // Message keys
     public static final class Messages {
@@ -60,6 +63,9 @@ public final class ConfigConstants {
         public static final String WORLDLOCK_BYPASS = "loutils.worldlock.bypass.";
         public static final String ADMIN = "loutils.admin";
         public static final String DEBUG_STICK = "loutils.debugstick";
+        public static final String INVENTORY_CHECK_STICK = "loutils.inventorycheckstick";
+        public static final String HANDCUFFS = "loutils.handcuffs";
+        public static final String HANDCUFFS_BYPASS = "loutils.handcuffs.bypass";
         
         private Permissions() {}
     }
@@ -80,7 +86,6 @@ public final class ConfigConstants {
         public static final String SLEEPPERCENTAGE = "sleeppercentage";
         public static final String VILLAGERLEASH = "villagerleash";
         public static final String CAULDRON = "cauldron";
-        public static final String PERFORMANCE = "performance";
         public static final String LIGHT_BLOCK = "light-block";
         public static final String DEBUG_STICK = "debug-stick";
         public static final String INVISIBLE_FRAMES = "invisible-frames";
@@ -91,6 +96,10 @@ public final class ConfigConstants {
         public static final String ENHANCED_BONE_MEAL = "enhanced-bone-meal";
         public static final String ANVIL_REPAIR = "anvil-repair";
         public static final String NAME_TAG_REMOVAL = "name-tag-removal";
+        public static final String ENHANCED_HOES = "enhanced-hoes";
+        public static final String COW_MILKING = "cow-milking";
+        public static final String INVENTORY_CHECK_STICK = "inventory-check-stick";
+        public static final String HANDCUFFS = "handcuffs";
         
         private Modules() {}
     }

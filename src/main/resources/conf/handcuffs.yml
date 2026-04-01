@@ -1,0 +1,52 @@
+# Кандалы (наручники): поводок (LEAD) с PDC (handcuffs_item). ЛКМ/ПКМ по игроку — сковать.
+# Снять: Shift + ЛКМ/ПКМ по своему скованному.
+# Скованный не может бить (см. prevent-attack-when-detained).
+
+enabled: true
+
+# Крафт: слиток по центру, железные самородки вокруг (можно отключить)
+crafting-enabled: true
+
+# Право на использование наручников
+require-permission: true
+
+# Скованный не может наносить урон (удары, лук, трезубец и т.п.)
+prevent-attack-when-detained: true
+# Минимальный интервал между сообщениями «нельзя бить» (мс), 0 = каждый раз
+cannot-attack-message-cooldown-ms: 2500
+
+# Максимальная длина «поводка» в блоках (подтягивание, если дальше)
+max-leash-blocks: 4.0
+
+# Частицы между игроками (DUST)
+leash-particles: true
+particle-step: 0.35
+
+# Снять наручники при смерти любого из пары
+release-on-death: true
+
+# Снять если оказались в разных мирах
+release-on-different-world: true
+
+# Сковать можно только если у цели строго меньше этого % от максимального HP (текущее / max).
+# 0 или больше 100 — проверка отключена. Обход: право loutils.handcuffs.bypass
+cuff-only-below-health-percent: 50
+
+# Имя предмета
+item-name: "&7Кандалы"
+
+custom-model-data: 0
+
+messages:
+  cuffed: "&eВы сковали игрока &f{target}"
+  uncuffed: "&aНаручники сняты с &f{target}"
+  already-cuffed: "&cЭтот игрок уже в наручниках (другим)."
+  cannot-cuff-self: "&cНельзя надеть на себя."
+  no-permission: "&cНет прав."
+  target-notify: "&cВас сковали наручниками."
+  uncuff-target-notify: "&aС вас сняли наручники."
+  uncuff-hint-sneak: "&7Присядьте (Shift) и нажмите по игроку, чтобы снять наручники."
+  uncuff-not-your-pair: "&cСнять можно только со своего скованного (Shift + клик)."
+  uncuff-nobody: "&cНекого снимать — присядьте и нажмите по своему скованному."
+  cannot-attack-while-detained: "&cВ кандалах нельзя атаковать."
+  cannot-cuff-too-much-health: "&cСковать можно только если у цели меньше &f{percent}% &cздоровья."

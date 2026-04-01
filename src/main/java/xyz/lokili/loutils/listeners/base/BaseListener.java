@@ -10,12 +10,13 @@ import xyz.lokili.loutils.api.IConfigManager;
  * Устраняет дублирование проверки модулей и получения конфигов
  */
 public abstract class BaseListener implements Listener {
-    
+
     protected final LoUtils plugin;
     protected final IConfigManager configManager;
-    protected final FileConfiguration config;
     private final String moduleName;
-    
+    /** Путь к YAML модуля в data folder (null если конфиг не используется). */
+    private final String moduleConfigPath;
+
     /**
      * @param plugin Экземпляр плагина
      * @param configManager Менеджер конфигураций
@@ -26,31 +27,43 @@ public abstract class BaseListener implements Listener {
         this.plugin = plugin;
         this.configManager = configManager;
         this.moduleName = moduleName;
-        this.config = configPath != null ? configManager.getConfig(configPath) : null;
+        this.moduleConfigPath = configPath;
     }
-    
+
+    /**
+     * Актуальный конфиг модуля. После {@code /loutils reload} всегда отражает файл на диске,
+     * в отличие от устаревшего снимка {@code FileConfiguration} в поле.
+     */
+    protected FileConfiguration moduleConfig() {
+        return moduleConfigPath != null ? configManager.getConfig(moduleConfigPath) : null;
+    }
+
     /**
      * Проверяет, включен ли модуль
      */
     protected boolean isModuleEnabled() {
         return moduleName == null || configManager.isModuleEnabled(moduleName);
     }
-    
+
     /**
      * Быстрая проверка для использования в начале обработчиков событий
+     *
      * @return true если модуль включен, false если нужно прервать обработку
      */
     protected boolean checkEnabled() {
-        // Проверяем включенность модуля в основном конфиге
         if (!isModuleEnabled()) {
             return false;
         }
-        
-        // Проверяем enabled в конфиге самого модуля (если конфиг есть)
-        if (config != null && !config.getBoolean("enabled", true)) {
+
+        FileConfiguration c = moduleConfig();
+        if (c != null && !c.getBoolean("enabled", true)) {
             return false;
         }
-        
+
+        if (c == null && moduleName != null) {
+            return false;
+        }
+
         return true;
     }
 }

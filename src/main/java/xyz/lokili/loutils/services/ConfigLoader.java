@@ -46,7 +46,6 @@ public class ConfigLoader {
         loadConfig(ConfigConstants.TPSBAR_CONFIG);
         loadConfig(ConfigConstants.WORLDLOCK_CONFIG);
         loadConfig(ConfigConstants.CUSTOMWORLDHEIGHT_CONFIG);
-        loadConfig("conf/performance.yml");
         loadConfig("conf/sleeppercentage.yml");
         loadConfig("conf/fastleafdecay.yml");
         loadConfig("conf/cauldron.yml");
@@ -55,6 +54,16 @@ public class ConfigLoader {
         loadConfig(ConfigConstants.DEBUG_STICK_CONFIG);
         loadConfig(ConfigConstants.INVISIBLE_FRAMES_CONFIG);
         loadConfig(ConfigConstants.POSES_CONFIG);
+        loadConfig(ConfigConstants.CUSTOM_CRAFTS_CONFIG);
+        loadConfig(ConfigConstants.ANVIL_REPAIR_CONFIG);
+        loadConfig(ConfigConstants.ENHANCED_BONE_MEAL_CONFIG);
+        loadConfig(ConfigConstants.FRAME_LOCKING_CONFIG);
+        loadConfig(ConfigConstants.MAP_LOCKING_CONFIG);
+        loadConfig(ConfigConstants.NAME_TAG_REMOVAL_CONFIG);
+        loadConfig(ConfigConstants.ENHANCED_HOES_CONFIG);
+        loadConfig(ConfigConstants.COW_MILKING_CONFIG);
+        loadConfig(ConfigConstants.INVENTORY_CHECK_STICK_CONFIG);
+        loadConfig(ConfigConstants.HANDCUFFS_CONFIG);
         
         // Validate all configs after loading
         validator.validateAll(configs);

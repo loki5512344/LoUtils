@@ -37,17 +37,6 @@ public class ConfigValidatorV2 {
             ValidationRules.listNotEmpty("warnings", "AutoRestart: warnings list is empty")
         ));
         
-        // Performance
-        validators.put("conf/performance.yml", ValidationRules.combine(
-            ValidationRules.doubleRange("tps-threshold", 1.0, 20.0, 15.0),
-            ValidationRules.intRange("check-interval", 10, 300, 30),
-            ValidationRules.intRange("report-cooldown", 60, 3600, 300),
-            ValidationRules.intRange("max-entities-in-report", 5, 100, 20),
-            ValidationRules.intRange("max-players-in-report", 5, 50, 10),
-            ValidationRules.intRange("entity-per-chunk-threshold", 10, 500, 50),
-            ValidationRules.webhookUrl("webhook-url", false)
-        ));
-        
         // Enchant
         validators.put("conf/enchant.yml", ValidationRules.combine(
             ValidationRules.intRange("max_level", 0, 32767, 0)

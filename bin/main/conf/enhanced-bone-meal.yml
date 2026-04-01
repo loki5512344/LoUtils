@@ -1,14 +1,17 @@
+# Enhanced Bone Meal - Костная мука для тростника и кактусов
+# Порт механики с Bedrock Edition
+
 enabled: true
 
-# Тростник
+# Настройки для тростника
 sugar-cane:
   enabled: true
-  max-height: 3           # Максимальная высота
-  growth-amount-min: 1    # Минимум блоков роста
-  growth-amount-max: 3    # Максимум блоков роста
-  success-chance: 0.75    # Шанс успеха (75%)
+  max-height: 3              # Максимальная высота
+  growth-amount-min: 1       # Минимальное количество блоков роста
+  growth-amount-max: 3       # Максимальное количество блоков роста
+  success-chance: 0.75       # Шанс успеха (75%)
 
-# Кактус
+# Настройки для кактуса
 cactus:
   enabled: true
   max-height: 3
@@ -17,5 +20,5 @@ cactus:
   success-chance: 0.75
 
 # Эффекты
-particles: true  # Зелёные частицы
-sounds: true     # Звук использования костной муки
+particles: true
+sounds: true
