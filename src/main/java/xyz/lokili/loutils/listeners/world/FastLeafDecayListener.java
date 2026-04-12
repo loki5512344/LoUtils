@@ -55,33 +55,36 @@ public class FastLeafDecayListener extends BaseListener {
     private void decayLeaves(Block center, int radius, String treeType) {
         Set<Block> leaves = new HashSet<>();
         Set<Block> logsOfSameType = new HashSet<>();
-        
+
         // Сначала найдём все блоки ЭТОГО типа дерева в радиусе
         for (int x = -radius; x <= radius; x++) {
             for (int y = -radius; y <= radius; y++) {
                 for (int z = -radius; z <= radius; z++) {
                     Block block = center.getRelative(x, y, z);
                     Material type = block.getType();
-                    
+
                     // Проверяем только листья и брёвна ЭТОГО типа дерева
                     if (isLeaf(type) && getWoodType(type).equals(treeType)) {
-                        leaves.add(block);
+                        // Проверяем persistent флаг - игнорируем листья, поставленные игроком
+                        if (isDecayableLeaf(block)) {
+                            leaves.add(block);
+                        }
                     } else if (isLog(type) && getWoodType(type).equals(treeType)) {
                         logsOfSameType.add(block);
                     }
                 }
             }
         }
-        
+
         // Ограничение на количество листьев для предотвращения лагов
         if (leaves.size() > 500) {
             plugin.loLogger().warn("FastLeafDecay: Too many leaves (" + leaves.size() + "), skipping");
             return;
         }
-        
+
         // Удаляем листья, которые не связаны с оставшимися брёвнами ЭТОГО типа
         Set<Block> leavesToRemove = new HashSet<>();
-        
+
         boolean smartDecay = moduleConfig().getBoolean("smart-decay", true);
         if (smartDecay && !logsOfSameType.isEmpty()) {
             // Умный алгоритм - проверяем связь с брёвнами того же типа
@@ -94,77 +97,82 @@ public class FastLeafDecayListener extends BaseListener {
             // Простой алгоритм - удаляем ВСЕ листья этого типа (дерево срублено полностью)
             leavesToRemove.addAll(leaves);
         }
-        
+
         // Удаляем листья постепенно с правильным дропом
         int animationDelay = moduleConfig().getInt("animation-delay", 2);
         int delay = 1;
-        
+
         for (Block leaf : leavesToRemove) {
             final Block finalLeaf = leaf;
             final int currentDelay = delay;
-            
+
             SchedulerUtil.runAtLocationDelayed(plugin, leaf.getLocation(), () -> {
                 // Проверяем что блок всё ещё лист перед удалением
-                if (isLeaf(finalLeaf.getType())) {
+                if (isLeaf(finalLeaf.getType()) && isDecayableLeaf(finalLeaf)) {
                     // breakNaturally() дропает предметы как при естественном гниении
                     finalLeaf.breakNaturally();
                 }
             }, currentDelay);
-            
+
             delay += Math.max(1, animationDelay);
         }
     }
     
+    // Оптимизированные направления: только 6 основных (не по диагонали)
+    private static final int[][] DIRECTIONS = {
+        {0, 1, 0}, {0, -1, 0},   // вверх/вниз
+        {1, 0, 0}, {-1, 0, 0},   // восток/запад
+        {0, 0, 1}, {0, 0, -1}    // юг/север
+    };
+
     /**
      * Проверяет, связан ли лист с каким-либо бревном через другие листья
      * Использует итеративный алгоритм BFS для предотвращения StackOverflow
+     * Оптимизирован: проверяет только 6 направлений вместо 26
      */
     private boolean isConnectedToLogIterative(Block startLeaf, Set<Block> logs, Set<Block> allLeaves) {
         Set<Block> visited = new HashSet<>();
         java.util.Queue<Block> queue = new java.util.LinkedList<>();
         queue.add(startLeaf);
         visited.add(startLeaf);
-        
+
         int maxIterations = 200;
         int iterations = 0;
-        
+
         // Максимальное расстояние от листа до бревна (ванильная механика)
         final int MAX_DISTANCE_TO_LOG = 6;
-        
+
         while (!queue.isEmpty() && iterations < maxIterations) {
             iterations++;
             Block current = queue.poll();
-            
-            // Проверяем соседние блоки
-            for (int x = -1; x <= 1; x++) {
-                for (int y = -1; y <= 1; y++) {
-                    for (int z = -1; z <= 1; z++) {
-                        if (x == 0 && y == 0 && z == 0) continue;
-                        
-                        Block neighbor = current.getRelative(x, y, z);
-                        
-                        // Если рядом есть бревно - проверяем расстояние до исходного листа
-                        if (logs.contains(neighbor)) {
-                            double distance = startLeaf.getLocation().distance(neighbor.getLocation());
-                            if (distance <= MAX_DISTANCE_TO_LOG) {
-                                return true; // Лист связан с близким бревном
-                            }
-                        }
-                        
-                        // Если рядом есть другой лист из нашего набора - добавляем в очередь
-                        if (allLeaves.contains(neighbor) && !visited.contains(neighbor)) {
-                            // Проверяем что мы не ушли слишком далеко от исходного листа
-                            double distanceFromStart = startLeaf.getLocation().distance(neighbor.getLocation());
-                            if (distanceFromStart <= MAX_DISTANCE_TO_LOG) {
-                                visited.add(neighbor);
-                                queue.add(neighbor);
-                            }
+
+            // Проверяем только 6 основных направлений (не по диагонали)
+            for (int[] dir : DIRECTIONS) {
+                Block neighbor = current.getRelative(dir[0], dir[1], dir[2]);
+
+                // Если рядом есть бревно - проверяем расстояние до исходного листа
+                if (logs.contains(neighbor)) {
+                    double distance = startLeaf.getLocation().distance(neighbor.getLocation());
+                    if (distance <= MAX_DISTANCE_TO_LOG) {
+                        return true; // Лист связан с близким бревном
+                    }
+                }
+
+                // Если рядом есть другой лист из нашего набора - добавляем в очередь
+                if (allLeaves.contains(neighbor) && !visited.contains(neighbor)) {
+                    // Проверяем что мы не ушли слишком далеко от исходного листа
+                    double distanceFromStart = startLeaf.getLocation().distance(neighbor.getLocation());
+                    if (distanceFromStart <= MAX_DISTANCE_TO_LOG) {
+                        // Дополнительная проверка: листья должны быть decayable
+                        if (isDecayableLeaf(neighbor)) {
+                            visited.add(neighbor);
+                            queue.add(neighbor);
                         }
                     }
                 }
             }
         }
-        
+
         return false;
     }
     
@@ -175,23 +183,41 @@ public class FastLeafDecayListener extends BaseListener {
     private boolean isLeaf(Material material) {
         return material.name().endsWith("_LEAVES");
     }
-    
+
+    /**
+     * Проверяет, является ли лист "гниющим" (не persistent)
+     * Листья с persistent=true поставлены игроком и не должны гнить
+     */
+    private boolean isDecayableLeaf(Block block) {
+        if (!isLeaf(block.getType())) {
+            return false;
+        }
+
+        // Проверяем persistent флаг
+        if (block.getBlockData() instanceof org.bukkit.block.data.type.Leaves leaves) {
+            return !leaves.isPersistent(); // Только естественные листья (persistent=false)
+        }
+
+        return true; // Fallback: если не удалось получить BlockData
+    }
+
     /**
      * Получает тип дерева из материала (OAK, BIRCH, SPRUCE и т.д.)
-     * Примеры: OAK_LOG -> OAK, BIRCH_LEAVES -> BIRCH, STRIPPED_OAK_LOG -> STRIPPED_OAK
+     * Примеры:
+     * - OAK_LOG -> OAK
+     * - BIRCH_LEAVES -> BIRCH
+     * - STRIPPED_OAK_LOG -> OAK (убираем STRIPPED_)
+     * - STRIPPED_DARK_OAK_WOOD -> DARK_OAK
      */
     private String getWoodType(Material material) {
         String name = material.name();
-        
-        // Убираем суффиксы _LOG, _WOOD, _LEAVES
-        if (name.endsWith("_LOG")) {
-            return name.substring(0, name.length() - 4);
-        } else if (name.endsWith("_WOOD")) {
-            return name.substring(0, name.length() - 5);
-        } else if (name.endsWith("_LEAVES")) {
-            return name.substring(0, name.length() - 7);
-        }
-        
-        return name; // Fallback
+
+        // Убираем все префиксы и суффиксы
+        name = name.replace("STRIPPED_", "")
+                   .replace("_LOG", "")
+                   .replace("_WOOD", "")
+                   .replace("_LEAVES", "");
+
+        return name; // OAK, BIRCH, SPRUCE, JUNGLE, ACACIA, DARK_OAK, MANGROVE, CHERRY, CRIMSON, WARPED
     }
 }
