@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
 import org.bukkit.event.EventHandler;
@@ -13,8 +14,12 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.entity.EntityToggleGlideEvent;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
+import org.bukkit.event.player.PlayerItemMendEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.view.AnvilView;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.Repairable;
 import xyz.lokili.loutils.LoUtils;
 import xyz.lokili.loutils.constants.ConfigConstants;
 import xyz.lokili.loutils.listeners.base.BaseListener;
@@ -49,22 +54,20 @@ public class ElytraMechanicsListener extends BaseListener {
             int loreInterval = Math.max(1, cfg.getInt("elytra.lore-update-interval-ticks", 10));
             final boolean updateLore = (elytraGlobalTick % loreInterval) == 0;
 
-            int fl = cfg.getInt("elytra.flight-limit-ticks", 3 * 60 * 20);
-            final int flightLimitTicks = fl < 1 ? 3 * 60 * 20 : fl;
-            int rms = cfg.getInt("elytra.recharge-seconds", 180) * 1000;
-            final int rechargeMs = rms < 1000 ? 180_000 : rms;
-
             for (Player player : Bukkit.getOnlinePlayers()) {
-                Scheduler.get(plugin).runAtEntity(player, () -> tickElytra(player, cfg, flightLimitTicks, rechargeMs, updateLore));
+                Scheduler.get(plugin).runAtEntity(player, () -> tickElytra(player, cfg, updateLore));
             }
         }, 0L, 1L);
     }
 
-    private void tickElytra(Player player, FileConfiguration cfg, int flightLimitTicks, int rechargeMs, boolean updateLore) {
+    private void tickElytra(Player player, FileConfiguration cfg, boolean updateLore) {
         ItemStack chest = player.getInventory().getChestplate();
         if (!CustomElytraHelper.isCustomElytra(plugin, chest)) return;
 
-        CustomElytraHelper.stripAllEnchants(chest);
+        int flightLimitTicks = CustomElytraHelper.getEffectiveFlightLimitTicks(plugin, chest, cfg);
+        int rechargeMs = CustomElytraHelper.getEffectiveRechargeMs(plugin, chest, cfg);
+
+        CustomElytraHelper.stripForbiddenEnchants(chest);
         CustomElytraHelper.clearRechargeIfDone(plugin, chest);
 
         boolean gliding = isElytraFlight(player);
@@ -166,9 +169,11 @@ public class ElytraMechanicsListener extends BaseListener {
         boolean secondCustom = CustomElytraHelper.isCustomElytra(plugin, second);
         if (!firstCustom && !secondCustom) return;
 
-        if (second != null && second.getType() == Material.ENCHANTED_BOOK) {
-            event.setResult(null);
-            return;
+        if (firstCustom && second != null && second.getType() == Material.ENCHANTED_BOOK) {
+            if (!isMendingOnlyBook(second)) {
+                event.setResult(null);
+                return;
+            }
         }
 
         if (firstCustom && second != null && second.getType() == Material.ELYTRA) {
@@ -182,11 +187,57 @@ public class ElytraMechanicsListener extends BaseListener {
 
         ItemStack result = event.getResult();
         if (result != null && result.getType() == Material.ELYTRA && CustomElytraHelper.isCustomElytra(plugin, first)) {
-            ItemMeta rm = result.getItemMeta();
-            if (rm != null && rm.hasEnchants()) {
+            if (CustomElytraHelper.hasForbiddenEnchants(result)) {
                 event.setResult(null);
+                return;
+            }
+            normalizeCustomElytraAnvilResult(result);
+            event.setResult(result);
+            int cap = moduleConfig().getInt("elytra.anvil-max-level-cost", 1);
+            if (cap < 0) cap = 0;
+            if (event.getView() instanceof AnvilView view) {
+                view.setRepairCost(Math.min(view.getRepairCost(), cap));
             }
         }
+    }
+
+    private static boolean isMendingOnlyBook(ItemStack book) {
+        if (book == null || book.getType() != Material.ENCHANTED_BOOK) return false;
+        ItemMeta meta = book.getItemMeta();
+        if (!(meta instanceof EnchantmentStorageMeta esm) || !esm.hasStoredEnchants()) return false;
+        var stored = esm.getStoredEnchants();
+        return stored.size() == 1 && stored.containsKey(Enchantment.MENDING);
+    }
+
+    /** Только починка I; сброс prior work на результате. */
+    private void normalizeCustomElytraAnvilResult(ItemStack result) {
+        ItemMeta meta = result.getItemMeta();
+        if (meta == null) return;
+        if (meta.hasEnchant(Enchantment.MENDING)) {
+            meta.removeEnchant(Enchantment.MENDING);
+            meta.addEnchant(Enchantment.MENDING, 1, true);
+        }
+        if (meta instanceof Repairable repairable) {
+            repairable.setRepairCost(0);
+        }
+        result.setItemMeta(meta);
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onItemMend(PlayerItemMendEvent event) {
+        if (!checkEnabled() || moduleConfig() == null) return;
+        if (!moduleConfig().getBoolean("elytra.enabled", true)) return;
+        if (!moduleConfig().getBoolean("elytra.mending.enabled", true)) return;
+        ItemStack item = event.getItem();
+        if (!CustomElytraHelper.isCustomElytra(plugin, item)) return;
+        double eff = moduleConfig().getDouble("elytra.mending.efficiency", 0.5);
+        if (eff >= 1.0) return;
+        if (eff <= 0.0) {
+            event.setCancelled(true);
+            return;
+        }
+        int amount = event.getRepairAmount();
+        event.setRepairAmount(Math.max(1, (int) Math.floor(amount * eff)));
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)

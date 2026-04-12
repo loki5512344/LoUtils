@@ -1,6 +1,8 @@
 package xyz.lokili.loutils.listeners.crafts;
 
+import dev.lolib.scheduler.Scheduler;
 import dev.lolib.utils.Colors;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.EventHandler;
@@ -25,20 +27,22 @@ public class FireworkCraftListener extends BaseListener {
     
     public FireworkCraftListener(LoUtils plugin, xyz.lokili.loutils.api.IConfigManager configManager) {
         super(plugin, configManager, ConfigConstants.Modules.CUSTOM_CRAFTS, ConfigConstants.CUSTOM_CRAFTS_CONFIG);
-        registerFireworkCraft();
+        Scheduler.get(plugin).runLater(this::registerFireworkCraft, 1L);
     }
     
     /**
      * Регистрация крафта фейерверка
      */
-    private void registerFireworkCraft() {
+    public void registerFireworkCraft() {
         if (!checkEnabled()) return;
         if (moduleConfig() == null) {
             plugin.getLogger().warning("Custom crafts config not loaded for firework!");
             return;
         }
         if (!moduleConfig().getBoolean("firework-level-4.enabled", true)) return;
-        
+
+        Bukkit.removeRecipe(new NamespacedKey(plugin, "firework_level_4"));
+
         ItemStack result = new ItemStack(Material.FIREWORK_ROCKET);
         ShapedRecipe recipe = new ShapedRecipe(new NamespacedKey(plugin, "firework_level_4"), result);
         
@@ -62,23 +66,29 @@ public class FireworkCraftListener extends BaseListener {
         if (!checkEnabled()) return;
         if (moduleConfig() == null) return;
         if (!moduleConfig().getBoolean("firework-level-4.enabled", true)) return;
-        
-        ItemStack result = event.getInventory().getResult();
+
+        var inv = event.getInventory();
+        if (inv == null) return;
+
+        ItemStack result = inv.getResult();
         if (result == null || result.getType() != Material.FIREWORK_ROCKET) return;
         
         // Проверяем что это наш крафт (бумага + огненный порошок + 3 пороха)
-        ItemStack[] matrix = event.getInventory().getMatrix();
+        ItemStack[] matrix = inv.getMatrix();
         if (!isFireworkLevel4Craft(matrix)) return;
         
         // Создаём фейерверк с кастомным NBT
         ItemStack customFirework = createCustomFirework();
-        event.getInventory().setResult(customFirework);
+        inv.setResult(customFirework);
     }
     
     /**
      * Проверка что это наш крафт
      */
     private boolean isFireworkLevel4Craft(ItemStack[] matrix) {
+        if (matrix == null) {
+            return false;
+        }
         int paperCount = 0;
         int blazePowderCount = 0;
         int gunpowderCount = 0;
@@ -102,7 +112,10 @@ public class FireworkCraftListener extends BaseListener {
         
         ItemStack firework = new ItemStack(Material.FIREWORK_ROCKET);
         FireworkMeta meta = (FireworkMeta) firework.getItemMeta();
-        
+        if (meta == null) {
+            return firework;
+        }
+
         // Устанавливаем длительность полёта
         int flightDuration = moduleConfig().getInt("firework-level-4.flight-duration", 4);
         meta.setPower(flightDuration);

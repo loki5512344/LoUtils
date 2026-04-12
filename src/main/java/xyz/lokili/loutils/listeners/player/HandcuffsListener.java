@@ -1,8 +1,10 @@
 package xyz.lokili.loutils.listeners.player;
 
+import dev.lolib.scheduler.Scheduler;
 import dev.lolib.utils.Colors;
 import org.bukkit.Color;
 import org.bukkit.Location;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
@@ -51,7 +53,7 @@ public class HandcuffsListener extends BaseListener {
     public HandcuffsListener(LoUtils plugin, IConfigManager configManager) {
         super(plugin, configManager, ConfigConstants.Modules.HANDCUFFS, ConfigConstants.HANDCUFFS_CONFIG);
         this.itemKey = new NamespacedKey(plugin, "handcuffs_item");
-        registerRecipe();
+        Scheduler.get(plugin).runLater(this::registerHandcuffsRecipe, 1L);
     }
 
     private boolean isHandcuffStack(ItemStack stack) {
@@ -66,10 +68,11 @@ public class HandcuffsListener extends BaseListener {
         return plugin.getContainer().getItemFactory().createHandcuffs(moduleConfig() != null ? moduleConfig() : empty);
     }
 
-    private void registerRecipe() {
+    public void registerHandcuffsRecipe() {
         if (moduleConfig() == null || !moduleConfig().getBoolean("crafting-enabled", true)) {
             return;
         }
+        Bukkit.removeRecipe(new NamespacedKey(plugin, "handcuffs"));
         ItemStack result = buildHandcuffItem();
         ShapedRecipe recipe = new ShapedRecipe(new NamespacedKey(plugin, "handcuffs"), result);
         recipe.shape("NNN", "NIN", "NNN");

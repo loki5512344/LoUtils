@@ -1,6 +1,8 @@
 package xyz.lokili.loutils.listeners.items;
 
+import dev.lolib.scheduler.Scheduler;
 import dev.lolib.utils.Colors;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -36,14 +38,16 @@ public class InventoryCheckStickListener extends BaseListener {
     public InventoryCheckStickListener(LoUtils plugin, xyz.lokili.loutils.api.IConfigManager configManager) {
         super(plugin, configManager, ConfigConstants.Modules.INVENTORY_CHECK_STICK, ConfigConstants.INVENTORY_CHECK_STICK_CONFIG);
         this.stickKey = new NamespacedKey(plugin, "inventory_check_stick");
-        registerRecipe();
+        Scheduler.get(plugin).runLater(this::registerInventoryCheckStickRecipe, 1L);
     }
 
-    private void registerRecipe() {
+    public void registerInventoryCheckStickRecipe() {
         FileConfiguration c = moduleConfig();
         if (c == null || !c.getBoolean("crafting-enabled", true)) {
             return;
         }
+
+        Bukkit.removeRecipe(new NamespacedKey(plugin, "inventory_check_stick"));
 
         ItemStack result = buildStickItem();
         ShapedRecipe recipe = new ShapedRecipe(new NamespacedKey(plugin, "inventory_check_stick"), result);

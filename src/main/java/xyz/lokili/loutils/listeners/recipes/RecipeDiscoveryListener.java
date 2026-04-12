@@ -37,6 +37,7 @@ public class RecipeDiscoveryListener implements Listener {
         customRecipes.add(new NamespacedKey(plugin, "scaffolding"));
         customRecipes.add(new NamespacedKey(plugin, "custom_quartz"));
         customRecipes.add(new NamespacedKey(plugin, "elytra_craft"));
+        customRecipes.add(new NamespacedKey(plugin, "elytra_upgrade_t2"));
         customRecipes.add(new NamespacedKey(plugin, "echo_pickaxe"));
         
         // Light Block

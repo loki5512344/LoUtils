@@ -1,6 +1,7 @@
 package xyz.lokili.loutils.listeners.crafts;
 
 import dev.lolib.utils.Colors;
+import dev.lolib.scheduler.Scheduler;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -25,10 +26,10 @@ public class EchoPickaxeCraftListener extends BaseListener {
 
     public EchoPickaxeCraftListener(LoUtils plugin, xyz.lokili.loutils.api.IConfigManager configManager) {
         super(plugin, configManager, ConfigConstants.Modules.CUSTOM_CRAFTS, ConfigConstants.CUSTOM_CRAFTS_CONFIG);
-        registerRecipe();
+        Scheduler.get(plugin).runLater(this::registerEchoPickaxeRecipe, 1L);
     }
 
-    private void registerRecipe() {
+    public void registerEchoPickaxeRecipe() {
         if (!checkEnabled()) return;
         if (moduleConfig() == null) return;
         if (!moduleConfig().getBoolean("echo-pickaxe.enabled", true)) return;
@@ -52,13 +53,16 @@ public class EchoPickaxeCraftListener extends BaseListener {
         if (!checkEnabled() || moduleConfig() == null) return;
         if (!moduleConfig().getBoolean("echo-pickaxe.enabled", true)) return;
 
-        ItemStack result = event.getInventory().getResult();
+        var inv = event.getInventory();
+        if (inv == null) return;
+
+        ItemStack result = inv.getResult();
         if (result == null || result.getType() != Material.WOODEN_PICKAXE) return;
 
-        ItemStack[] matrix = event.getInventory().getMatrix();
+        ItemStack[] matrix = inv.getMatrix();
         if (!isEchoPickaxeCraft(matrix)) return;
 
-        event.getInventory().setResult(createEchoPickaxe());
+        inv.setResult(createEchoPickaxe());
     }
 
     private boolean isEchoPickaxeCraft(ItemStack[] matrix) {

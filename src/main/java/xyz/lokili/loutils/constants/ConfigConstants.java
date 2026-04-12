@@ -29,8 +29,6 @@ public final class ConfigConstants {
     public static final String ENHANCED_BONE_MEAL_CONFIG = "conf/enhanced-bone-meal.yml";
     public static final String ANVIL_REPAIR_CONFIG = "conf/anvil-repair.yml";
     public static final String NAME_TAG_REMOVAL_CONFIG = "conf/name-tag-removal.yml";
-    public static final String ENHANCED_HOES_CONFIG = "conf/enhanced-hoes.yml";
-    public static final String COW_MILKING_CONFIG = "conf/cow-milking.yml";
     public static final String INVENTORY_CHECK_STICK_CONFIG = "conf/inventory-check-stick.yml";
     public static final String HANDCUFFS_CONFIG = "conf/handcuffs.yml";
     
@@ -96,8 +94,6 @@ public final class ConfigConstants {
         public static final String ENHANCED_BONE_MEAL = "enhanced-bone-meal";
         public static final String ANVIL_REPAIR = "anvil-repair";
         public static final String NAME_TAG_REMOVAL = "name-tag-removal";
-        public static final String ENHANCED_HOES = "enhanced-hoes";
-        public static final String COW_MILKING = "cow-milking";
         public static final String INVENTORY_CHECK_STICK = "inventory-check-stick";
         public static final String HANDCUFFS = "handcuffs";
         

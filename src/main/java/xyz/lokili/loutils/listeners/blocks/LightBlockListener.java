@@ -1,6 +1,8 @@
 package xyz.lokili.loutils.listeners.blocks;
 
+import dev.lolib.scheduler.Scheduler;
 import dev.lolib.utils.Colors;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
@@ -38,11 +40,13 @@ public class LightBlockListener extends BaseListener {
         super(plugin, configManager, ConfigConstants.Modules.LIGHT_BLOCK, ConfigConstants.LIGHT_BLOCK_CONFIG);
         this.lightLevelKey = new NamespacedKey(plugin, "light_level");
         this.particleService = particleService;
-        registerRecipe();
+        Scheduler.get(plugin).runLater(this::registerLightBlockRecipe, 1L);
     }
     
-    private void registerRecipe() {
-        if (!moduleConfig().getBoolean("crafting-enabled", true)) return;
+    public void registerLightBlockRecipe() {
+        if (moduleConfig() == null || !moduleConfig().getBoolean("crafting-enabled", true)) return;
+
+        Bukkit.removeRecipe(new NamespacedKey(plugin, "light_block"));
         
         ItemStack result = createLightBlock(15);
         ShapedRecipe recipe = new ShapedRecipe(new NamespacedKey(plugin, "light_block"), result);

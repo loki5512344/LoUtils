@@ -11,12 +11,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
- * Utility class for unified scheduler access across Folia's region-based threading
- * Now uses LoLib Scheduler under the hood
- * 
- * @deprecated Use {@link Scheduler} from LoLib directly
+ * Обёртка над LoLib {@link Scheduler} для единообразного вызова из плагина.
  */
-@Deprecated
 public final class SchedulerUtil {
     
     private SchedulerUtil() {

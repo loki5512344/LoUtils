@@ -17,8 +17,6 @@ import xyz.lokili.loutils.utils.MessageUtil;
  */
 public class DependencyContainer {
     
-    private final LoUtils plugin;
-    
     // Core
     private final IConfigManager configManager;
     private final MessageUtil messageUtil;
@@ -39,8 +37,6 @@ public class DependencyContainer {
     private final AsyncExecutor asyncExecutor;
     
     public DependencyContainer(LoUtils plugin) {
-        this.plugin = plugin;
-        
         // Core - создаём первыми
         this.configManager = new ConfigManager(plugin);
         this.messageUtil = new MessageUtil(plugin);

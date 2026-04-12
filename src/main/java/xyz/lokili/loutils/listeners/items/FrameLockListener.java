@@ -9,6 +9,7 @@ import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.ItemStack;
@@ -83,8 +84,9 @@ public class FrameLockListener extends BaseListener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onFrameDamage(EntityDamageByEntityEvent event) {
         if (!checkEnabled()) return;
-        if (moduleConfig() == null || !moduleConfig().getBoolean("prevent-break", true)) return;
-        
+        FileConfiguration cfg = moduleConfig();
+        if (cfg == null || !cfg.getBoolean("prevent-break", true)) return;
+
         if (event.getEntity().getType() != EntityType.ITEM_FRAME && 
             event.getEntity().getType() != EntityType.GLOW_ITEM_FRAME) return;
 
@@ -92,7 +94,7 @@ public class FrameLockListener extends BaseListener {
         if (!frame.getPersistentDataContainer().has(lockedKey, PersistentDataType.BYTE)) return;
 
         if (event.getDamager() instanceof Player player) {
-            player.sendActionBar(Colors.parse(moduleConfig().getString("messages.is-locked")));
+            player.sendActionBar(Colors.parse(cfg.getString("messages.is-locked")));
         }
         
         event.setCancelled(true);

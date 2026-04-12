@@ -53,6 +53,9 @@ public class LoUtils extends LoPlugin {
         if (container != null) {
             container.reload();
         }
+        if (listenerRegistry != null) {
+            listenerRegistry.reregisterRecipes();
+        }
     }
     
     // Главный геттер - доступ к контейнеру

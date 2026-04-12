@@ -14,12 +14,10 @@ import java.util.Set;
  */
 public class WorldLockManager extends BaseStorageManager implements IWorldLockManager {
     
-    private final LoUtils plugin;
     private final IConfigManager configManager;
     
     public WorldLockManager(LoUtils plugin, IConfigManager configManager) {
         super(plugin, ConfigConstants.WORLDLOCK_CONFIG, "locked-worlds", true);
-        this.plugin = plugin;
         this.configManager = configManager;
         reload();
     }

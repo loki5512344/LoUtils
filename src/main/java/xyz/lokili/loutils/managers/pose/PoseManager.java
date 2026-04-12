@@ -160,10 +160,15 @@ public class PoseManager {
         if (data.getArmorStand() != null) {
             ArmorStand stand = data.getArmorStand();
 
-            // Вычисляем правильную позицию для возврата (1:1 с GSit handleSafeSeatDismount)
-            Location upLocation = dismountCalculator.calculateDismountLocation(data);
-            
-            // Сохраняем текущий поворот головы игрока
+            // Сидеть на игроке: носитель мог уйти — вставать там, где сидящий сейчас (на голове), не в старой returnLocation
+            Location upLocation;
+            if (data.getType() == PoseType.SIT_ON_PLAYER) {
+                upLocation = player.getLocation().clone();
+                upLocation.add(0d, 0.05d, 0d);
+            } else {
+                upLocation = dismountCalculator.calculateDismountLocation(data);
+            }
+
             Location currentLoc = player.getLocation();
             upLocation.setYaw(currentLoc.getYaw());
             upLocation.setPitch(currentLoc.getPitch());

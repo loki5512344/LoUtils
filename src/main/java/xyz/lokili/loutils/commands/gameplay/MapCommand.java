@@ -21,12 +21,10 @@ import java.util.List;
 
 public class MapCommand implements CommandExecutor, TabCompleter {
 
-    private final LoUtils plugin;
     private final NamespacedKey lockedKey;
     private final FileConfiguration config;
 
     public MapCommand(LoUtils plugin) {
-        this.plugin = plugin;
         this.lockedKey = new NamespacedKey(plugin, "map_locked_by");
         this.config = plugin.getConfigManager().getConfig(ConfigConstants.MAP_LOCKING_CONFIG);
     }

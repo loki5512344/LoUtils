@@ -9,11 +9,8 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
 /**
- * Color utility wrapper for LoLib Colors with enhanced hex support
- * 
- * @deprecated Use {@link Colors} from LoLib directly
+ * Color utility: MiniMessage + legacy + {@code &#RRGGBB} hex (LoLib {@link Colors} не покрывает все кейсы конфигов).
  */
-@Deprecated
 public class ColorUtil {
     
     private static final Pattern HEX_PATTERN = Pattern.compile("&#([0-9A-Fa-f]{6})");

@@ -14,13 +14,11 @@ import xyz.lokili.loutils.services.ModuleRegistry;
  */
 public class ConfigManager implements IConfigManager {
     
-    private final LoUtils plugin;
     private final ConfigLoader configLoader;
     private final MessageService messageService;
     private final ModuleRegistry moduleRegistry;
     
     public ConfigManager(LoUtils plugin) {
-        this.plugin = plugin;
         this.configLoader = new ConfigLoader(plugin);
         this.messageService = new MessageService(plugin, configLoader);
         this.moduleRegistry = new ModuleRegistry(plugin);

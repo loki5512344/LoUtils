@@ -4,6 +4,7 @@ import dev.lolib.utils.Colors;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -12,14 +13,14 @@ import org.bukkit.plugin.Plugin;
 import xyz.lokili.loutils.utils.ColorUtil;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Маркер и данные крафтовых элитр (PDC): перезарядка, накопленное время полёта.
  */
 public final class CustomElytraHelper {
-
-    private static final int VANILLA_ELYTRA_MAX_DAMAGE = 432;
 
     private CustomElytraHelper() {}
 
@@ -33,6 +34,11 @@ public final class CustomElytraHelper {
 
     public static NamespacedKey keyFlightTicks(Plugin plugin) {
         return new NamespacedKey(plugin, "elytra_flight_ticks");
+    }
+
+    /** 1 — базовый крафт, 2 — улучшение (wind charge + алмазные блоки). */
+    public static NamespacedKey keyElytraTier(Plugin plugin) {
+        return new NamespacedKey(plugin, "elytra_tier");
     }
 
     public static boolean isCustomElytra(Plugin plugin, ItemStack stack) {
@@ -98,10 +104,80 @@ public final class CustomElytraHelper {
         stack.setItemMeta(meta);
     }
 
+    /**
+     * Убирает все зачарования, кроме «Починки» I. Уровень починки принудительно 1.
+     */
+    public static void stripForbiddenEnchants(ItemStack stack) {
+        ItemMeta meta = stack.getItemMeta();
+        if (meta == null || !meta.hasEnchants()) return;
+        boolean hadMending = meta.hasEnchant(Enchantment.MENDING);
+        Set<Enchantment> keys = new HashSet<>(meta.getEnchants().keySet());
+        for (Enchantment e : keys) {
+            if (e != Enchantment.MENDING) {
+                meta.removeEnchant(e);
+            }
+        }
+        if (hadMending) {
+            meta.removeEnchant(Enchantment.MENDING);
+            meta.addEnchant(Enchantment.MENDING, 1, true);
+        }
+        stack.setItemMeta(meta);
+    }
+
+    public static boolean hasForbiddenEnchants(ItemStack stack) {
+        ItemMeta meta = stack.getItemMeta();
+        if (meta == null || !meta.hasEnchants()) return false;
+        for (Enchantment e : meta.getEnchants().keySet()) {
+            if (e != Enchantment.MENDING) return true;
+            if (meta.getEnchantLevel(Enchantment.MENDING) != 1) return true;
+        }
+        return false;
+    }
+
+    public static int getElytraTier(Plugin plugin, ItemStack stack) {
+        if (!isCustomElytra(plugin, stack)) return 0;
+        ItemMeta meta = stack.getItemMeta();
+        if (meta == null) return 1;
+        Byte t = meta.getPersistentDataContainer().get(keyElytraTier(plugin), PersistentDataType.BYTE);
+        if (t == null) return 1;
+        return Math.max(1, Math.min(2, t.intValue()));
+    }
+
+    public static void setElytraTier(Plugin plugin, ItemStack stack, int tier) {
+        ItemMeta meta = stack.getItemMeta();
+        if (meta == null) return;
+        int t = Math.max(1, Math.min(2, tier));
+        meta.getPersistentDataContainer().set(keyElytraTier(plugin), PersistentDataType.BYTE, (byte) t);
+        stack.setItemMeta(meta);
+    }
+
+    public static int getEffectiveFlightLimitTicks(Plugin plugin, ItemStack stack, FileConfiguration cfg) {
+        if (cfg == null) return 6 * 60 * 20;
+        int tier = getElytraTier(plugin, stack);
+        if (tier >= 2 && cfg.getBoolean("elytra.tier2.enabled", true)) {
+            int v = cfg.getInt("elytra.tier2.flight-limit-ticks", 7200);
+            return v < 1 ? 7200 : v;
+        }
+        int v = cfg.getInt("elytra.flight-limit-ticks", 6 * 60 * 20);
+        return v < 1 ? 6 * 60 * 20 : v;
+    }
+
+    public static int getEffectiveRechargeMs(Plugin plugin, ItemStack stack, FileConfiguration cfg) {
+        if (cfg == null) return 180_000;
+        int tier = getElytraTier(plugin, stack);
+        if (tier >= 2 && cfg.getBoolean("elytra.tier2.enabled", true)) {
+            int sec = cfg.getInt("elytra.tier2.recharge-seconds", 180);
+            return (sec < 1 ? 180 : sec) * 1000;
+        }
+        int sec = cfg.getInt("elytra.recharge-seconds", 180);
+        return (sec < 1 ? 180 : sec) * 1000;
+    }
+
     public static void markAndInit(Plugin plugin, ItemStack stack) {
         ItemMeta meta = stack.getItemMeta();
         if (meta == null) return;
         meta.getPersistentDataContainer().set(keyMarker(plugin), PersistentDataType.BYTE, (byte) 1);
+        meta.getPersistentDataContainer().set(keyElytraTier(plugin), PersistentDataType.BYTE, (byte) 1);
         meta.getPersistentDataContainer().remove(keyRechargeUntil(plugin));
         meta.getPersistentDataContainer().remove(keyFlightTicks(plugin));
         stack.setItemMeta(meta);
@@ -116,8 +192,7 @@ public final class CustomElytraHelper {
         if (meta == null) return;
 
         long flightTicks = getFlightTicks(plugin, stack);
-        int limitTicks = cfg.getInt("elytra.flight-limit-ticks", 3 * 60 * 20);
-        if (limitTicks < 1) limitTicks = 3 * 60 * 20;
+        int limitTicks = getEffectiveFlightLimitTicks(plugin, stack, cfg);
         long rechargeUntil = getRechargeUntilMs(plugin, stack);
         long now = System.currentTimeMillis();
 
@@ -194,19 +269,59 @@ public final class CustomElytraHelper {
         if (!pdc.has(keyFlightTicks(plugin), PersistentDataType.LONG)) {
             pdc.set(keyFlightTicks(plugin), PersistentDataType.LONG, 0L);
         }
+        if (!pdc.has(keyElytraTier(plugin), PersistentDataType.BYTE)) {
+            pdc.set(keyElytraTier(plugin), PersistentDataType.BYTE, (byte) 1);
+        }
 
-        int maxDamage = cfg.getInt("elytra.max-damage", VANILLA_ELYTRA_MAX_DAMAGE / 2);
-        if (maxDamage < 1) maxDamage = VANILLA_ELYTRA_MAX_DAMAGE / 2;
+        int tier = getElytraTier(plugin, stack);
+        int maxDamage = tier >= 2 && cfg.getBoolean("elytra.tier2.enabled", true)
+                ? cfg.getInt("elytra.tier2.max-damage", 550)
+                : cfg.getInt("elytra.max-damage", 500);
+        if (maxDamage < 1) maxDamage = tier >= 2 ? 550 : 500;
         if (meta instanceof Damageable damageable) {
             damageable.setMaxDamage(maxDamage);
         }
 
-        String nameFormat = cfg.getString("elytra.name-format", "&cКрылья фантома");
+        String nameFormat = tier >= 2 && cfg.getBoolean("elytra.tier2.enabled", true)
+                ? cfg.getString("elytra.tier2.name-format", "&bКрылья фантома &7[II]")
+                : cfg.getString("elytra.name-format", "&cКрылья фантома");
         meta.displayName(Colors.parse(nameFormat));
 
         stack.setItemMeta(meta);
-        stripAllEnchants(stack);
+        stripForbiddenEnchants(stack);
         applyElytraLore(plugin, stack, cfg);
         return true;
+    }
+
+    /**
+     * Прокачка tier 1 → tier 2: сохраняет полёт/перезарядку из PDC, обновляет прочность и имя.
+     */
+    public static ItemStack createTier2FromTier1(Plugin plugin, ItemStack tier1, FileConfiguration cfg) {
+        if (tier1 == null || tier1.getType() != Material.ELYTRA || cfg == null
+                || !cfg.getBoolean("elytra.enabled", true) || !cfg.getBoolean("elytra.tier2.enabled", true)) {
+            return null;
+        }
+        if (!isCustomElytra(plugin, tier1) || getElytraTier(plugin, tier1) != 1) {
+            return null;
+        }
+        ItemStack out = tier1.clone();
+        ItemMeta meta = out.getItemMeta();
+        if (meta == null) return null;
+
+        int maxDamage = cfg.getInt("elytra.tier2.max-damage", 550);
+        if (maxDamage < 1) maxDamage = 550;
+        if (meta instanceof Damageable damageable) {
+            int dmg = damageable.getDamage();
+            damageable.setMaxDamage(maxDamage);
+            damageable.setDamage(Math.min(dmg, maxDamage));
+        }
+
+        meta.getPersistentDataContainer().set(keyElytraTier(plugin), PersistentDataType.BYTE, (byte) 2);
+        String nameFormat = cfg.getString("elytra.tier2.name-format", "&bКрылья фантома &7[II]");
+        meta.displayName(Colors.parse(nameFormat));
+        out.setItemMeta(meta);
+        stripForbiddenEnchants(out);
+        applyElytraLore(plugin, out, cfg);
+        return out;
     }
 }

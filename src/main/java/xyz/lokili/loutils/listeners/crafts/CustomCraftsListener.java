@@ -1,5 +1,6 @@
 package xyz.lokili.loutils.listeners.crafts;
 
+import dev.lolib.scheduler.Scheduler;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -27,15 +28,19 @@ public class CustomCraftsListener extends BaseListener {
     
     public CustomCraftsListener(LoUtils plugin, xyz.lokili.loutils.api.IConfigManager configManager) {
         super(plugin, configManager, ConfigConstants.Modules.CUSTOM_CRAFTS, ConfigConstants.CUSTOM_CRAFTS_CONFIG);
-        registerCrafts();
+        // После полной загрузки сервера (Paper 1.21+), иначе addRecipe иногда не применяется
+        Scheduler.get(plugin).runLater(this::registerCrafts, 1L);
     }
-    
-    private void registerCrafts() {
+
+    /** Регистрация рецептов; вызывается с задержкой при старте и при {@code /loutils reload}. */
+    public void registerCrafts() {
         if (!checkEnabled()) return;
         if (moduleConfig() == null) {
             plugin.getLogger().warning("Custom crafts config not loaded!");
             return;
         }
+
+        removePluginCraftRecipes();
         
         if (moduleConfig().getBoolean("bell.enabled", true)) {
             registerBellCraft();
@@ -59,6 +64,13 @@ public class CustomCraftsListener extends BaseListener {
 
         if (moduleConfig().getBoolean("quartz.enabled", true)) {
             registerQuartzCraft();
+        }
+    }
+
+    private void removePluginCraftRecipes() {
+        String[] keys = {"bell", "red_mushroom_block", "brown_mushroom_block", "cobweb", "scaffolding", "custom_quartz"};
+        for (String id : keys) {
+            Bukkit.removeRecipe(new NamespacedKey(plugin, id));
         }
     }
     
@@ -155,7 +167,6 @@ public class CustomCraftsListener extends BaseListener {
     private void registerQuartzCraft() {
         if (moduleConfig() == null) return;
         NamespacedKey key = new NamespacedKey(plugin, "custom_quartz");
-        Bukkit.removeRecipe(key);
 
         int amount = moduleConfig().getInt("quartz.amount", 8);
         ItemStack result = new ItemStack(Material.QUARTZ, amount);

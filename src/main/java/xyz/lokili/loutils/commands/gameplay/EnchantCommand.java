@@ -1,10 +1,12 @@
 package xyz.lokili.loutils.commands.gameplay;
 
+import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

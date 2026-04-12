@@ -13,6 +13,8 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
+import dev.lolib.scheduler.Scheduler;
+import org.bukkit.Bukkit;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
@@ -38,15 +40,17 @@ public class InvisibleFrameListener extends BaseListener {
     public InvisibleFrameListener(LoUtils plugin, xyz.lokili.loutils.api.IConfigManager configManager) {
         super(plugin, configManager, ConfigConstants.Modules.INVISIBLE_FRAMES, ConfigConstants.INVISIBLE_FRAMES_CONFIG);
         this.invisibleKey = new NamespacedKey(plugin, "invisible_frame");
-        registerRecipe();
+        Scheduler.get(plugin).runLater(this::registerInvisibleFrameRecipe, 1L);
         startParticleTask();
     }
 
     /**
      * Регистрация крафта: 1 зелье невидимости + 8 рамок = 8 невидимых рамок
      */
-    private void registerRecipe() {
-        if (!moduleConfig().getBoolean("crafting-method", true)) return;
+    public void registerInvisibleFrameRecipe() {
+        if (moduleConfig() == null || !moduleConfig().getBoolean("crafting-method", true)) return;
+
+        Bukkit.removeRecipe(new NamespacedKey(plugin, "invisible_frame"));
 
         ItemStack result = createInvisibleFrame();
         result.setAmount(8);
@@ -95,17 +99,23 @@ public class InvisibleFrameListener extends BaseListener {
      */
     @EventHandler
     public void onPrepareItemCraft(PrepareItemCraftEvent event) {
-        if (!moduleConfig().getBoolean("crafting-method", true)) return;
+        if (moduleConfig() == null || !moduleConfig().getBoolean("crafting-method", true)) return;
         if (!checkEnabled()) return;
 
-        if (event.getRecipe() == null || event.getRecipe().getResult().getType() != Material.ITEM_FRAME) return;
+        var recipe = event.getRecipe();
+        if (recipe == null) return;
+        ItemStack recipeOut = recipe.getResult();
+        if (recipeOut == null || recipeOut.getType() != Material.ITEM_FRAME) return;
 
-        ItemStack[] matrix = event.getInventory().getMatrix();
-        if (matrix.length < 9) return;
+        var inv = event.getInventory();
+        if (inv == null) return;
+
+        ItemStack[] matrix = inv.getMatrix();
+        if (matrix == null || matrix.length < 9) return;
 
         ItemStack center = matrix[4];
         if (!isInvisibilityPotion(center)) {
-            event.getInventory().setResult(null);
+            inv.setResult(null);
             return;
         }
 
@@ -119,9 +129,9 @@ public class InvisibleFrameListener extends BaseListener {
         if (frameCount == 8) {
             ItemStack result = createInvisibleFrame();
             result.setAmount(8);
-            event.getInventory().setResult(result);
+            inv.setResult(result);
         } else {
-            event.getInventory().setResult(null);
+            inv.setResult(null);
         }
     }
 

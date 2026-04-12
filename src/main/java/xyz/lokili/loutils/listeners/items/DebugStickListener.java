@@ -1,6 +1,8 @@
 package xyz.lokili.loutils.listeners.items;
 
+import dev.lolib.scheduler.Scheduler;
 import dev.lolib.utils.Colors;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -28,14 +30,16 @@ public class DebugStickListener extends BaseListener {
     public DebugStickListener(LoUtils plugin, xyz.lokili.loutils.api.IConfigManager configManager) {
         super(plugin, configManager, ConfigConstants.Modules.DEBUG_STICK, ConfigConstants.DEBUG_STICK_CONFIG);
         this.debugStickKey = new NamespacedKey(plugin, "debug_stick");
-        registerRecipe();
+        Scheduler.get(plugin).runLater(this::registerDebugStickRecipe, 1L);
     }
     
     /**
      * Регистрация крафта: 1 палка + 8 лазурита
      */
-    private void registerRecipe() {
-        if (!moduleConfig().getBoolean("crafting-enabled", true)) return;
+    public void registerDebugStickRecipe() {
+        if (moduleConfig() == null || !moduleConfig().getBoolean("crafting-enabled", true)) return;
+
+        Bukkit.removeRecipe(new NamespacedKey(plugin, "debug_stick"));
         
         ItemStack result = buildDebugStick();
         

@@ -31,14 +31,17 @@ public class DismountCalculator {
     public Location calculateDismountLocation(PoseData data) {
         Location seatLocation = data.getSeatLocation();
 
-        if (data.getType() == PoseType.SIT_ON_PLAYER) {
+        // SIT_ON_PLAYER: позиция вставания считается в PoseManager по текущей локации сидящего
+
+        // Сидение / лежание на блоке: вставать там, где стоял до позы, а не в центре сиденья
+        if (data.getType() == PoseType.SIT || data.getType() == PoseType.LAY) {
             Location ret = data.getReturnLocation();
-            Location back = ret != null ? ret.clone() : seatLocation.clone();
-            if (ret != null) {
-                back.setYaw(ret.getYaw());
+            if (ret != null && ret.getWorld() != null
+                    && ret.getWorld().equals(seatLocation.getWorld())) {
+                Location back = ret.clone();
+                back.add(0d, 0.05d, 0d);
+                return back;
             }
-            back.add(0d, 0.05d, 0d);
-            return back;
         }
 
         Block block = data.getBlock();
