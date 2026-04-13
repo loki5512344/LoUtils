@@ -38,7 +38,7 @@ public class PoseCommand extends CommandBase {
         poseManager.removePlayerPose(player);
 
         // Получаем конфиг только для сообщения (может быть null)
-        var config = plugin.getConfigManager().getConfig(ConfigConstants.POSES_CONFIG);
+        var config = plugin.getContainer().getConfigManager().getConfig(ConfigConstants.POSES_CONFIG);
 
         String message = switch (poseType) {
             case SIT, SIT_ON_PLAYER -> config != null

@@ -33,30 +33,30 @@ public class TPSBarCommand extends CommandBase {
         
         if (args.length == 0) {
             // Toggle
-            plugin.getTPSBarManager().toggleTPSBar(player);
-            
-            if (plugin.getTPSBarManager().hasTPSBar(player)) {
+            plugin.getContainer().getTPSBarManager().toggleTPSBar(player);
+
+            if (plugin.getContainer().getTPSBarManager().hasTPSBar(player)) {
                 sendConfigMessage(player, ConfigConstants.TPSBAR_CONFIG, "messages.enabled");
             } else {
                 sendConfigMessage(player, ConfigConstants.TPSBAR_CONFIG, "messages.disabled");
             }
             return true;
         }
-        
+
         String subCommand = args[0].toLowerCase();
-        
+
         switch (subCommand) {
             case "on", "enable" -> {
-                if (!plugin.getTPSBarManager().hasTPSBar(player)) {
-                    plugin.getTPSBarManager().enableTPSBar(player);
+                if (!plugin.getContainer().getTPSBarManager().hasTPSBar(player)) {
+                    plugin.getContainer().getTPSBarManager().enableTPSBar(player);
                     sendConfigMessage(player, ConfigConstants.TPSBAR_CONFIG, "messages.enabled");
                 } else {
                     sendConfigMessage(player, ConfigConstants.TPSBAR_CONFIG, "messages.already-enabled");
                 }
             }
             case "off", "disable" -> {
-                if (plugin.getTPSBarManager().hasTPSBar(player)) {
-                    plugin.getTPSBarManager().disableTPSBar(player);
+                if (plugin.getContainer().getTPSBarManager().hasTPSBar(player)) {
+                    plugin.getContainer().getTPSBarManager().disableTPSBar(player);
                     sendConfigMessage(player, ConfigConstants.TPSBAR_CONFIG, "messages.disabled");
                 } else {
                     sendConfigMessage(player, ConfigConstants.TPSBAR_CONFIG, "messages.already-disabled");

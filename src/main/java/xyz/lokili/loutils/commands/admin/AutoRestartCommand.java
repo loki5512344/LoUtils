@@ -46,43 +46,43 @@ public class AutoRestartCommand extends CommandBase {
     }
     
     private void handleStart(CommandSender sender) {
-        if (plugin.getAutoRestartManager().isRunning()) {
+        if (plugin.getContainer().getAutoRestartManager().isRunning()) {
             sendMessage(sender, "autorestart.timer-already-running");
             return;
         }
         
-        plugin.getConfigManager().getAutoRestartConfig().set("enabled", true);
-        plugin.getConfigManager().saveConfig(ConfigConstants.AUTORESTART_CONFIG);
-        plugin.getAutoRestartManager().start();
+        plugin.getContainer().getConfigManager().getAutoRestartConfig().set("enabled", true);
+        plugin.getContainer().getConfigManager().saveConfig(ConfigConstants.AUTORESTART_CONFIG);
+        plugin.getContainer().getAutoRestartManager().start();
         sendMessage(sender, "autorestart.timer-started");
     }
-    
+
     private void handleStop(CommandSender sender) {
-        if (!plugin.getAutoRestartManager().isRunning()) {
+        if (!plugin.getContainer().getAutoRestartManager().isRunning()) {
             sendMessage(sender, "autorestart.timer-not-running");
             return;
         }
-        
-        plugin.getAutoRestartManager().stop();
+
+        plugin.getContainer().getAutoRestartManager().stop();
         sendMessage(sender, "autorestart.timer-stopped");
     }
-    
+
     private void handleStatus(CommandSender sender) {
-        if (!plugin.getAutoRestartManager().isRunning()) {
+        if (!plugin.getContainer().getAutoRestartManager().isRunning()) {
             sendMessage(sender, "autorestart.timer-disabled");
             return;
         }
-        
-        long[] parts = plugin.getAutoRestartManager().getTimeRemainingParts();
+
+        long[] parts = plugin.getContainer().getAutoRestartManager().getTimeRemainingParts();
         sendMessage(sender, "autorestart.timer-status",
                 "{hours}", String.valueOf(parts[0]),
                 "{minutes}", String.valueOf(parts[1]),
                 "{seconds}", String.valueOf(parts[2]));
     }
-    
+
     private void handleReload(CommandSender sender) {
-        plugin.getConfigManager().reloadAll();
-        plugin.getAutoRestartManager().reload();
+        plugin.getContainer().getConfigManager().reloadAll();
+        plugin.getContainer().getAutoRestartManager().reload();
         sendMessage(sender, "config-reloaded");
     }
     

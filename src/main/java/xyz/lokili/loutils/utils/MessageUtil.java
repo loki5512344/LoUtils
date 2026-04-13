@@ -16,8 +16,8 @@ public class MessageUtil {
     }
     
     public void send(CommandSender sender, String key, String... replacements) {
-        String prefix = plugin.getConfigManager().getPrefix();
-        String message = plugin.getConfigManager().getMessage(key);
+        String prefix = plugin.getContainer().getConfigManager().getPrefix();
+        String message = plugin.getContainer().getConfigManager().getMessage(key);
         
         for (int i = 0; i < replacements.length - 1; i += 2) {
             message = message.replace(replacements[i], replacements[i + 1]);
@@ -35,7 +35,7 @@ public class MessageUtil {
      * Отправляет сообщение без префикса (для отладки цветов)
      */
     public void sendWithoutPrefix(CommandSender sender, String key, String... replacements) {
-        String message = plugin.getConfigManager().getMessage(key);
+        String message = plugin.getContainer().getConfigManager().getMessage(key);
         
         for (int i = 0; i < replacements.length - 1; i += 2) {
             message = message.replace(replacements[i], replacements[i + 1]);

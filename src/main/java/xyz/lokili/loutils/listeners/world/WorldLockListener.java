@@ -40,7 +40,7 @@ public class WorldLockListener extends BaseListener {
         World toWorld = to.getWorld();
         if (toWorld == null) return;
         
-        if (plugin.getWorldLockManager().isLocked(toWorld.getName())) {
+        if (plugin.getContainer().getWorldLockManager().isLocked(toWorld.getName())) {
             if (player.hasPermission("loutils.worldlock.bypass." + toWorld.getName())) {
                 return;
             }
@@ -64,7 +64,7 @@ public class WorldLockListener extends BaseListener {
         if (fromWorld == null || toWorld == null) return;
         if (fromWorld.equals(toWorld)) return;
         
-        if (plugin.getWorldLockManager().isLocked(toWorld.getName())) {
+        if (plugin.getContainer().getWorldLockManager().isLocked(toWorld.getName())) {
             if (player.hasPermission("loutils.worldlock.bypass." + toWorld.getName())) {
                 return;
             }
@@ -75,7 +75,7 @@ public class WorldLockListener extends BaseListener {
     }
     
     private void checkWorldLock(Player player, World world) {
-        if (plugin.getWorldLockManager().isLocked(world.getName())) {
+        if (plugin.getContainer().getWorldLockManager().isLocked(world.getName())) {
             if (player.hasPermission("loutils.worldlock.bypass." + world.getName())) {
                 return;
             }

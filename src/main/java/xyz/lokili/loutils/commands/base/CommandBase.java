@@ -47,30 +47,30 @@ public abstract class CommandBase implements CommandExecutor, TabCompleter {
     }
     
     // === Message Sending ===
-    
+
     protected void sendMessage(CommandSender sender, String messageKey) {
-        String prefix = plugin.getConfigManager().getPrefix();
-        String message = plugin.getConfigManager().getMessage(messageKey);
+        String prefix = plugin.getContainer().getConfigManager().getPrefix();
+        String message = plugin.getContainer().getConfigManager().getMessage(messageKey);
         sender.sendMessage(ColorUtil.colorize(prefix + message));
     }
-    
+
     protected void sendMessage(CommandSender sender, String messageKey, String... replacements) {
-        String prefix = plugin.getConfigManager().getPrefix();
-        String message = plugin.getConfigManager().getMessage(messageKey, replacements);
+        String prefix = plugin.getContainer().getConfigManager().getPrefix();
+        String message = plugin.getContainer().getConfigManager().getMessage(messageKey, replacements);
         sender.sendMessage(ColorUtil.colorize(prefix + message));
     }
-    
+
     protected void sendConfigMessage(CommandSender sender, String configPath, String messageKey) {
-        String prefix = plugin.getConfigManager().getPrefix();
-        String message = plugin.getConfigManager().getConfig(configPath)
+        String prefix = plugin.getContainer().getConfigManager().getPrefix();
+        String message = plugin.getContainer().getConfigManager().getConfig(configPath)
                 .getString(messageKey, "&cMessage not found");
         sender.sendMessage(ColorUtil.colorize(prefix + message));
     }
-    
-    protected void sendConfigMessage(CommandSender sender, String configPath, 
+
+    protected void sendConfigMessage(CommandSender sender, String configPath,
                                      String messageKey, String... replacements) {
-        String prefix = plugin.getConfigManager().getPrefix();
-        String message = plugin.getConfigManager().getConfig(configPath)
+        String prefix = plugin.getContainer().getConfigManager().getPrefix();
+        String message = plugin.getContainer().getConfigManager().getConfig(configPath)
                 .getString(messageKey, "&cMessage not found");
         for (int i = 0; i < replacements.length - 1; i += 2) {
             message = message.replace(replacements[i], replacements[i + 1]);

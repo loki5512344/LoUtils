@@ -19,13 +19,13 @@ public class PlayerJoinListener extends BaseListener {
     
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerPreLogin(AsyncPlayerPreLoginEvent event) {
-        if (!plugin.getWhitelistManager().isEnabled()) {
+        if (!plugin.getContainer().getWhitelistManager().isEnabled()) {
             return;
         }
         
         String playerName = event.getName();
         
-        if (!plugin.getWhitelistManager().isWhitelisted(playerName)) {
+        if (!plugin.getContainer().getWhitelistManager().isWhitelisted(playerName)) {
             String kickMessage = configManager.getWhitelistConfig().getString("kick-message", 
                 "<#3BA8FF><bold>LoUtils Whitelist</bold>\n\n<gray>Вы не в белом списке сервера.\n<gray>Обратитесь к администрации.");
             

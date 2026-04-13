@@ -139,11 +139,11 @@ public class InvSeeListener implements Listener {
             return;
         }
 
-        ItemStack[] contents = new ItemStack[36];
+        // Синхронизируем только основной инвентарь (слоты 0-35)
+        // НЕ используем setContents(), чтобы не затереть броню и offhand
         for (int i = 0; i < 36; i++) {
-            contents[i] = invSee.getItem(i);
+            target.getInventory().setItem(i, invSee.getItem(i));
         }
-        target.getInventory().setContents(contents);
     }
     
     /**

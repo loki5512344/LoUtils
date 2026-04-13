@@ -51,7 +51,7 @@ public class FlyCommand extends CommandBase {
         if (!target.equals(sender)) {
             msg += " &8(" + target.getName() + ")";
         }
-        sendRawMessage(sender, plugin.getConfigManager().getPrefix() + msg);
+        sendRawMessage(sender, plugin.getContainer().getConfigManager().getPrefix() + msg);
 
         return true;
     }

@@ -22,12 +22,12 @@ public class RestartExecutor {
     public void executeRestart() {
         SchedulerUtil.runGlobal(plugin, () -> {
             // Финальное сообщение
-            String message = plugin.getConfigManager().getPrefix() +
-                    plugin.getConfigManager().getMessage("autorestart.now");
+            String message = plugin.getContainer().getConfigManager().getPrefix() +
+                    plugin.getContainer().getConfigManager().getMessage("autorestart.now");
             SchedulerUtil.broadcast(plugin, message);
             
             // Логирование
-            if (plugin.getConfigManager().getAutoRestartConfig().getBoolean("save_before_restart", true)) {
+            if (plugin.getContainer().getConfigManager().getAutoRestartConfig().getBoolean("save_before_restart", true)) {
                 plugin.getLogger().info("Worlds will be saved automatically during shutdown.");
             }
             

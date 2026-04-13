@@ -28,7 +28,7 @@ public class FlySpeedCommand extends CommandBase {
         }
 
         if (args.length < 1) {
-            sendRawMessage(sender, plugin.getConfigManager().getPrefix() + 
+            sendRawMessage(sender, plugin.getContainer().getConfigManager().getPrefix() + 
                     "&cИспользование: /lflyspeed <0-10> [player]");
             return true;
         }
@@ -42,7 +42,7 @@ public class FlySpeedCommand extends CommandBase {
         }
 
         if (level < 0 || level > 10) {
-            sendRawMessage(sender, plugin.getConfigManager().getPrefix() + 
+            sendRawMessage(sender, plugin.getContainer().getConfigManager().getPrefix() + 
                     "&cСкорость должна быть от 0 до 10");
             return true;
         }
@@ -69,7 +69,7 @@ public class FlySpeedCommand extends CommandBase {
         if (!target.equals(sender)) {
             msg += " &8(" + target.getName() + ")";
         }
-        sendRawMessage(sender, plugin.getConfigManager().getPrefix() + msg);
+        sendRawMessage(sender, plugin.getContainer().getConfigManager().getPrefix() + msg);
 
         return true;
     }

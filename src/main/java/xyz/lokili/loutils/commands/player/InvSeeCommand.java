@@ -52,7 +52,7 @@ public class InvSeeCommand extends CommandBase {
     }
     
     private void openInvSee(Player viewer, Player target) {
-        String title = plugin.getConfigManager().getMessage("invsee.title").replace("{player}", target.getName());
+        String title = plugin.getContainer().getConfigManager().getMessage("invsee.title").replace("{player}", target.getName());
         var holder = new InvSeeHolder(target);
         Inventory inv = Bukkit.createInventory(holder, 54, Colors.parse(title));
         

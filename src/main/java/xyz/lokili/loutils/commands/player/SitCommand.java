@@ -21,12 +21,12 @@ public class SitCommand extends CommandBase {
         }
         
         if (!player.hasPermission("loutils.sit")) {
-            plugin.getMessageUtil().send(player, "no-permission");
+            plugin.getContainer().getMessageUtil().send(player, "no-permission");
             return true;
         }
         
         var poseManager = plugin.getContainer().getPoseManager();
-        var config = plugin.getConfigManager().getConfig(xyz.lokili.loutils.constants.ConfigConstants.POSES_CONFIG);
+        var config = plugin.getContainer().getConfigManager().getConfig(xyz.lokili.loutils.constants.ConfigConstants.POSES_CONFIG);
         
         if (config == null) {
             player.sendMessage(Colors.parse("&#FF6B6BМодуль поз не настроен"));

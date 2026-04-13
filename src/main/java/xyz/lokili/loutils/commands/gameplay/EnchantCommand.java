@@ -91,7 +91,7 @@ public class EnchantCommand extends CommandBase {
             return true;
         }
         
-        var config = plugin.getConfigManager().getConfig(ConfigConstants.ENCHANT_CONFIG);
+        var config = plugin.getContainer().getConfigManager().getConfig(ConfigConstants.ENCHANT_CONFIG);
         int maxLevel = config.getInt("max_level", 0);
         
         if (maxLevel > 0 && level > maxLevel) {

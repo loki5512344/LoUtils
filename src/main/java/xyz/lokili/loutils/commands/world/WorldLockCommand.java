@@ -57,7 +57,7 @@ public class WorldLockCommand extends CommandBase {
         for (int i = 1; i < args.length; i++) {
             String worldName = args[i];
             
-            if (plugin.getWorldLockManager().addWorld(worldName)) {
+            if (plugin.getContainer().getWorldLockManager().addWorld(worldName)) {
                 sendConfigMessage(sender, ConfigConstants.WORLDLOCK_CONFIG, 
                         "messages.world-added", "{world}", worldName);
             } else {
@@ -76,7 +76,7 @@ public class WorldLockCommand extends CommandBase {
         for (int i = 1; i < args.length; i++) {
             String worldName = args[i];
             
-            if (plugin.getWorldLockManager().removeWorld(worldName)) {
+            if (plugin.getContainer().getWorldLockManager().removeWorld(worldName)) {
                 sendConfigMessage(sender, ConfigConstants.WORLDLOCK_CONFIG, 
                         "messages.world-removed", "{world}", worldName);
             } else {
@@ -87,7 +87,7 @@ public class WorldLockCommand extends CommandBase {
     }
     
     private void handleList(CommandSender sender) {
-        Set<String> lockedWorlds = plugin.getWorldLockManager().getLockedWorlds();
+        Set<String> lockedWorlds = plugin.getContainer().getWorldLockManager().getLockedWorlds();
         
         if (lockedWorlds.isEmpty()) {
             sendConfigMessage(sender, ConfigConstants.WORLDLOCK_CONFIG, "messages.no-locked-worlds");
@@ -100,7 +100,7 @@ public class WorldLockCommand extends CommandBase {
     }
     
     private void handleReload(CommandSender sender) {
-        plugin.getWorldLockManager().reload();
+        plugin.getContainer().getWorldLockManager().reload();
         sendMessage(sender, "config-reloaded");
     }
     
@@ -123,7 +123,7 @@ public class WorldLockCommand extends CommandBase {
                 return filterTabComplete(worldNames, args[args.length - 1]);
             } else if (args[0].equalsIgnoreCase("remove")) {
                 return filterTabComplete(
-                        plugin.getWorldLockManager().getLockedWorlds().stream().toList(),
+                        plugin.getContainer().getWorldLockManager().getLockedWorlds().stream().toList(),
                         args[args.length - 1]
                 );
             }

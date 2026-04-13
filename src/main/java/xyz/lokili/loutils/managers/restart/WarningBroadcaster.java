@@ -63,8 +63,8 @@ public class WarningBroadcaster {
         Duration duration = Duration.ofMinutes(minutes);
         String timeFormatted = TimeFormatter.formatSmart(duration);
         
-        String message = plugin.getConfigManager().getPrefix() +
-                plugin.getConfigManager().getMessage("autorestart.warning")
+        String message = plugin.getContainer().getConfigManager().getPrefix() +
+                plugin.getContainer().getConfigManager().getMessage("autorestart.warning")
                         .replace("{time}", timeFormatted);
         
         SchedulerUtil.broadcast(plugin, message);
@@ -78,8 +78,8 @@ public class WarningBroadcaster {
         Duration duration = Duration.ofSeconds(seconds);
         String timeFormatted = TimeFormatter.formatSmart(duration);
         
-        String message = plugin.getConfigManager().getPrefix() +
-                plugin.getConfigManager().getMessage("autorestart.warning-seconds")
+        String message = plugin.getContainer().getConfigManager().getPrefix() +
+                plugin.getContainer().getConfigManager().getMessage("autorestart.warning-seconds")
                         .replace("{time}", timeFormatted);
         
         SchedulerUtil.broadcast(plugin, message);

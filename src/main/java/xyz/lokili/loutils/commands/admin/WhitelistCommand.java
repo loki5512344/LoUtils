@@ -56,7 +56,7 @@ public class WhitelistCommand extends CommandBase {
         
         String playerName = args[1];
         
-        if (plugin.getWhitelistManager().addPlayer(playerName)) {
+        if (plugin.getContainer().getWhitelistManager().addPlayer(playerName)) {
             sendMessage(sender, "whitelist.player-added", "{player}", playerName);
         } else {
             sendMessage(sender, "whitelist.player-already-in-list", "{player}", playerName);
@@ -71,7 +71,7 @@ public class WhitelistCommand extends CommandBase {
         
         String playerName = args[1];
         
-        if (plugin.getWhitelistManager().removePlayer(playerName)) {
+        if (plugin.getContainer().getWhitelistManager().removePlayer(playerName)) {
             sendMessage(sender, "whitelist.player-removed", "{player}", playerName);
         } else {
             sendMessage(sender, "whitelist.player-not-in-list", "{player}", playerName);
@@ -79,7 +79,7 @@ public class WhitelistCommand extends CommandBase {
     }
     
     private void handleList(CommandSender sender) {
-        Set<String> players = plugin.getWhitelistManager().getWhitelistedPlayers();
+        Set<String> players = plugin.getContainer().getWhitelistManager().getWhitelistedPlayers();
         int count = players.size();
         
         sendMessage(sender, "whitelist.list-header", "{count}", String.valueOf(count));
@@ -94,27 +94,27 @@ public class WhitelistCommand extends CommandBase {
     }
     
     private void handleEnable(CommandSender sender) {
-        if (plugin.getWhitelistManager().isEnabled()) {
+        if (plugin.getContainer().getWhitelistManager().isEnabled()) {
             sendMessage(sender, "whitelist.already-enabled");
             return;
         }
         
-        plugin.getWhitelistManager().setEnabled(true);
+        plugin.getContainer().getWhitelistManager().setEnabled(true);
         sendMessage(sender, "whitelist.enabled");
     }
     
     private void handleDisable(CommandSender sender) {
-        if (!plugin.getWhitelistManager().isEnabled()) {
+        if (!plugin.getContainer().getWhitelistManager().isEnabled()) {
             sendMessage(sender, "whitelist.already-disabled");
             return;
         }
         
-        plugin.getWhitelistManager().setEnabled(false);
+        plugin.getContainer().getWhitelistManager().setEnabled(false);
         sendMessage(sender, "whitelist.disabled");
     }
     
     private void handleReload(CommandSender sender) {
-        plugin.getWhitelistManager().reload();
+        plugin.getContainer().getWhitelistManager().reload();
         sendMessage(sender, "config-reloaded");
     }
     
@@ -132,7 +132,7 @@ public class WhitelistCommand extends CommandBase {
         
         if (args.length == 2 && args[0].equalsIgnoreCase("remove")) {
             return filterTabComplete(
-                    plugin.getWhitelistManager().getWhitelistedPlayers().stream().toList(),
+                    plugin.getContainer().getWhitelistManager().getWhitelistedPlayers().stream().toList(),
                     args[1]
             );
         }

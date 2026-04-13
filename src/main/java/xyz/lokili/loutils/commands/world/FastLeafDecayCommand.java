@@ -47,24 +47,24 @@ public class FastLeafDecayCommand extends CommandBase {
     }
     
     private void enableModule(CommandSender sender) {
-        var config = plugin.getConfigManager().getConfig(ConfigConstants.FASTLEAFDECAY_CONFIG);
+        var config = plugin.getContainer().getConfigManager().getConfig(ConfigConstants.FASTLEAFDECAY_CONFIG);
         config.set("enabled", true);
-        plugin.getConfigManager().saveConfig(ConfigConstants.FASTLEAFDECAY_CONFIG);
+        plugin.getContainer().getConfigManager().saveConfig(ConfigConstants.FASTLEAFDECAY_CONFIG);
         
         sendRawMessage(sender, "&aFastLeafDecay включён!");
     }
     
     private void disableModule(CommandSender sender) {
-        var config = plugin.getConfigManager().getConfig(ConfigConstants.FASTLEAFDECAY_CONFIG);
+        var config = plugin.getContainer().getConfigManager().getConfig(ConfigConstants.FASTLEAFDECAY_CONFIG);
         config.set("enabled", false);
-        plugin.getConfigManager().saveConfig(ConfigConstants.FASTLEAFDECAY_CONFIG);
+        plugin.getContainer().getConfigManager().saveConfig(ConfigConstants.FASTLEAFDECAY_CONFIG);
         
         sendRawMessage(sender, "&cFastLeafDecay отключён!");
     }
     
     private void showStatus(CommandSender sender) {
-        boolean moduleEnabled = plugin.getConfigManager().isModuleEnabled(ConfigConstants.Modules.FASTLEAFDECAY);
-        var config = plugin.getConfigManager().getConfig(ConfigConstants.FASTLEAFDECAY_CONFIG);
+        boolean moduleEnabled = plugin.getContainer().getConfigManager().isModuleEnabled(ConfigConstants.Modules.FASTLEAFDECAY);
+        var config = plugin.getContainer().getConfigManager().getConfig(ConfigConstants.FASTLEAFDECAY_CONFIG);
         boolean configEnabled = config.getBoolean("enabled", true);
         int delay = config.getInt("decay-delay", 40);
         int radius = config.getInt("search-radius", 5);
@@ -82,7 +82,7 @@ public class FastLeafDecayCommand extends CommandBase {
     }
     
     private void reloadConfig(CommandSender sender) {
-        plugin.getConfigManager().reloadAll();
+        plugin.getContainer().getConfigManager().reloadAll();
         sendRawMessage(sender, "&aКонфигурация FastLeafDecay перезагружена!");
     }
     
@@ -94,7 +94,7 @@ public class FastLeafDecayCommand extends CommandBase {
         
         String setting = args[1].toLowerCase();
         String valueStr = args[2];
-        var config = plugin.getConfigManager().getConfig(ConfigConstants.FASTLEAFDECAY_CONFIG);
+        var config = plugin.getContainer().getConfigManager().getConfig(ConfigConstants.FASTLEAFDECAY_CONFIG);
         
         switch (setting) {
             case "delay" -> {
@@ -150,7 +150,7 @@ public class FastLeafDecayCommand extends CommandBase {
             }
         }
         
-        plugin.getConfigManager().saveConfig(ConfigConstants.FASTLEAFDECAY_CONFIG);
+        plugin.getContainer().getConfigManager().saveConfig(ConfigConstants.FASTLEAFDECAY_CONFIG);
     }
     
     private void showUsage(CommandSender sender) {

@@ -60,8 +60,6 @@ public class ConfigLoader {
         loadConfig(ConfigConstants.FRAME_LOCKING_CONFIG);
         loadConfig(ConfigConstants.MAP_LOCKING_CONFIG);
         loadConfig(ConfigConstants.NAME_TAG_REMOVAL_CONFIG);
-        loadConfig(ConfigConstants.ENHANCED_HOES_CONFIG);
-        loadConfig(ConfigConstants.COW_MILKING_CONFIG);
         loadConfig(ConfigConstants.INVENTORY_CHECK_STICK_CONFIG);
         loadConfig(ConfigConstants.HANDCUFFS_CONFIG);
         

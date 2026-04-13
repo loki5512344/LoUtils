@@ -5,6 +5,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import dev.lolib.utils.Colors;
 
+import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
@@ -12,10 +13,35 @@ import java.util.regex.Matcher;
  * Color utility: MiniMessage + legacy + {@code &#RRGGBB} hex (LoLib {@link Colors} не покрывает все кейсы конфигов).
  */
 public class ColorUtil {
-    
+
     private static final Pattern HEX_PATTERN = Pattern.compile("&#([0-9A-Fa-f]{6})");
     private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
     private static final LegacyComponentSerializer LEGACY = LegacyComponentSerializer.legacyAmpersand();
+
+    private static final Map<String, String> LEGACY_TO_MINI = Map.ofEntries(
+        Map.entry("&0", "<black>"),
+        Map.entry("&1", "<dark_blue>"),
+        Map.entry("&2", "<dark_green>"),
+        Map.entry("&3", "<dark_aqua>"),
+        Map.entry("&4", "<dark_red>"),
+        Map.entry("&5", "<dark_purple>"),
+        Map.entry("&6", "<gold>"),
+        Map.entry("&7", "<gray>"),
+        Map.entry("&8", "<dark_gray>"),
+        Map.entry("&9", "<blue>"),
+        Map.entry("&a", "<green>"),
+        Map.entry("&b", "<aqua>"),
+        Map.entry("&c", "<red>"),
+        Map.entry("&d", "<light_purple>"),
+        Map.entry("&e", "<yellow>"),
+        Map.entry("&f", "<white>"),
+        Map.entry("&k", "<obfuscated>"),
+        Map.entry("&l", "<bold>"),
+        Map.entry("&m", "<strikethrough>"),
+        Map.entry("&n", "<underlined>"),
+        Map.entry("&o", "<italic>"),
+        Map.entry("&r", "<reset>")
+    );
     
     /**
      * Parse and colorize message using MiniMessage format
@@ -25,77 +51,25 @@ public class ColorUtil {
         if (message == null || message.isEmpty()) {
             return Component.empty();
         }
-        
-        // Используем собственную обработку вместо LoLib
-        // LoLib не всегда корректно обрабатывает &#RRGGBB формат
-        return parseWithFallback(message);
-    }
-    
-    /**
-     * Fallback метод для обработки цветов если LoLib не работает
-     */
-    private static Component parseWithFallback(String message) {
-        if (message == null || message.isEmpty()) {
-            return Component.empty();
-        }
-        
+
         try {
-            // Конвертируем &#RRGGBB в <#RRGGBB>
             String processed = convertHexToMiniMessage(message);
-            
-            // Конвертируем legacy коды &a в <green> и т.д.
             processed = convertLegacyToMiniMessage(processed);
-            
-            // Пробуем MiniMessage
             return MINI_MESSAGE.deserialize(processed);
         } catch (Exception e) {
-            try {
-                // Если не получается, используем legacy serializer
-                String processed = convertHexToLegacy(message);
-                return LEGACY.deserialize(processed);
-            } catch (Exception ex) {
-                // В крайнем случае возвращаем как есть
-                return Component.text(message);
-            }
+            // Fallback на legacy serializer
+            return LEGACY.deserialize(message.replace('&', '§'));
         }
     }
-    
+
     /**
      * Конвертирует legacy коды в MiniMessage теги
      */
     private static String convertLegacyToMiniMessage(String message) {
-        // Заменяем legacy коды на MiniMessage теги
-        message = message.replace("&0", "<black>");
-        message = message.replace("&1", "<dark_blue>");
-        message = message.replace("&2", "<dark_green>");
-        message = message.replace("&3", "<dark_aqua>");
-        message = message.replace("&4", "<dark_red>");
-        message = message.replace("&5", "<dark_purple>");
-        message = message.replace("&6", "<gold>");
-        message = message.replace("&7", "<gray>");
-        message = message.replace("&8", "<dark_gray>");
-        message = message.replace("&9", "<blue>");
-        message = message.replace("&a", "<green>");
-        message = message.replace("&b", "<aqua>");
-        message = message.replace("&c", "<red>");
-        message = message.replace("&d", "<light_purple>");
-        message = message.replace("&e", "<yellow>");
-        message = message.replace("&f", "<white>");
-        message = message.replace("&k", "<obfuscated>");
-        message = message.replace("&l", "<bold>");
-        message = message.replace("&m", "<strikethrough>");
-        message = message.replace("&n", "<underlined>");
-        message = message.replace("&o", "<italic>");
-        message = message.replace("&r", "<reset>");
+        for (Map.Entry<String, String> entry : LEGACY_TO_MINI.entrySet()) {
+            message = message.replace(entry.getKey(), entry.getValue());
+        }
         return message;
-    }
-    
-    /**
-     * Конвертирует hex в legacy формат (для старых версий)
-     */
-    private static String convertHexToLegacy(String message) {
-        // Просто заменяем & на §
-        return message.replace('&', '§');
     }
     
     /**
@@ -105,23 +79,19 @@ public class ColorUtil {
         if (message == null || message.isEmpty()) {
             return message;
         }
-        
-        try {
-            Matcher matcher = HEX_PATTERN.matcher(message);
-            StringBuffer result = new StringBuffer();
-            
-            while (matcher.find()) {
-                String hexColor = matcher.group(1);
-                matcher.appendReplacement(result, "<#" + hexColor + ">");
-            }
-            matcher.appendTail(result);
-            
-            return result.toString();
-        } catch (Exception e) {
-            return message; // Возвращаем оригинал при ошибке
+
+        Matcher matcher = HEX_PATTERN.matcher(message);
+        StringBuffer result = new StringBuffer();
+
+        while (matcher.find()) {
+            String hexColor = matcher.group(1);
+            matcher.appendReplacement(result, "<#" + hexColor + ">");
         }
+        matcher.appendTail(result);
+
+        return result.toString();
     }
-    
+
     /**
      * Colorize and convert to plain string (for legacy support)
      */
@@ -129,9 +99,8 @@ public class ColorUtil {
         if (message == null || message.isEmpty()) {
             return "";
         }
-        
-        // Используем собственную обработку
-        Component component = parseWithFallback(message);
+
+        Component component = colorize(message);
         return LEGACY.serialize(component);
     }
 }

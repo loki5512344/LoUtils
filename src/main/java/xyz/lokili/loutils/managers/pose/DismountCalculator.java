@@ -50,7 +50,7 @@ public class DismountCalculator {
         }
 
         // Определяем configOffset в зависимости от типа позы
-        FileConfiguration config = plugin.getConfigManager().getConfig(ConfigConstants.POSES_CONFIG);
+        FileConfiguration config = plugin.getContainer().getConfigManager().getConfig(ConfigConstants.POSES_CONFIG);
         double configOffset = (data.getType() == PoseType.SIT) 
             ? config.getDouble("sit.sit-height", 0.0)
             : config.getDouble("lay.lay-height", -0.5);

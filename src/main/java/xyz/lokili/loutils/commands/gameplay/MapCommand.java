@@ -26,7 +26,7 @@ public class MapCommand implements CommandExecutor, TabCompleter {
 
     public MapCommand(LoUtils plugin) {
         this.lockedKey = new NamespacedKey(plugin, "map_locked_by");
-        this.config = plugin.getConfigManager().getConfig(ConfigConstants.MAP_LOCKING_CONFIG);
+        this.config = plugin.getContainer().getConfigManager().getConfig(ConfigConstants.MAP_LOCKING_CONFIG);
     }
 
     @Override

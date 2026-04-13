@@ -16,7 +16,7 @@ public class LoUtilsExpansion extends PlaceholderExpansion {
     public LoUtilsExpansion(LoUtils plugin) {
         this.plugin = plugin;
         // TPSMonitor может быть null на Folia
-        this.tpsMonitor = plugin.getDependencies().getTPSMonitor();
+        this.tpsMonitor = plugin.getContainer().getTPSMonitor();
     }
     
     @Override

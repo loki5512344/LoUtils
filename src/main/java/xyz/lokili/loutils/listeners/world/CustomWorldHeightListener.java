@@ -24,7 +24,7 @@ public class CustomWorldHeightListener extends BaseListener {
         String worldName = world.getName();
         
         CustomWorldHeightManager.WorldHeightConfig config = 
-                plugin.getCustomWorldHeightManager().getConfig(worldName);
+                plugin.getContainer().getCustomWorldHeightManager().getConfig(worldName);
         
         if (config == null) {
             return;

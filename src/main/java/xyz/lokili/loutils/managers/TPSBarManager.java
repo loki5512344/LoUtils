@@ -93,7 +93,7 @@ public class TPSBarManager implements ITPSBarManager {
         double mspt = tpsMonitor.getTickTime();
         
         // Форматируем текст
-        String format = plugin.getConfigManager().getConfig("conf/tpsbar.yml")
+        String format = plugin.getContainer().getConfigManager().getConfig("conf/tpsbar.yml")
                 .getString("format", "&7TPS: {tps} &8| &7MSPT: {mspt}");
         
         String text = format

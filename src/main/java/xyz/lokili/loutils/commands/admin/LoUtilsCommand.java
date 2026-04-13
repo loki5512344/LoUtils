@@ -127,7 +127,7 @@ public class LoUtilsCommand extends CommandBase {
             return true;
         }
 
-        var cfg = plugin.getConfigManager().getConfig(ConfigConstants.CUSTOM_CRAFTS_CONFIG);
+        var cfg = plugin.getContainer().getConfigManager().getConfig(ConfigConstants.CUSTOM_CRAFTS_CONFIG);
         if (!cfg.getBoolean("enabled", true) || !cfg.getBoolean("elytra.enabled", true)) {
             sendMessage(sender, "loutils.fixelytra-disabled");
             return true;
@@ -143,7 +143,7 @@ public class LoUtilsCommand extends CommandBase {
     }
 
     private @Nullable ItemStack resolveGiveItem(String id, ItemFactory factory) {
-        var cfg = plugin.getConfigManager();
+        var cfg = plugin.getContainer().getConfigManager();
         if (isInventoryCheckStick(id)) {
             return factory.createInventoryCheckStick(
                     cfg.getConfig(ConfigConstants.INVENTORY_CHECK_STICK_CONFIG));
