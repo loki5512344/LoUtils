@@ -19,7 +19,6 @@ modules:
   sleeppercentage: true
   villagerleash: true
   cauldron: true
-  performance: true
   light-block: true
   debug-stick: true
   invisible-frames: true
@@ -29,6 +28,12 @@ modules:
   handcuffs: true
   # Крафты: колокол, паутина, кварц (андезит+булыжник), подмостки и т.д.
   custom-crafts: true
+
+# Кастомные рецепты плагина в книге рецептов при входе.
+# false — изначально не показываются (игрок может открыть рецепт после крафта вручную, если сервер его выдаёт).
+# true — как раньше: все открытые ключи рецептов выдаются при входе.
+recipes:
+  discover-custom-on-join: false
 
 # Префикс плагина
 prefix: "&#7858E9[LoUtils] &7"

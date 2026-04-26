@@ -9,7 +9,6 @@ import org.bukkit.plugin.Plugin;
 
 /**
  * Базовый helper для работы с кастомными предметами через PDC
- * Устраняет дублирование логики между EchoPickaxeHelper и CustomElytraHelper
  */
 public abstract class CustomItemHelper {
 

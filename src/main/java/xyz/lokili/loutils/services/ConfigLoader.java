@@ -54,7 +54,6 @@ public class ConfigLoader {
         loadConfig(ConfigConstants.DEBUG_STICK_CONFIG);
         loadConfig(ConfigConstants.INVISIBLE_FRAMES_CONFIG);
         loadConfig(ConfigConstants.POSES_CONFIG);
-        loadConfig(ConfigConstants.CUSTOM_CRAFTS_CONFIG);
         loadConfig(ConfigConstants.ANVIL_REPAIR_CONFIG);
         loadConfig(ConfigConstants.ENHANCED_BONE_MEAL_CONFIG);
         loadConfig(ConfigConstants.FRAME_LOCKING_CONFIG);

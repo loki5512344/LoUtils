@@ -6,12 +6,6 @@ import xyz.lokili.loutils.api.IConfigManager;
 import xyz.lokili.loutils.listeners.blocks.AnvilRepairListener;
 import xyz.lokili.loutils.listeners.blocks.CauldronListener;
 import xyz.lokili.loutils.listeners.blocks.LightBlockListener;
-import xyz.lokili.loutils.listeners.crafts.CustomCraftsListener;
-import xyz.lokili.loutils.listeners.crafts.EchoPickaxeCraftListener;
-import xyz.lokili.loutils.listeners.crafts.EchoPickaxeMechanicsListener;
-import xyz.lokili.loutils.listeners.crafts.ElytraCraftListener;
-import xyz.lokili.loutils.listeners.crafts.ElytraMechanicsListener;
-import xyz.lokili.loutils.listeners.crafts.FireworkCraftListener;
 import xyz.lokili.loutils.listeners.entity.VillagerLeashListener;
 import xyz.lokili.loutils.listeners.items.DebugStickListener;
 import xyz.lokili.loutils.listeners.items.EnhancedBoneMealListener;
@@ -48,10 +42,6 @@ public class ListenerRegistry {
     private DebugStickListener debugStickListener;
     private InventoryCheckStickListener inventoryCheckStickListener;
     private HandcuffsListener handcuffsListener;
-    private CustomCraftsListener customCraftsListener;
-    private ElytraCraftListener elytraCraftListener;
-    private EchoPickaxeCraftListener echoPickaxeCraftListener;
-    private FireworkCraftListener fireworkCraftListener;
 
     public ListenerRegistry(LoUtils plugin, IConfigManager configManager) {
         this.plugin = plugin;
@@ -84,16 +74,6 @@ public class ListenerRegistry {
         handcuffsListener = new HandcuffsListener(plugin, configManager);
         pm.registerEvents(handcuffsListener, plugin);
         handcuffsListener.startTickTask();
-        customCraftsListener = new CustomCraftsListener(plugin, configManager);
-        pm.registerEvents(customCraftsListener, plugin);
-        elytraCraftListener = new ElytraCraftListener(plugin, configManager);
-        pm.registerEvents(elytraCraftListener, plugin);
-        pm.registerEvents(new ElytraMechanicsListener(plugin, configManager), plugin);
-        echoPickaxeCraftListener = new EchoPickaxeCraftListener(plugin, configManager);
-        pm.registerEvents(echoPickaxeCraftListener, plugin);
-        pm.registerEvents(new EchoPickaxeMechanicsListener(plugin, configManager), plugin);
-        fireworkCraftListener = new FireworkCraftListener(plugin, configManager);
-        pm.registerEvents(fireworkCraftListener, plugin);
         pm.registerEvents(new MapLockListener(plugin, configManager), plugin);
         pm.registerEvents(new FrameLockListener(plugin, configManager), plugin);
         pm.registerEvents(new EnhancedBoneMealListener(plugin, configManager), plugin);
@@ -121,21 +101,6 @@ public class ListenerRegistry {
         }
         if (inventoryCheckStickListener != null) {
             inventoryCheckStickListener.registerInventoryCheckStickRecipe();
-        }
-        if (handcuffsListener != null) {
-            handcuffsListener.registerHandcuffsRecipe();
-        }
-        if (customCraftsListener != null) {
-            customCraftsListener.registerCrafts();
-        }
-        if (elytraCraftListener != null) {
-            elytraCraftListener.registerElytraCraft();
-        }
-        if (echoPickaxeCraftListener != null) {
-            echoPickaxeCraftListener.registerEchoPickaxeRecipe();
-        }
-        if (fireworkCraftListener != null) {
-            fireworkCraftListener.registerFireworkCraft();
         }
     }
 }

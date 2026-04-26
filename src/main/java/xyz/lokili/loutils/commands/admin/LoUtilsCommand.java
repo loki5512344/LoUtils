@@ -11,14 +11,13 @@ import xyz.lokili.loutils.LoUtils;
 import xyz.lokili.loutils.commands.base.CommandBase;
 import xyz.lokili.loutils.constants.ConfigConstants;
 import xyz.lokili.loutils.factories.ItemFactory;
-import xyz.lokili.loutils.listeners.crafts.CustomElytraHelper;
 
 import java.util.List;
 import java.util.Locale;
 
 public class LoUtilsCommand extends CommandBase {
 
-    private static final List<String> SUBCOMMANDS = List.of("reload", "give", "fixelytra");
+    private static final List<String> SUBCOMMANDS = List.of("reload", "give");
 
     /** Алиасы для выдачи (нижний регистр) */
     private static final List<String> TAB_GIVE_ITEMS = List.of(
@@ -56,10 +55,6 @@ public class LoUtilsCommand extends CommandBase {
 
         if (sub.equals("give")) {
             return handleGive(sender, args);
-        }
-
-        if (sub.equals("fixelytra")) {
-            return handleFixElytra(sender);
         }
 
         sendMessage(sender, "loutils.usage");
@@ -109,36 +104,6 @@ public class LoUtilsCommand extends CommandBase {
 
         String label = stack.getType().name().toLowerCase(Locale.ROOT);
         sendMessage(sender, "loutils.give-received", "{amount}", String.valueOf(amount), "{label}", label);
-        return true;
-    }
-
-    private boolean handleFixElytra(CommandSender sender) {
-        Player player = requirePlayer(sender);
-        if (player == null) {
-            return true;
-        }
-
-        ItemStack hand = player.getInventory().getItemInMainHand();
-        if (hand.getType() != Material.ELYTRA) {
-            hand = player.getInventory().getItemInOffHand();
-        }
-        if (hand.getType() != Material.ELYTRA) {
-            sendMessage(sender, "loutils.fixelytra-not-elytra");
-            return true;
-        }
-
-        var cfg = plugin.getContainer().getConfigManager().getConfig(ConfigConstants.CUSTOM_CRAFTS_CONFIG);
-        if (!cfg.getBoolean("enabled", true) || !cfg.getBoolean("elytra.enabled", true)) {
-            sendMessage(sender, "loutils.fixelytra-disabled");
-            return true;
-        }
-
-        if (!CustomElytraHelper.upgradeLegacyElytra(plugin, hand, cfg)) {
-            sendMessage(sender, "loutils.fixelytra-fail");
-            return true;
-        }
-
-        sendMessage(sender, "loutils.fixelytra-success");
         return true;
     }
 

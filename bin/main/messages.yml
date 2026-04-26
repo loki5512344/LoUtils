@@ -11,8 +11,12 @@ player-only: "&#FF6B6BЭта команда только для игрока"
 
 # === LoUtils (/loutils) ===
 loutils:
-  usage: "&#FF6B6BИспользование: /loutils <reload|give>"
+  usage: "&#FF6B6BИспользование: /loutils <reload|give|fixelytra>"
   give-usage: "&#FF6B6BИспользование: /loutils give <предмет> [кол-во]"
+  fixelytra-success: "&#9878C9Элитры обновлены: данные и описание."
+  fixelytra-not-elytra: "&#FF6B6BДержи элитры в основной или второй руке."
+  fixelytra-disabled: "&#FF6B6BМодуль кастомных крафтов или элитр выключен."
+  fixelytra-fail: "&#FF6B6BНе удалось обновить предмет."
   give-invalid-item: "&#FF6B6BНеизвестный предмет. Варианты: inventory-check-stick, debug-stick, handcuffs"
   give-received: "&#9878C9Получено: &f{amount} &7× &f{label}"
 

@@ -28,6 +28,10 @@ release-on-death: true
 # Снять если оказались в разных мирах
 release-on-different-world: true
 
+# Сковать можно только если у цели строго меньше этого % от максимального HP (текущее / max).
+# 0 или больше 100 — проверка отключена. Обход: право loutils.handcuffs.bypass
+cuff-only-below-health-percent: 50
+
 # Имя предмета
 item-name: "&7Кандалы"
 
@@ -45,3 +49,4 @@ messages:
   uncuff-not-your-pair: "&cСнять можно только со своего скованного (Shift + клик)."
   uncuff-nobody: "&cНекого снимать — присядьте и нажмите по своему скованному."
   cannot-attack-while-detained: "&cВ кандалах нельзя атаковать."
+  cannot-cuff-too-much-health: "&cСковать можно только если у цели меньше &f{percent}% &cздоровья."

@@ -23,3 +23,12 @@ api_docs/
 
 # Tutorial/Reference code
 tut/
+
+# Eclipse
+.project
+.classpath
+bin/
+.settings/
+
+# Backups
+custom-crafts-backup.zip

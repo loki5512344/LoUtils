@@ -17,9 +17,6 @@ public class LoUtils extends LoPlugin {
         // Создаём контейнер зависимостей
         container = new DependencyContainer(this);
 
-        // Инициализируем CustomElytraHelper
-        xyz.lokili.loutils.listeners.crafts.CustomElytraHelper.initialize(this);
-
         // Регистрируем команды и листенеры
         new CommandRegistry(this).registerAll();
         listenerRegistry = new ListenerRegistry(this, container.getConfigManager());
